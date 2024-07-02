@@ -1,6 +1,6 @@
 # Enhancing Gene Expression Prediction from Histology Images with Spatial Transcriptomics Completion
 
-[Gabriel Mejía](https://scholar.google.com/citations?hl=es&user=yh69hnYAAAAJ)<sup>1,2</sup>\*, [Daniela Ruiz](https://scholar.google.com/citations?hl=es&user=Zm-tYR0AAAAJ)<sup>1,2</sup>\*, Paula Cárdenas<sup>1,2</sup>, Leonardo Manrique<sup>1,2</sup>, Daniela Vega<sup>1,2</sup>, [Pablo Arbelaez](https://scholar.google.com/citations?hl=es&user=k0nZO90AAAAJ)<sup>1,2</sup> <br/>
+[Gabriel Mejía](https://scholar.google.com/citations?hl=es&user=yh69hnYAAAAJ)<sup>1,2</sup>\*, [Daniela Ruiz](https://scholar.google.com/citations?hl=es&user=Zm-tYR0AAAAJ)<sup>1,2</sup>\*, Paula Cárdenas<sup>1,2</sup>, Leonardo Manrique<sup>1,2</sup>, Daniela Vega<sup>1,2</sup>, [Pablo Arbelaez](https://scholar.google.com/citations?hl=es&user=k0nZO90AAAAJ)<sup>1,2</sup>
 
 <br/>
 <font size="1"><sup>*</sup>Equal contribution.</font><br/>
