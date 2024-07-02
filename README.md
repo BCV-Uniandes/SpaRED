@@ -1,10 +1,11 @@
 # Enhancing Gene Expression Prediction from Histology Images with Spatial Transcriptomics Completion
 
-[Gabriel Mejía](https://scholar.google.com/citations?hl=es&user=yh69hnYAAAAJ)¹,²*, [Daniela Ruiz](https://scholar.google.com/citations?hl=es&user=Zm-tYR0AAAAJ)¹,²*, Paula Cárdenas¹,², Leonardo Manrique¹,², Daniela Vega¹,², [Pablo Arbelaez](https://scholar.google.com/citations?hl=es&user=k0nZO90AAAAJ)¹,²
+[Gabriel Mejía](https://scholar.google.com/citations?hl=es&user=yh69hnYAAAAJ)<sup>1,2</sup>*, [Daniela Ruiz](https://scholar.google.com/citations?hl=es&user=Zm-tYR0AAAAJ)<sup>1,2</sup>*, Paula Cárdenas<sup>1,2</sup>, Leonardo Manrique<sup>1,2</sup>, Daniela Vega<sup>1,2</sup>, [Pablo Arbelaez](https://scholar.google.com/citations?hl=es&user=k0nZO90AAAAJ)<sup>1,2</sup> <br/>
 
-\*Equal contribution.
-¹ Center for Research and Formation in Artificial Intelligence ([CinfonIA](https://cinfonia.uniandes.edu.co)), Bogotá, Colombia.  
-² Universidad de los Andes, Bogotá, Colombia. 
+<br/>
+<font size="1"><sup>*</sup>Equal contribution.</font><br/>
+<font size="1"><sup>1 </sup> Center  for  Research  and  Formation  in  Artificial  Intelligence ([CinfonIA](https://cinfonia.uniandes.edu.co/)), Bogotá, Colombia.</font><br/>
+<font size="1"><sup>2 </sup> Universidad  de  los  Andes,  Bogotá, Colombia.</font><br/>
 
 - Preprint available at arXiv
 - Visit the project on our [website](https://danielaruizl1.github.io/)
