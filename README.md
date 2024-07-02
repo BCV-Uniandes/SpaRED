@@ -4,7 +4,7 @@
 
 <br/>
 <font size="1"><sup>*</sup>Equal contribution.</font><br/>
-<font size="1"><sup>1 </sup> Center  for  Research  and  Formation  in  Artificial  Intelligence ([CinfonIA](https://cinfonia.uniandes.edu.co)), Bogotá, Colombia.</font><br/>
+<font size="1"><sup>1 </sup> Center  for  Research  and  Formation  in  Artificial  Intelligence (<a href="https://cinfonia.uniandes.edu.co">CinfonIA</a>), Bogotá, Colombia.</font><br/>
 <font size="1"><sup>2 </sup> Universidad  de  los  Andes,  Bogotá, Colombia.</font><br/>
 
 - Preprint available at arXiv
