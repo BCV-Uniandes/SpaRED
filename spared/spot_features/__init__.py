@@ -1,0 +1,11 @@
+from .spot_features import compute_patches_embeddings
+#spared.spot_features.compute_patches_embeddings
+
+from .spot_features import compute_patches_predictions
+#spared.spot_features.compute_patches_predictions
+
+from .spot_features import compute_dim_red
+#spared.sport_features.compute_dim_red
+
+from .spot_features import get_spatial_neighbors
+#spared.spot_feartures.get_spatial_neighbors

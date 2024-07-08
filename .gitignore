@@ -1,0 +1,10 @@
+processed_data/
+tutorials/lightning_logs/
+tutorials/processed_data/
+__pycache__/
+spared/data/annotations/gencode.v43.basic.annotation.gtf
+spared/data/annotations/gencode.vM33.basic.annotation.gtf
+spared/processed_data/
+spared/data/villacampa_data/
+spared/data/vicari_data/
+spared/configs/*.json
