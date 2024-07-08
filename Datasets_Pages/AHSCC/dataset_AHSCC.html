@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html
+ dir="ltr"
+ lang="en"
+ >
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content=#ffffff>
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="shortcut icon" type="image/png"
+           href="/Main_Plots/logo.png" 
+    />
+    <script defer src="https://unpkg.com/alpinejs@3.9.0/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-social@1/bin/bulma-social.min.css">
+    
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SPARED Dataset | danielaruizl1.github.io</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="SPARED" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="danielaruizl1.github.io" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SPARED" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","headline":"SPARED","name":"danielaruizl1.github.io","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+<script>
+    function copiarCodigo() {
+            var codigo = document.getElementById("codigo").innerText;
+            navigator.clipboard.writeText(codigo).then(function() {
+                alert("¡Text copied!");
+            }, function(err) {
+                console.error('Error', err);
+            });
+        }
+</script>
+
+</head>
+
+
+<body>
+    <nav class="navbar is-primary " x-data="{ openNav: false }">
+    <div class="container">
+    <div class="navbar-brand">
+        <a href="/" class="navbar-item">
+            SpaRED
+        </a>
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navMenu" :class="{ 'is-active': openNav }" x-on:click="openNav = !openNav">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div class="navbar-menu" id="navMenu" :class="{ 'is-active': openNav }">
+        <div class="navbar-start">
+            <a href="/metadata.html" class="navbar-item">Database Metadata</a>
+            <a href="/People_Page/people.html" class="navbar-item">People</a>
+            <div class="navbar-item has-dropdown is-hoverable">
+                <a class="navbar-link">Details</a>
+                <div class="navbar-dropdown">
+                    <a href="/Processing_details/dataset_filtering.html" class="navbar-item">Dataset Filtering</a>
+                    <a href="/Processing_details/dataset_processing.html" class="navbar-item">Dataset Processing</a>
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+</nav>
+
+
+<section class="hero  is-medium  is-bold is-primary" >
+<div class="hero-body ">
+    <div class="container">
+        <h1 class="title is-2">Abalo Human Squamous Cell Carcinoma (AHSCC)</h1>
+    </div>
+</div>
+</section>
+    
+    
+
+
+<section class="section">                           
+<div class="content">
+    <h1 id="general_description"> <b>Dataset summary</b></h1>
+        <p>
+            <ul>
+                <li>
+                    <p>
+                        <b>Original publication DOI</b>: <a href="https://doi.org/10.17632/2bh5fchcv6.1">https://doi.org/10.17632/2bh5fchcv6.1</a>
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        <b>Specific data link</b>: <a href="https://data.mendeley.com/datasets/2bh5fchcv6/1">https://data.mendeley.com/datasets/2bh5fchcv6/1</a>
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        <b>Original abstract</b>: 
+                            <span style="font-weight: normal;">Visium experiments on a squamous cell carcinoma from a human donor. 
+                                Four serial 10 µm sections spaced 150 µm apart. Processed sequencing data from 10X Genomics Space Ranger version 1.0.0. 
+                                A skin biopsy was collected from a patient with suspected squamous cell carcinoma after obtaining informed consent. 
+                                The diagnosis was histologically verified by a board-certified dermatopathologist. 
+                                The study protocol was approved by the Institutional Review Board at Stanford University Medical Center (protocol #21750).
+                            </span>
+                    </p>
+
+                </li>
+            </ul>
+        </p>
+
+        <h1 id="summary_statistics"> <b>Summary statistics</b> </h1>
+            <ul>
+                <li>
+                    <p>
+                        <b>Slides</b>: <span style="font-weight: normal;"> 4</span>
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        <b>Patients</b>: <span style="font-weight: normal;">1</span>
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        <b>Spots</b>: <span style="font-weight: normal;">10374</span>
+                    </p>
+                </li>
+            </ul>
+        <h1 id="how_use">  <b>How to use</b></h1>
+            <div = class="codigo-container">
+                <pre id="codigo">
+                    <code>
+                        <span class="comment"># Import spared library</span>
+                        <span class="keyword">import</span> spared 
+                        <span class="keyword">from</span> spared <span class="keyword">import</span> datasets
+                        <span class="comment"># Dataset</span>
+                        dataset = datasets.get_dataset(<span class="string">"abalo_human_squamous_cell_carcinoma"</span>, visualize=<span class="bool">True</span>)
+                    </code>
+                </pre>
+                <button onclick="copiarCodigo()">Copy Code</button>
+            </div>
+    </div>
+</section>
+
+<!-- All slides -->
+<section class="section">
+<div class="content">
+    <h1 id="All_slides"> <b>Dataset Slides and Patches</b> </h1>
+    <img src="/Datasets_Pages/AHSCC/Images/All_slides_and_Patches_AHSCC.svg" alt="Image Caption" width="1100" height="1000" class="centering">
+</div>
+</section>
+
+
+<!-- Data Distribution -->
+<section class="section">
+    <div class="content">
+        <h1 id="Data_Distribution"> <b>Data Distribution</b> </h1>
+        <img src="/Datasets_Pages/AHSCC/Images/Data_Distribution_AHSCC.png" alt="Image Caption" width="1000" height="350" class="centering">
+    </div>
+</section>
+
+
+<!-- Moran Genes-->
+<section class="section">
+    <div class="content">
+        <h1 id="Moran_Genes"><b>Moran Genes</b></h1>
+        <img src="/Datasets_Pages/AHSCC/Images/Moran_Genes_AHSCC_Top.png" alt="Image Caption" width="800" height="800" class="two_image">
+        <img src="/Datasets_Pages/AHSCC/Images/Moran_Genes_AHSCC_Bottom.png" alt="Image Caption" width="800" height="800" class="two_image">
+        <div style="clear: both;"></div> <!-- Elemento de limpieza -->
+    </div>
+</section>
+
+
+<!--Expression Fractions-->
+<section class="section">
+    <div class="content">
+        <h1 id="Expression_Fractions"> <b>Expression Fractions</b> </h1>
+        <img src="/Datasets_Pages/AHSCC/Images/Expression_Fractions_AHSCC.png" alt="Image Caption" width="800" height="800"  class="centering">
+    </div>
+</section>
+
+
+<!--Expression Statistics-->
+<section class="section">
+    <div class="content">
+        <h1 id="Expression_Statistics"><b>Expression Statistics</b> </h1>
+        <img src="/Datasets_Pages/AHSCC/Images/Expression_Statistics_AHSCC.png" alt="Image Caption" width="800" height="800"  class="centering">
+    </div>
+</section>
+
+
+<!--Cluster Visualizations-->
+<section class="section">
+    <div class="content">
+        <h1 id="Cluster_Visualizations"> <b>Cluster Visualizations</b> </h1>
+        <img src="/Datasets_Pages/AHSCC/Images/Cluster_Plot_AHSCC_C.png" alt="Image Caption" width="800" height="800" class="two_image">
+        <img src="/Datasets_Pages/AHSCC/Images/Cluster_Plot_AHSCC_D.png" alt="Image Caption" width="800" height="800" class="two_image">
+        <div style="clear: both;"></div> <!-- Elemento de limpieza -->
+    </div>
+</section>
+
+
+<!--Leaderboards-->
+<section class="section">
+    <div class="content">
+        <h1 id="Leaderboards"> <b>Leaderboards</b> </h1>
+        <div class="table-container">
+            <table style="font-size: 16;">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>MSE</th>
+                        <th>PCC <span class="tooltip2">&#9432<span class="tooltiptext2">Gene Pearson Correlation Coeficient</span></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                      <td>SEPAL</td>
+                      <td>0.929</td>
+                      <td>0.694</td>
+                    </tr>
+                    <tr>
+                      <td>ViT-B+&#916</td>
+                      <td>0.931</td>
+                      <td>0.690</td>
+                    </tr>
+                    <tr>
+                      <td>EGN</td>
+                      <td>1.053</td>
+                      <td>0.640</td>
+                    </tr>
+                    <tr>
+                      <td>STNet</td>
+                      <td>1.055</td>
+                      <td>0.654</td>
+                    </tr>
+                    <tr>
+                      <td>ViT-B</td>
+                      <td>1.064</td>
+                      <td>0.635</td>
+                    </tr>
+                    <tr>
+                      <td>EGGN</td>
+                      <td>1.113</td>
+                      <td>0.616</td>
+                    </tr>
+                    <tr>
+                      <td>ShuffleNet</td>
+                      <td>1.164</td>
+                      <td>0.585</td>
+                    </tr>
+                    <tr>
+                      <td>BLEEP</td>
+                      <td>1.274</td>
+                      <td>0.576</td>
+                    </tr>
+                    <tr>
+                      <td>HisToGene</td>
+                      <td>1.465</td>
+                      <td>0.408</td>
+                    </tr>
+                    <tr>
+                      <td>Hist2ST</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                  </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="footer">
+<div class="container">
+        <div class="content is-small has-text-centered">
+            <p class="">Theme built by <a href="https://www.csrhymes.com">C.S. Rhymes</a></p>
+        </div>
+    </div>
+</footer>
+
+    
+<script src="/assets/js/app.js" type="text/javascript"></script><!-- footer scripts -->
+</body>
+</html>

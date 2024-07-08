@@ -1,0 +1,27 @@
+﻿Number,In charge,Author,Platform,Organism,Tissue/Disease,Tissue_vis,DOI,Slides,Patients,Spots,link1,link2
+1,-,Vicari et al.,Visium,Mouse,Brain,brain,-,14,4,43804,-,-
+2,-,Mirzazadeh et al.,Visium,Mouse,Brain,brain,-,8,2,34583,-,-
+3,-,Mirzazadeh et al.,Visium,Human,Prostate cancer,prostate gland,-,4,2,15684,-,-
+4,-,Parigi et al.,Visium,Mouse,Intestine,colon,-,2,2,6234,-,-
+5,-,Villacampa et al.,Visium,Mouse,Brain,brain,-,5,2,12202,-,-
+6,-,Mirzazadeh et al.,Visium,Human,Small intestine,small intestine,-,4,2,10474,-,-
+7,-,Mirzazadeh et al.,Visium,Human,Colon,colon,-,2,2,7101,-,-
+8,-,Erickson et al.,Visium,Human,Prostate cancer,prostate gland,-,10,1,24465,-,-
+9,-,Erickson et al.,Visium,Human,Prostate cancer,prostate gland,-,7,1,20987,-,-
+10,-,Mirzazadeh et al.,Visium,Mouse,Brain p2,brain,-,4,1,17353,-,-
+11,-,Mirzazadeh et al.,Visium,Mouse,Brain p1,brain,-,4,1,17243,-,-
+12,-,Abalo et al.,Visium,Human,Squamous cell carcinoma,skin,-,4,1,10374,-,-
+13,-,10X Genomics,Visium,Human,Brain,brain,-,2,1,9882,-,-
+14,-,Fan et al.,Visium,Mouse,Brain - Coronal,brain,-,2,1,9132,-,-
+15,-,10X Genomics,Visium,Human,Breast cancer,breast,-,2,1,7785,-,-
+16,-,Mirzazadeh et al.,Visium,Mouse,Bone,bone marrow,-,4,1,7184,-,-
+17,-,10X Genomics,Visium,Mouse,Brain sagittal posterior,brain,-,2,1,6644,-,-
+18,-,Mirzazadeh et al.,Visium,Human,Pediatric brain tumor,brain,-,4,1,5937,-,-
+19,-,10X Genomics,Visium,Mouse,Brain coronal,brain,-,2,1,5709,-,-
+20,-,10X Genomics,Visium,Mouse,Brain sagittal anterior,brain,-,2,1,5520,-,-
+21,-,Fan et al.,Visium,Mouse,Brain,brain,-,2,1,2938,-,-
+22,-,Villacampa et al.,Visium,Human,Lung organoids,lung,-,4,1,1832,-,-
+23,-,Villacampa et al.,Visium,Human,Kidney organoids,kidney,-,3,1,1355,-,-
+24,-,Vicari et al.,Visium,Human,Striatium,brain,-,4,1,19033,-,-
+25,-,Mirzazadeh et al.,Visium,Human,Pediatric brain tumor,brain,-,2,1,3163,-,-
+26,-,Mirzazadeh et al.,Visium,Human,Colon,colon,-,2,1,2225,-,-

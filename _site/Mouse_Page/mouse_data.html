@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html
+ dir="ltr"
+ lang="en"
+ >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content=#ffffff>
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="shortcut icon" type="image/png"
+           href="logo.png" 
+    />
+    <script defer src="https://unpkg.com/alpinejs@3.9.0/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-social@1/bin/bulma-social.min.css">
+    
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SPARED | danielaruizl1.github.io</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="SPARED" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="danielaruizl1.github.io" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SPARED" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","headline":"SPARED","name":"danielaruizl1.github.io","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+<style>
+    .container {
+        text-align: center;
+    }
+</style>
+
+    <!-- head scripts --></head>
+
+  <body>
+    <nav class="navbar is-primary " x-data="{ openNav: false }">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="/" class="navbar-item">
+                SpaRED
+            </a>
+            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navMenu" :class="{ 'is-active': openNav }" x-on:click="openNav = !openNav">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        <div class="navbar-menu" id="navMenu" :class="{ 'is-active': openNav }">
+            <div class="navbar-start">
+                <a href="/metadata.html" class="navbar-item">Database Metadata</a>
+                <a href="/People_Page/people.html" class="navbar-item">People</a> <!-- Enlace a pagina de people -->
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">Details</a>
+                    <div class="navbar-dropdown">
+                        <a href="/Processing_details/dataset_filtering.html" class="navbar-item">Dataset Filtering</a>
+                        <a href="/Processing_details/dataset_processing.html" class="navbar-item">Dataset Processing</a>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="navbar-end">
+                
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+    
+        <section class="hero  is-fullwidth  is-bold is-primary" >
+    <div class="hero-body ">
+        <div class="container">
+            <h1 class="title is-2">General SpaRED Statistics in Mouse Data</h1>
+            <p class="subtitle is-3"></p>
+            
+        </div>
+    </div>
+</section>
+    
+    
+
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-multiline">
+                
+                <div class="column is-12">
+    
+
+<!-- Enlaces -->
+<button onclick="location.href='#Brain'" class="boton-personalizado">
+    <img src="icons/brain.png" alt="" style="vertical-align: middle;width: 40px; height: 40px; margin-right: 5px;">
+    Brain
+</button>
+
+<button onclick="location.href='#Bone_marow'" class="boton-personalizado">
+    <img src="icons/bone_marrow.png" alt="" style="vertical-align: middle;width: 40px; height: 40px; margin-right: 5px;">
+    Bone Marrow
+</button>
+
+<button onclick="location.href='#Colon'" class="boton-personalizado">
+    <img src="icons/colon.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Colon
+</button>
+
+
+<div class="espaciador" style="height: 50px;"></div>
+
+<!-- Secciones por organo-->
+
+<div id="Brain">
+    <h2 class="subtitle", style="font-weight: bold;">Brain</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">VMB</p>
+                <p>Author: Vicari et al.</p>
+                <p>Slides: 14</p>
+                <p>Patients: 4</p>
+                <p>Spots: 43804</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/VMB.png'); background-size: cover; background-position: center;">
+                <p id="VMB"><a href="/Datasets_Pages/VMB/dataset_VMB.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MMBR</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 8</p>
+                <p>Patients: 2</p>
+                <p>Spots: 34583</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MMBR.png'); background-size: cover; background-position: center;">
+                <p id="MMB"><a href="/Datasets_Pages/MMBR/dataset_MMBR.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MMBP2</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 1</p>
+                <p>Spots: 17353</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MMBP2.png'); background-size: cover; background-position: center;">
+                <p id="MMBP2"><a href="/Datasets_Pages/MMBP2/dataset_MMBP2.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MMBP1</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 1</p>
+                <p>Spots: 17243</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MMBP1.png'); background-size: cover; background-position: center;">
+                <p id="MMBP1"><a href="/Datasets_Pages/MMBP1/dataset_MMBP1.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">VLMB</p>
+                <p>Author: Villacampa et al.</p>
+                <p>Slides: 5</p>
+                <p>Patients: 2</p>
+                <p>Spots: 12202</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/VLMB.png'); background-size: cover; background-position: center;">
+                <p id="VLMB"><a href="/Datasets_Pages/VLMB/dataset_VLMB.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">FMBC</p>
+                <p>Author: Fan et al.</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 9132</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/FMBC.png'); background-size: cover; background-position: center;">
+                <p id="FMBC"><a href="/Datasets_Pages/FMBC/dataset_FMBC.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">10XGMBSP</p>
+                <p>Author: 10X Genomics</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 6644</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/10XGMBSP.png'); background-size: cover; background-position: center;">
+                <p id="10XGMBSP"><a href="/Datasets_Pages/10XGMBSP/dataset_10XGMBSP.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">10XGMBC</p>
+                <p>Author: 10X Genomics</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 5709</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/10XGMBC.png'); background-size: cover; background-position: center;">
+                <p id="10XGMBC"><a href="/Datasets_Pages/10XGMBC/dataset_10XGMBC.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">10XGMBSA</p>
+                <p>Author: 10X Genomics</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 5520</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/10XGMBSA.png'); background-size: cover; background-position: center;">
+                <p id="10XGMBSA"><a href="/Datasets_Pages/10XGMBSA/dataset_10XGMBSA.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">FMOB</p>
+                <p>Author: Fan et al.</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 2938</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/FMOB.png'); background-size: cover; background-position: center;">
+                <p id="FMOB"><a href="/Datasets_Pages/FMOB/dataset_FMOB.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<div id="Bone_marow">
+    <h2 class="subtitle", style="font-weight: bold;">Bone Marrow</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MMBO</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 1</p>
+                <p>Spots: 7184</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MMBO.png'); background-size: cover; background-position: center;">
+                <p id="10XGBM"><a href="/Datasets_Pages/MMBO/dataset_MMBO.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<div id="Colon">
+    <h2 class="subtitle", style="font-weight: bold;">Colon</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">PMI</p>
+                <p>Author: Parigi et al.</p>
+                <p>Slides: 2</p>
+                <p>Patients: 2</p>
+                <p>Spots: 6234</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/PMI.png'); background-size: cover; background-position: center;">
+                <p id="MHCP1"><a href="/Datasets_Pages/PMI/dataset_PMI.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<style>
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+
+
+                </div>
+                
+            </div>
+        </div>
+    </section>
+    
+        <footer class="footer">
+    <div class="container">
+        
+        
+
+        <div class="content is-small has-text-centered">
+            <p class="">Theme built by <a href="https://www.csrhymes.com">C.S. Rhymes</a></p>
+        </div>
+    </div>
+</footer>
+
+    
+    <script src="/assets/js/app.js" type="text/javascript"></script><!-- footer scripts --></body>
+</html>

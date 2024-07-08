@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html
+ dir="ltr"
+ lang="en"
+ >
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content=#ffffff>
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="shortcut icon" type="image/png"
+           href="/Main_Plots/logo.png" 
+    />
+    <script defer src="https://unpkg.com/alpinejs@3.9.0/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-social@1/bin/bulma-social.min.css">
+    
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SPARED Dataset | danielaruizl1.github.io</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="SPARED" />
+<meta property="og:locale" content="en US" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site name" content="danielaruizl1.github.io" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SPARED" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","headline":"SPARED","name":"danielaruizl1.github.io","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+<!-- Tables management -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/shim.min.js"></script>
+<script src="assets/js/app.js"></script>
+</head>
+
+
+<body>
+    <nav class="navbar is-primary " x-data="{ openNav: false }">
+    <div class="container">
+    <div class="navbar-brand">
+        <a href="/" class="navbar-item">
+            SpaRED
+        </a>
+        <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navMenu" :class="{ 'is-active': openNav }" x-on:click="openNav = !openNav">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+    <div class="navbar-menu" id="navMenu" :class="{ 'is-active': openNav }">
+      <div class="navbar-start">
+        <a href="/metadata.html" class="navbar-item">Database Metadata</a>
+        <a href="/People_Page/people.html" class="navbar-item">People</a> <!-- Enlace a pagina de people -->
+        <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">Details</a>
+            <div class="navbar-dropdown">
+                <a href="/Processing_details/dataset_filtering.html" class="navbar-item">Dataset Filtering</a>
+                <a href="/Processing_details/dataset_processing.html" class="navbar-item">Dataset Processing</a>
+                
+            </div>
+        </div>
+    </div>
+
+        <div class="navbar-end">
+            
+        </div>
+
+    </div>
+    </div>
+    </nav>
+
+
+    <section class="section" >
+        <table class="tg">
+            <thead>
+              <tr>
+                <th class="tg-uzvj">Generalization</th>
+                <th class="tg-uzvj">Genes</th>
+                <th class="tg-uzvj">Dataset (Abbreviation)</th>
+                <th class="tg-uzvj">Author</th>
+                <th class="tg-uzvj">Organism</th>
+                <th class="tg-uzvj">Tissue/Disease</th>
+                <th class="tg-uzvj">Slides</th>
+                <th class="tg-uzvj">Patients</th>
+                <th class="tg-uzvj">Spots</th>
+                <th class="tg-uzvj"><span style="font-weight:bold">Processed Missing Data</span><span class="tooltip">ⓘ<span class="tooltiptext">Percentage of missing data after processing.</span></span></th>
+                <th class="tg-uzvj">Corrupt Spots<span class="tooltip">ⓘ<span class="tooltiptext">Percentage of spots
+                  with at least one corrupted value.</span></span></th>
+                <th class="tg-uzvj"><span style="font-weight:bold">Raw Missing Data</span><span class="tooltip">ⓘ<span class="tooltiptext">Percentage of missing data before processing.</span></span> </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tg-9wq8" rowspan="7">Inter-Patient</td>
+                <td class="tg-9wq8" rowspan="4">128</td>
+                <td class="tg-8d8j">Vicari Mouse Brain (<a href="Datasets_Pages/VMB/dataset_VMB.html" class="underlined-link">VMB</a>)</td>
+                <td class="tg-8d8j">Vicari et al.</td>
+                <td class="tg-8d8j">Mouse</td>
+                <td class="tg-8d8j">Brain</td>
+                <td class="tg-8d8j">14</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">43804</td>
+                <td class="tg-8d8j">23%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">92%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Mouse Brain (<a href="Datasets_Pages/MMBR/dataset_MMBR.html" class="underlined-link">MMBR</a>)</td>
+                <td class="tg-8d8j">Mirzazadeh et al.</td>
+                <td class="tg-8d8j">Mouse</td>
+                <td class="tg-8d8j">Brain</td>
+                <td class="tg-8d8j">8</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">34583</td>
+                <td class="tg-8d8j">12%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">85%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Human Prostate Cancer (<a href="Datasets_Pages/MHPC/dataset_MHPC.html" class="underlined-link">MHPC</a>)</td>
+                <td class="tg-8d8j">Mirzazadeh et al.</td>
+                <td class="tg-8d8j">Human</td>
+                <td class="tg-8d8j">Prostate cancer</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">15684</td>
+                <td class="tg-8d8j">18%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">86%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Parigi Mouse Intestine (<a href="Datasets_Pages/PMI/dataset_PMI.html" class="underlined-link">PMI</a>)</td>
+                <td class="tg-8d8j">Parigi et al.</td>
+                <td class="tg-8d8j">Mouse</td>
+                <td class="tg-8d8j">Intestine</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">6234</td>
+                <td class="tg-8d8j">15%</td>
+                <td class="tg-8d8j">99%</td>
+                <td class="tg-8d8j">83%</td>
+              </tr>
+              <tr>
+                <td class="tg-9wq8" rowspan="3">32</td>
+                <td class="tg-8d8j">Villacampa Mouse Brain (<a href="Datasets_Pages/VLMB/dataset_VLMB.html" class="underlined-link">VLMB</a>)</td>
+                <td class="tg-8d8j">Villacampa et al.</td>
+                <td class="tg-8d8j">Mouse</td>
+                <td class="tg-8d8j">Brain</td>
+                <td class="tg-8d8j">5</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">12202</td>
+                <td class="tg-8d8j">21%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">86%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Human Small Intestine (<a href="Datasets_Pages/MHSI/dataset_MHSI.html" class="underlined-link">MHSI</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Small intestine</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">10474</td>
+                <td class="tg-8d8j">27%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">96%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Human Colon P2 (<a href="Datasets_Pages/MHCP2/dataset_MHCP2.html" class="underlined-link">MHCP2</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Colon</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">7101</td>
+                <td class="tg-8d8j">34%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">94%</td>
+              </tr>
+              <tr>
+                <td class="tg-9wq8" rowspan="19">Intra-Patient</td>
+                <td class="tg-9wq8" rowspan="16">128</td>
+                <td class="tg-8d8j">Erickson Human Prostate Cancer P2 (<a href="Datasets_Pages/EHPCP2/dataset_EHPCP2.html" class="underlined-link">EHPCP2</a>)</td>
+                <td class="tg-9wq8">Erickson et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Prostate cancer</td>
+                <td class="tg-8d8j">10</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">24465</td>
+                <td class="tg-8d8j">37%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">94%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Erickson Human Prostate Cancer P1 (<a href="Datasets_Pages/EHPCP1/dataset_EHPCP1.html" class="underlined-link">EHPCP1</a>)</td>
+                <td class="tg-9wq8">Erickson et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Prostate cancer</td>
+                <td class="tg-8d8j">7</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">20987</td>
+                <td class="tg-8d8j">24%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">86%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Mouse Brain P2 (<a href="Datasets_Pages/MMBP2/dataset_MMBP2.html" class="underlined-link">MMBP2</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Mouse </td>
+                <td class="tg-8d8j">Brain</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">17353</td>
+                <td class="tg-8d8j">10%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">77%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Mouse Brain P1 (<a href="Datasets_Pages/MMBP1/dataset_MMBP1.html" class="underlined-link">MMBP1</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Mouse </td>
+                <td class="tg-8d8j">Brain</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">17243</td>
+                <td class="tg-8d8j">16%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">91%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Abalo Human Squamous Cell Carcinoma (<a href="Datasets_Pages/AHSCC/dataset_AHSCC.html" class="underlined-link">AHSCC</a>)</td>
+                <td class="tg-9wq8">Abalo et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Squamous cell carcinoma</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">10374</td>
+                <td class="tg-8d8j">24%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">97%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">10xgenomic Human Brain (<a href="Datasets_Pages/10XGHB/dataset_10XGHB.html" class="underlined-link">10XGHB</a>)</td>
+                <td class="tg-8d8j">10X Genomics</td>
+                <td class="tg-8d8j">Human</td>
+                <td class="tg-8d8j">Brain</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">9882</td>
+                <td class="tg-8d8j">21%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">74%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Fan Mouse Brain Coronal (<a href="Datasets_Pages/FMBC/dataset_FMBC.html" class="underlined-link">FMBC</a>)</td>
+                <td class="tg-9wq8">Fan et al.</td>
+                <td class="tg-9wq8">Mouse</td>
+                <td class="tg-8d8j">Brain - Coronal</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">9132</td>
+                <td class="tg-8d8j">30%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">99%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">10xgenomic Human Breast Cancer (<a href="Datasets_Pages/10XGHBC/dataset_10XGHBC.html" class="underlined-link">10XGHBC</a>)</td>
+                <td class="tg-9wq8">10X Genomics</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Breast cancer</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">7785</td>
+                <td class="tg-8d8j">21%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">80%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Mouse Bone (<a href="Datasets_Pages/MMBO/dataset_MMBO.html" class="underlined-link">MMBO</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Mouse</td>
+                <td class="tg-8d8j">Bone</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">7184</td>
+                <td class="tg-8d8j">21%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">92%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">10xgenomic Mouse Brain Sagittal Posterior (<a href="Datasets_Pages/10XGMBSP/dataset_10XGMBSP.html" class="underlined-link">10XGMBSP</a>)</td>
+                <td class="tg-9wq8">10X Genomics</td>
+                <td class="tg-9wq8">Mouse</td>
+                <td class="tg-8d8j">Brain sagittal posterior</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">6644</td>
+                <td class="tg-8d8j">17%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">89%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Human Pediatric Brain Tumor P1 (<a href="Datasets_Pages/MHPBTP1/dataset_MHPBTP1.html" class="underlined-link">MHPBTP1</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Pediatric brain tumor</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">5937</td>
+                <td class="tg-8d8j">11%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">73%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">10xgenomic Mouse Brain Coronal (<a href="Datasets_Pages/10XGMBC/dataset_10XGMBC.html" class="underlined-link">10XGMBC</a>)</td>
+                <td class="tg-9wq8">10X Genomics</td>
+                <td class="tg-9wq8">Mouse</td>
+                <td class="tg-8d8j">Brain coronal</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">5709</td>
+                <td class="tg-8d8j">25%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">92%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">10xgenomic Mouse Brain Sagittal Anterior (<a href="Datasets_Pages/10XGMBSA/dataset_10XGMBSA.html" class="underlined-link">10XGMBSA</a>)</td>
+                <td class="tg-9wq8">10X Genomics</td>
+                <td class="tg-9wq8">Mouse</td>
+                <td class="tg-8d8j">Brain sagittal anterior</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">5520</td>
+                <td class="tg-8d8j">20%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">81%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Fan Mouse Olfactory Bulb (<a href="Datasets_Pages/FMOB/dataset_FMOB.html" class="underlined-link">FMOB</a>)</td>
+                <td class="tg-9wq8">Fan et al.</td>
+                <td class="tg-9wq8">Mouse</td>
+                <td class="tg-8d8j">Brain</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">2938</td>
+                <td class="tg-8d8j">7%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">79%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Villacampa Lung Organoid (<a href="Datasets_Pages/VLO/dataset_VLO.html" class="underlined-link">VLO</a>)</td>
+                <td class="tg-9wq8">Villacampa et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Lung organoids</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">1832</td>
+                <td class="tg-8d8j">30%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">97%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Villacampa Kidney Organoid (<a href="Datasets_Pages/VKO/dataset_VKO.html" class="underlined-link">VKO</a>)</td>
+                <td class="tg-9wq8">Villacampa et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Kidney organoids</td>
+                <td class="tg-8d8j">3</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">1355</td>
+                <td class="tg-8d8j">28%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">92%</td>
+              </tr>
+              <tr>
+                <td class="tg-9wq8" rowspan="3">32</td>
+                <td class="tg-8d8j">Vicari Human Striatium (<a href="Datasets_Pages/VHS/dataset_VHS.html" class="underlined-link">VHS</a>)</td>
+                <td class="tg-ouci">Vicari et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Striatium</td>
+                <td class="tg-8d8j">4</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">19033</td>
+                <td class="tg-8d8j">33%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">95%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Human Pediatric Brain Tumor P2 (<a href="Datasets_Pages/MHPBTP2/dataset_MHPBTP2.html" class="underlined-link">MHPBTP2</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Pediatric brain tumor</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">3163</td>
+                <td class="tg-8d8j">26%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">94%</td>
+              </tr>
+              <tr>
+                <td class="tg-8d8j">Mirzazadeh Human Colon P1 (<a href="Datasets_Pages/MHCP1/dataset_MHCP1.html" class="underlined-link">MHCP1</a>)</td>
+                <td class="tg-9wq8">Mirzazadeh et al.</td>
+                <td class="tg-9wq8">Human</td>
+                <td class="tg-8d8j">Colon</td>
+                <td class="tg-8d8j">2</td>
+                <td class="tg-8d8j">1</td>
+                <td class="tg-8d8j">2225</td>
+                <td class="tg-8d8j">29%</td>
+                <td class="tg-8d8j">100%</td>
+                <td class="tg-8d8j">96%</td>
+              </tr>
+            </tbody>
+            </table>
+    </section>
+    
+
+<section class="footer">
+<div class="container">
+        <div class="content is-small has-text-centered">
+            <p class="">Theme built by <a href="https://www.csrhymes.com">C.S. Rhymes</a></p>
+        </div>
+    </div>
+</footer>
+
+    
+<script src="/assets/js/app.js" type="text/javascript"></script><!-- footer scripts -->
+</body>
+</html>

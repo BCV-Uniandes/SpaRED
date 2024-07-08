@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#ffffff" name="theme-color"/>
+<link href="/assets/css/app.css" rel="stylesheet"/>
+<link href="/Main_Plots/logo.png" rel="shortcut icon" type="image/png">
+<script defer="" src="https://unpkg.com/alpinejs@3.9.0/dist/cdn.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bulma-social@1/bin/bulma-social.min.css" rel="stylesheet"/>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SPARED Dataset | danielaruizl1.github.io</title>
+<meta content="Jekyll v3.9.5" name="generator">
+<meta content="SPARED" property="og:title">
+<meta content="en_US" property="og:locale">
+<link href="http://localhost:4000/" rel="canonical">
+<meta content="http://localhost:4000/" property="og:url"/>
+<meta content="danielaruizl1.github.io" property="og:site_name"/>
+<meta content="website" property="og:type"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="SPARED" property="twitter:title"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","headline":"SPARED","name":"danielaruizl1.github.io","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+<script>
+    function copiarCodigo() {
+            var codigo = document.getElementById("codigo").innerText;
+            navigator.clipboard.writeText(codigo).then(function() {
+                alert("Â¡Text copied!");
+            }, function(err) {
+                console.error('Error', err);
+            });
+        }
+</script>
+</link></meta></meta></meta></link></head>
+<body>
+<nav class="navbar is-primary" x-data="{ openNav: false }">
+<div class="container">
+<div class="navbar-brand">
+<a class="navbar-item" href="/">
+            SpaRED
+        </a>
+<a :class="{ 'is-active': openNav }" aria-expanded="false" aria-label="menu" class="navbar-burger burger" data-target="navMenu" role="button" x-on:click="openNav = !openNav">
+<span aria-hidden="true"></span>
+<span aria-hidden="true"></span>
+<span aria-hidden="true"></span>
+</a>
+</div>
+<div :class="{ 'is-active': openNav }" class="navbar-menu" id="navMenu">
+<div class="navbar-start">
+<a class="navbar-item" href="/metadata.html">Database Metadata</a>
+<a class="navbar-item" href="/People_Page/people.html">People</a>
+<div class="navbar-item has-dropdown is-hoverable">
+<a class="navbar-link">Details</a>
+<div class="navbar-dropdown">
+<a class="navbar-item" href="/Processing_details/dataset_filtering.html">Dataset Filtering</a>
+<a class="navbar-item" href="/Processing_details/dataset_processing.html">Dataset Processing</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<section class="hero is-medium is-bold is-primary">
+<div class="hero-body">
+<div class="container">
+<h1 class="title is-2">Erickson Human Prostate Cancer P2 (EHPCP2)</h1>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="content">
+<h1 id="general_description"> <b>Dataset summary</b></h1>
+<p>
+<ul>
+<li>
+<p>
+<b>Original publication DOI</b>: <a href="https://doi.org/10.1038/s41586-022-05023-2">https://doi.org/10.1038/s41586-022-05023-2</a>
+</p>
+</li>
+<li>
+<p>
+<b>Specific data link</b>: <a href="https://data.mendeley.com/datasets/svw96g68dv/4">https://data.mendeley.com/datasets/svw96g68dv/4</a>
+</p>
+</li>
+<li>
+<p>
+<b>Original abstract</b>: 
+                            <span style="font-weight: normal;">Defining the transition from benign to malignant tissue is fundamental to improving early diagnosis of cancer. Here we use a systematic approach to study spatial genome integrity in situ and describe previously unidentified clonal relationships. We used spatially resolved transcriptomics to infer spatial copy number variations in &gt;120,000 regions across multiple organs, in benign and malignant tissues. We demonstrate that genome-wide copy number variation reveals distinct clonal patterns within tumours and in nearby benign tissue using an organ-wide approach focused on the prostate. Our results suggest a model for how genomic instability arises in histologically benign tissue that may represent early events in cancer evolution. We highlight the power of capturing the molecular and spatial continuums in a tissue context and challenge the rationale for treatment paradigms, including focal therapy.</span>
+</p>
+</li>
+</ul>
+</p>
+<h1 id="summary_statistics"> <b>Summary statistics</b> </h1>
+<ul>
+<li>
+<p>
+<b>Slides</b>: <span style="font-weight: normal;">10</span>
+</p>
+</li>
+<li>
+<p>
+<b>Patients</b>: <span style="font-weight: normal;">1</span>
+</p>
+</li>
+<li>
+<p>
+<b>Spots</b>: <span style="font-weight: normal;">24465</span>
+</p>
+</li>
+</ul>
+<h1 id="how_use"> <b>How to use</b></h1>
+<div =="" class="codigo-container">
+<pre id="codigo">
+                    <code>
+                        <span class="comment"># Import spared library</span>
+                        <span class="keyword">import</span> spared 
+                        <span class="keyword">from</span> spared <span class="keyword">import</span> datasets
+                        <span class="comment"># Dataset</span>
+                        dataset = datasets.get_dataset(<span class="string">"erickson_human_prostate_cancer_p2"</span>, visualize=<span class="bool">True</span>)
+                    </code>
+                </pre>
+<button onclick="copiarCodigo()">Copy Code</button>
+</div>
+</div>
+</section>
+<!-- All slides -->
+<section class="section">
+<div class="content">
+<h1 id="All_slides"> <b>Dataset Slides and Patches</b> </h1>
+<img alt="Image Caption" class="centering" height="1000" src="/Datasets_Pages/EHPCP2/Images/All_slides_and_Patches_EHPCP2.svg" width="1100"/>
+</div>
+</section>
+<!-- Data Distribution -->
+<section class="section">
+<div class="content">
+<h1 id="Data_Distribution"> <b>Data Distribution</b> </h1>
+<img alt="Image Caption" class="centering" height="350" src="/Datasets_Pages/EHPCP2/Images/Data_Distribution_EHPCP2.png" width="1000"/>
+</div>
+</section>
+<!-- Moran Genes-->
+<section class="section">
+<div class="content">
+<h1 id="Moran_Genes"><b>Moran Genes</b></h1>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/EHPCP2/Images/Moran_Genes_EHPCP2_Top.png" width="800"/>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/EHPCP2/Images/Moran_Genes_EHPCP2_Bottom.png" width="800"/>
+<div style="clear: both;"></div> <!-- Elemento de limpieza -->
+</div>
+</section>
+<!--Expression Fractions-->
+<section class="section">
+<div class="content">
+<h1 id="Expression_Fractions"> <b>Expression Fractions</b> </h1>
+<img alt="Image Caption" class="centering" height="800" src="/Datasets_Pages/EHPCP2/Images/Expression_Fractions_EHPCP2.png" width="800"/>
+</div>
+</section>
+<!--Expression Statistics-->
+<section class="section">
+<div class="content">
+<h1 id="Expression_Statistics"><b>Expression Statistics</b> </h1>
+<img alt="Image Caption" class="centering" height="800" src="/Datasets_Pages/EHPCP2/Images/Expression_Statistics_EHPCP2.png" width="800"/>
+</div>
+</section>
+<!--Cluster Visualizations-->
+<section class="section">
+<div class="content">
+<h1 id="Cluster_Visualizations"> <b>Cluster Visualizations</b> </h1>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/EHPCP2/Images/Cluster_Plot_EHPCP2_C.png" width="800"/>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/EHPCP2/Images/Cluster_Plot_EHPCP2_D.png" width="800"/>
+<div style="clear: both;"></div> <!-- Elemento de limpieza -->
+</div>
+</section>
+<!--Leaderboards-->
+<section class="section">
+<div class="content">
+<h1 id="Leaderboards"> <b>Leaderboards</b> </h1>
+<div class="table-container">
+<table style="font-size: 16;">
+<thead>
+<tr>
+<th>Model</th>
+<th>MSE</th>
+<th>PCC <span class="tooltip2">ⓘ<span class="tooltiptext2">Gene Pearson Correlation Coeficient</span></span></th>
+</tr>
+</thead>
+ <tr> <td>ViT-B+&#916</td> <td>0.695</td> <td>0.278</td> </tr> <tr> <td>SEPAL</td> <td>0.698</td> <td>0.285</td> </tr> <tr> <td>STNet</td> <td>0.7</td> <td>0.275</td> </tr> <tr> <td>ViT-B</td> <td>0.707</td> <td>0.252</td> </tr> <tr> <td>EGN</td> <td>0.717</td> <td>0.238</td> </tr> <tr> <td>ShuffleNet</td> <td>0.733</td> <td>0.207</td> </tr> <tr> <td>EGGN</td> <td>0.752</td> <td>0.182</td> </tr> <tr> <td>HisToGene</td> <td>1.13</td> <td>0.034</td> </tr> <tr> <td>BLEEP</td> <td>1.531</td> <td>0.124</td> </tr> <tr> <td>Hist2ST</td> <td>-</td> <td>-</td> </tr> 
+</table>
+</div>
+</div>
+</section>
+<section class="footer">
+<div class="container">
+<div class="content is-small has-text-centered">
+<p class="">Theme built by <a href="https://www.csrhymes.com">C.S. Rhymes</a></p>
+</div>
+</div>
+
+<script src="/assets/js/app.js" type="text/javascript"></script><!-- footer scripts -->
+</section></body>
+</html>

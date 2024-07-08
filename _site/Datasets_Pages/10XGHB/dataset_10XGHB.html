@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html dir="ltr" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#ffffff" name="theme-color"/>
+<link href="/assets/css/app.css" rel="stylesheet"/>
+<link href="/Main_Plots/logo.png" rel="shortcut icon" type="image/png">
+<script defer="" src="https://unpkg.com/alpinejs@3.9.0/dist/cdn.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bulma-social@1/bin/bulma-social.min.css" rel="stylesheet"/>
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SPARED Dataset | danielaruizl1.github.io</title>
+<meta content="Jekyll v3.9.5" name="generator">
+<meta content="SPARED" property="og:title">
+<meta content="en_US" property="og:locale">
+<link href="http://localhost:4000/" rel="canonical">
+<meta content="http://localhost:4000/" property="og:url"/>
+<meta content="danielaruizl1.github.io" property="og:site_name"/>
+<meta content="website" property="og:type"/>
+<meta content="summary" name="twitter:card"/>
+<meta content="SPARED" property="twitter:title"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","headline":"SPARED","name":"danielaruizl1.github.io","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+<script>
+    function copiarCodigo() {
+            var codigo = document.getElementById("codigo").innerText;
+            navigator.clipboard.writeText(codigo).then(function() {
+                alert("Â¡Text copied!");
+            }, function(err) {
+                console.error('Error', err);
+            });
+        }
+</script>
+</link></meta></meta></meta></link></head>
+<body>
+<nav class="navbar is-primary" x-data="{ openNav: false }">
+<div class="container">
+<div class="navbar-brand">
+<a class="navbar-item" href="/">
+            SpaRED
+        </a>
+<a :class="{ 'is-active': openNav }" aria-expanded="false" aria-label="menu" class="navbar-burger burger" data-target="navMenu" role="button" x-on:click="openNav = !openNav">
+<span aria-hidden="true"></span>
+<span aria-hidden="true"></span>
+<span aria-hidden="true"></span>
+</a>
+</div>
+<div :class="{ 'is-active': openNav }" class="navbar-menu" id="navMenu">
+<div class="navbar-start">
+<a class="navbar-item" href="/metadata.html">Database Metadata</a>
+<a class="navbar-item" href="/People_Page/people.html">People</a>
+<div class="navbar-item has-dropdown is-hoverable">
+<a class="navbar-link">Details</a>
+<div class="navbar-dropdown">
+<a class="navbar-item" href="/Processing_details/dataset_filtering.html">Dataset Filtering</a>
+<a class="navbar-item" href="/Processing_details/dataset_processing.html">Dataset Processing</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<section class="hero is-medium is-bold is-primary">
+<div class="hero-body">
+<div class="container">
+<h1 class="title is-2">10xgenomic Human Brain (10XGHB)</h1>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="content">
+<h1 id="general_description"> <b>Dataset summary</b></h1>
+<p>
+<ul>
+<li>
+<p>
+<b>Original publication DOI</b>: <a href="-">-</a>
+</p>
+</li>
+<li>
+<p>
+<b>Specific data link</b>: <a href="https://www.10xgenomics.com/resources/datasets/adult-human-brain-1-cerebral-cortex-unknown-orientation-stains-anti-gfap-anti-nfh-1-standard-1-1-0">https://www.10xgenomics.com/resources/datasets/adult-human-brain-1-cerebral-cortex-unknown-orientation-stains-anti-gfap-anti-nfh-1-standard-1-1-0</a><a href="https://www.10xgenomics.com/resources/datasets/adult-human-brain-2-cerebral-cortex-unknown-orientation-stains-anti-snap-25-anti-nfh-1-standard-1-1-0">https://www.10xgenomics.com/resources/datasets/adult-human-brain-2-cerebral-cortex-unknown-orientation-stains-anti-snap-25-anti-nfh-1-standard-1-1-0</a>
+</p>
+</li>
+<li>
+<p>
+<b>Original abstract</b>: 
+                            <span style="font-weight: normal;">10 µm cerebral cortex section of human brain was obtained from tissue blocks purchased from BioIVT. The section was stained with antibodies and DAPI following Visium Spatial Protocols Tissue Preparation Guide (CG000240) with Methanol Fixation, Immunofluorescence Staining and Imaging for Visium Spatial Protocols (CG000312).</span>
+</p>
+</li>
+</ul>
+</p>
+<h1 id="summary_statistics"> <b>Summary statistics</b> </h1>
+<ul>
+<li>
+<p>
+<b>Slides</b>: <span style="font-weight: normal;">2</span>
+</p>
+</li>
+<li>
+<p>
+<b>Patients</b>: <span style="font-weight: normal;">1</span>
+</p>
+</li>
+<li>
+<p>
+<b>Spots</b>: <span style="font-weight: normal;">9882</span>
+</p>
+</li>
+</ul>
+<h1 id="how_use"> <b>How to use</b></h1>
+<div =="" class="codigo-container">
+<pre id="codigo">
+                    <code>
+                        <span class="comment"># Import spared library</span>
+                        <span class="keyword">import</span> spared 
+                        <span class="keyword">from</span> spared <span class="keyword">import</span> datasets
+                        <span class="comment"># Dataset</span>
+                        dataset = datasets.get_dataset(<span class="string">"10xgenomic_human_brain"</span>, visualize=<span class="bool">True</span>)
+                    </code>
+                </pre>
+<button onclick="copiarCodigo()">Copy Code</button>
+</div>
+</div>
+</section>
+<!-- All slides -->
+<section class="section">
+<div class="content">
+<h1 id="All_slides"> <b>Dataset Slides and Patches</b> </h1>
+<img alt="Image Caption" class="centering" height="1000" src="/Datasets_Pages/10XGHB/Images/All_slides_and_Patches_10XGHB.svg" width="1100"/>
+</div>
+</section>
+<!-- Data Distribution -->
+<section class="section">
+<div class="content">
+<h1 id="Data_Distribution"> <b>Data Distribution</b> </h1>
+<img alt="Image Caption" class="centering" height="350" src="/Datasets_Pages/10XGHB/Images/Data_Distribution_10XGHB.png" width="1000"/>
+</div>
+</section>
+<!-- Moran Genes-->
+<section class="section">
+<div class="content">
+<h1 id="Moran_Genes"><b>Moran Genes</b></h1>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/10XGHB/Images/Moran_Genes_10XGHB_Top.png" width="800"/>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/10XGHB/Images/Moran_Genes_10XGHB_Bottom.png" width="800"/>
+<div style="clear: both;"></div> <!-- Elemento de limpieza -->
+</div>
+</section>
+<!--Expression Fractions-->
+<section class="section">
+<div class="content">
+<h1 id="Expression_Fractions"> <b>Expression Fractions</b> </h1>
+<img alt="Image Caption" class="centering" height="800" src="/Datasets_Pages/10XGHB/Images/Expression_Fractions_10XGHB.png" width="800"/>
+</div>
+</section>
+<!--Expression Statistics-->
+<section class="section">
+<div class="content">
+<h1 id="Expression_Statistics"><b>Expression Statistics</b> </h1>
+<img alt="Image Caption" class="centering" height="800" src="/Datasets_Pages/10XGHB/Images/Expression_Statistics_10XGHB.png" width="800"/>
+</div>
+</section>
+<!--Cluster Visualizations-->
+<section class="section">
+<div class="content">
+<h1 id="Cluster_Visualizations"> <b>Cluster Visualizations</b> </h1>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/10XGHB/Images/Cluster_Plot_10XGHB_C.png" width="800"/>
+<img alt="Image Caption" class="two_image" height="800" src="/Datasets_Pages/10XGHB/Images/Cluster_Plot_10XGHB_D.png" width="800"/>
+<div style="clear: both;"></div> <!-- Elemento de limpieza -->
+</div>
+</section>
+<!--Leaderboards-->
+<section class="section">
+<div class="content">
+<h1 id="Leaderboards"> <b>Leaderboards</b> </h1>
+<div class="table-container">
+<table style="font-size: 16;">
+<thead>
+<tr>
+<th>Model</th>
+<th>MSE</th>
+<th>PCC <span class="tooltip2">ⓘ<span class="tooltiptext2">Gene Pearson Correlation Coeficient</span></span></th>
+</tr>
+</thead>
+ <tr> <td>STNet</td> <td>0.844</td> <td>0.434</td> </tr> <tr> <td>EGGN</td> <td>0.88</td> <td>0.409</td> </tr> <tr> <td>ViT-B+&#916</td> <td>0.881</td> <td>0.413</td> </tr> <tr> <td>ViT-B</td> <td>0.898</td> <td>0.385</td> </tr> <tr> <td>ShuffleNet</td> <td>0.901</td> <td>0.399</td> </tr> <tr> <td>SEPAL</td> <td>0.923</td> <td>0.382</td> </tr> <tr> <td>EGN</td> <td>0.995</td> <td>0.283</td> </tr> <tr> <td>BLEEP</td> <td>1.093</td> <td>0.264</td> </tr> <tr> <td>HisToGene</td> <td>1.627</td> <td>0.068</td> </tr> <tr> <td>Hist2ST</td> <td>-</td> <td>-</td> </tr> 
+</table>
+</div>
+</div>
+</section>
+<section class="footer">
+<div class="container">
+<div class="content is-small has-text-centered">
+<p class="">Theme built by <a href="https://www.csrhymes.com">C.S. Rhymes</a></p>
+</div>
+</div>
+
+<script src="/assets/js/app.js" type="text/javascript"></script><!-- footer scripts -->
+</section></body>
+</html>

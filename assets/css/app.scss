@@ -1,0 +1,351 @@
+---
+---
+$primary: #78288c;
+// Import Main CSS file from theme
+@import "main";
+
+.hero-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.content a {
+    color: #3F007D; 
+    text-decoration: none; 
+}
+
+.content a:hover {
+    color: #78288c;
+    text-decoration: underline; 
+}
+
+.padded-image {
+    padding-bottom: 10px;  /* Ajusta según tus necesidades */
+}
+
+.title-container {
+    display: flex;
+    justify-content: center; /* Centra las tarjetas horizontalmente */
+    align-items: center; /* Alinea verticalmente los elementos al centro */
+}
+
+.boton-personalizado {
+background-color: #e9dff3; /* Color morado */
+color: #3F007D; /* Color del texto */
+border: #3F007D; /* Remover el borde predeterminado */
+padding: 10px 20px; /* Añadir algo de padding */
+border-radius: 20px; /* Bordes redondeados */
+cursor: pointer; /* Cambiar el cursor al pasar por encima */
+font-size: 16px; /* Tamaño de la fuente */
+/*background-image: url('prostate.png'); Añadir imagen de fondo */
+background-size: 25px 25px; /* Tamaño de la imagen de fondo */
+background-repeat: no-repeat; /* Evitar que la imagen se repita */
+/*background-position: 20px 50%; Posición de la imagen dentro del botón */
+text-align: center; /* Asegurarse de que el texto esté centrado */
+/* Ajusta el padding izquierdo para no sobreponer el texto a la imagen */
+/*padding-left: 50px; */
+}
+
+.boton-personalizado:hover {
+background-color: #c484e3; /* Color morado más claro al pasar el mouse */
+}
+
+.flip-card-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que las tarjetas pasen a la siguiente línea si no caben */
+    gap: 20px; /* Espacio entre las tarjetas */
+    justify-content: center; /* Centra las tarjetas horizontalmente */
+    padding: 20px; /* Espacio alrededor del contenedor */
+}
+
+.flip-card {
+    background-color: #e9dff3;
+    width: 250px;
+    height: 150px;
+    perspective: 1000px; /* Da profundidad para el efecto 3D */
+}
+  
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+  
+.flip-card-front, .flip-card-back {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Oculta el contenido cuando la tarjeta está girada */
+    backface-visibility: hidden;
+}
+  
+.flip-card-front {
+    background-color:rgb(211, 160, 236);
+    color: black;
+}
+  
+.flip-card-back {
+    background-color: #561477;
+    color: white;
+    transform: rotateY(180deg); /* Rota el reverso 180 grados para que esté de espaldas al inicio */
+}
+  
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg); /* Rota la tarjeta cuando se pasa el mouse por encima */
+}
+
+
+
+
+
+
+
+
+
+
+
+/* Dataset Pages Styles */
+ul {
+    font-size: 20px; /* Tamaño de letra del listado */
+}
+
+li {
+    font-size: 18px; /* Tamaño de letra de los elementos del listado */
+}
+.centering {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+.two_image {
+    float: left; /* Hacer que las imágenes fluyan a la izquierda */
+    width: 50%; /* Establecer el ancho de las imágenes al 50% para que ocupen la mitad del contenedor */
+    box-sizing: border-box; /* Incluir el padding y el border en el ancho */
+}
+
+pre {
+        font-size: 14px; /* Tamaño de letra del código */
+        background-color: #f4f4f4; /* Color de fondo del bloque de código */
+        padding: 5px; /* Espaciado interno */
+        border-radius: 20px; /* Bordes redondeados */
+    }
+
+    .codigo-container {
+        display: grid;
+        grid-template-columns: 1fr; /* Una columna que ocupe todo el ancho */
+        position: relative;
+        width: 100%; /* El contenedor ocupa todo el ancho */
+    }
+
+    .codigo-container pre {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        margin: 0; /* Para evitar márgenes */
+        text-align: left;
+        white-space: pre-line;
+    }
+
+    .codigo-container button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 3px;
+        background-color: #78288c;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    /* Estilos para resaltado de sintaxis */
+    .keyword { color: #78288c; } /* Palabras clave (por ejemplo: import, for, if) */
+    .comment { color: #6c757d; } /* Comentarios */
+    .string { color: #28a745; } /* Cadenas */
+    .number { color: #17a2b8; }
+    .bool {color: #FFA500;} /* Números */
+    
+    .table-container {
+        width: 50%;
+        margin: 0 auto; /* Centra horizontalmente */
+        box-sizing: border-box;
+        padding-right: 1%;
+        height: 100%;
+        display: flex;
+    }
+
+    .table-container-parameters{
+        width: 25%;
+        margin: 0 auto; /* Centra horizontalmente */
+        box-sizing: border-box;
+        padding-right: 1%;
+        height: 100%;
+        display: flex;
+    }
+    .table_parameters{
+        width: 100%; /* Ajusta esto según necesites */
+        margin: auto; /* Centrar la tabla en la página */
+        border-collapse: collapse; /* Elimina el espacio entre las celdas */ 
+    }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px; /* Para agregar un espacio entre las tablas */  
+}
+
+th, td {
+    position: relative;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    font-family:Montserrat;
+    font-size:18px;
+    overflow:visible;
+    word-break:normal;
+}
+
+.parentCell{ 
+    position: relative;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
+    font-family:Montserrat;
+    font-size:18px;
+    overflow:visible;
+    word-break:normal; 
+} 
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.highlight {
+    font-weight: bold;
+    color: #FF0000;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px; /* Ancho del tooltip */
+    background-color: #ccc; /* Color de fondo */
+    color: #000; /* Color del texto */
+    text-align: left;
+    border-radius: 3px;
+    padding: 10px; /* Aumenta el espacio de relleno */
+    position: absolute; /* Cambiar a posición absoluta */
+    z-index: 1;
+    top: -50px; /* Ajustar la posición vertical */
+    left: calc(50% - 100px); /* Centrar horizontalmente */
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px; /* Tamaño de la letra */
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .underlined-link {
+    text-decoration: underline; /* Agrega subrayado al enlace */
+  }
+
+
+  .tooltip2 .tooltiptext2{
+    visibility: hidden;
+    width: 80px; /* Ancho del tooltip */
+    background-color: #ccc; /* Color de fondo */
+    color: #000; /* Color del texto */
+    text-align: left;
+    border-radius: 3px;
+    padding: 10px; /* Aumenta el espacio de relleno */
+    position: absolute; /* Cambiar a posición absoluta */
+    z-index: 1;
+    top: 10px; /* Ajustar la posición vertical */
+    left:70px; /* Centrar horizontalmente */
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px; /* Tamaño de la letra */
+} 
+
+.tooltip2:hover .tooltiptext2{ 
+    opacity: 1;
+    visibility: visible; 
+} 
+
+
+/* Metadata table styles */
+  .tg  {border-collapse:collapse;border-spacing:0;}
+    .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Montserrat, sans-serif;font-size:14px;
+    overflow:hidden;padding:10px 5px;word-break:normal;}
+    .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Montserrat, sans-serif;font-size:14px;
+    font-weight:normal;overflow:visible;padding:10px 5px;word-break:normal;position: relative;}
+    .tg .tg-9wq8{border-color:inherit;text-align:center;vertical-align:middle}
+    .tg .tg-uzvj{background-color:#78288c;color:white;border-color:inherit;font-weight:bold;text-align:center;vertical-align:middle;
+                font-size:16px}
+    .tg .tg-8d8j{text-align:center;vertical-align:middle}
+
+.abbreviation {
+    display: block;
+    text-align: center;
+    margin-top: 0.3em; /* Ajusta el espacio entre líneas según sea necesario */
+    }
+
+    .navbar-item{
+        color: #fff; /* Color del texto */
+        background-color: transparent;
+    } 
+    .navbar-link{
+        color: #fff; /* Color del texto */
+        background-color: #78288c;
+    }
+
+.navbar-item:hover, .navbar-link:hover {
+    background-color: #4a148c; /* Color de fondo al pasar el mouse */
+    color: #fff; /* Color del texto al pasar el mouse */
+}
+
+.navbar-dropdown {
+    display: none;
+    position: absolute;
+    background-color: #5c2974; /* Nada aun*/
+    border-radius: 0; /* Elimina el borde redondeado */
+    padding: 0; /* Elimina el padding */
+    box-shadow: none; /* Elimina la sombra */
+    min-width: 200px;
+    border: 1px solid #78288c; /* Color del borde */
+}
+
+
+.navbar-item.has-dropdown:hover .navbar-dropdown {
+    display: block;
+    background-color: #78288c; /* Cambia el color de fondo de la caja de opciones */
+}
+
+
+.navbar-dropdown .navbar-item {
+    color: #fff; /* Cambia el tono de la letra dentro de los cuadros que se despliegan*/
+}
+.navbar-dropdown .navbar-item:hover {
+    background-color: #3F007D; /* Nada aun */
+}

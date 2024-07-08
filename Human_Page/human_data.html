@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html
+ dir="ltr"
+ lang="en"
+ >
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content=#ffffff>
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="shortcut icon" type="image/png"
+           href="logo.png" 
+    />
+    <script defer src="https://unpkg.com/alpinejs@3.9.0/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+    
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-social@1/bin/bulma-social.min.css">
+    
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SPARED | danielaruizl1.github.io</title>
+<meta name="generator" content="Jekyll v3.9.5" />
+<meta property="og:title" content="SPARED" />
+<meta property="og:locale" content="en_US" />
+<link rel="canonical" href="http://localhost:4000/" />
+<meta property="og:url" content="http://localhost:4000/" />
+<meta property="og:site_name" content="danielaruizl1.github.io" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SPARED" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","headline":"SPARED","name":"danielaruizl1.github.io","url":"http://localhost:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+
+<style>
+    .container {
+        text-align: center;
+    }
+</style>
+
+    <!-- head scripts --></head>
+
+  <body>
+    <nav class="navbar is-primary " x-data="{ openNav: false }">
+    <div class="container">
+        <div class="navbar-brand">
+            <a href="/" class="navbar-item">
+                SpaRED
+            </a>
+            <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navMenu" :class="{ 'is-active': openNav }" x-on:click="openNav = !openNav">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        <div class="navbar-menu" id="navMenu" :class="{ 'is-active': openNav }">
+            <div class="navbar-start">
+                <a href="/metadata.html" class="navbar-item">Database Metadata</a>
+                <a href="/People_Page/people.html" class="navbar-item">People</a> <!-- Enlace a pagina de people -->
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">Details</a>
+                    <div class="navbar-dropdown">
+                        <a href="/Processing_details/dataset_filtering.html" class="navbar-item">Dataset Filtering</a>
+                        <a href="/Processing_details/dataset_processing.html" class="navbar-item">Dataset Processing</a>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <div class="navbar-end">
+                
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+    
+        <section class="hero  is-fullwidth  is-bold is-primary" >
+    <div class="hero-body ">
+        <div class="container">
+            <h1 class="title is-2">General SpaRED Statistics in Human Data</h1>
+            <p class="subtitle is-3"></p>
+            
+        </div>
+    </div>
+</section>
+    
+    
+
+
+    <section class="section">
+        <div class="container">
+            <div class="columns is-multiline">
+                
+                <div class="column is-12">
+    
+
+<!-- Enlaces -->
+
+<button onclick="location.href='#Brain'" class="boton-personalizado">
+    <img src="Icons/brain.png" alt="" style="vertical-align: middle;width: 40px; height: 40px; margin-right: 5px;">
+    Brain
+</button>
+
+<button onclick="location.href='#Prostate_gland'" class="boton-personalizado">
+    <img src="Icons/prostate.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Prostate Gland
+</button>
+
+<button onclick="location.href='#Colon'" class="boton-personalizado">
+    <img src="Icons/colon.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Colon
+</button>
+
+<button onclick="location.href='#Breast'" class="boton-personalizado">
+    <img src="Icons/breast.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Breast
+</button>
+
+<button onclick="location.href='#Skin'" class="boton-personalizado">
+    <img src="Icons/skin.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Skin
+</button>
+
+<button onclick="location.href='#Kidney'" class="boton-personalizado">
+    <img src="Icons/kidney.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Kidney
+</button>
+
+<button onclick="location.href='#Lung'" class="boton-personalizado">
+    <img src="Icons/lung.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Lung
+</button>
+
+<button onclick="location.href='#Small_intestine'" class="boton-personalizado">
+    <img src="Icons/small_intestine.png" alt="" style="vertical-align: middle; width: 40px; height: 40px; margin-right: 5px;">
+    Small Intestine
+</button>
+
+
+<div class="espaciador" style="height: 50px;"></div>
+
+<!-- Secciones por organo-->
+
+<div id="Brain">
+    <h2 class="subtitle", style="font-weight: bold;">Brain</h2>
+</div>
+
+<div class="flip-card-container">
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">VHS</p>
+                <p>Author: Vicari et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 1</p>
+                <p>Spots: 19033</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/VHS.png'); background-size: cover; background-position: center;">
+                <p id="VHS"><a href="/Datasets_Pages/VHS/dataset_VHS.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">10XGHB</p>
+                <p>Author: 10X Genomics</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 9882</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/10XGHB.png'); background-size: cover; background-position: center;">
+                <p id="10XGHB"><a href="/Datasets_Pages/10XGHB/dataset_10XGHB.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MHPBTP1</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 1</p>
+                <p>Spots: 5937</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MHPBTP1.png'); background-size: cover; background-position: center;">
+                <p id="MHPBTP1"><a href="/Datasets_Pages/MHPBTP1/dataset_MHPBTP1.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MHPBTP2</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 3163</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MHPBTP2.png'); background-size: cover; background-position: center;">
+                <p id="MHPBTP2"><a href="/Datasets_Pages/MHPBTP2/dataset_MHPBTP2.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+    
+</div>
+</body>
+
+<div id="Prostate_gland">
+    <h2 class="subtitle", style="font-weight: bold;">Prostate Gland</h2>
+</div>
+
+<div class="flip-card-container">
+    
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">EHPCP2</p>
+                <p>Author: Erickson et al.</p>
+                <p>Slides: 10</p>
+                <p>Patients: 1</p>
+                <p>Spots: 24465</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/EHPCP2.png'); background-size: cover; background-position: center;">
+                <p id="EHPCP2"><a href="/Datasets_Pages/EHPCP2/dataset_EHPCP2.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">EHPCP1</p>
+                <p>Author: Erickson et al.</p>
+                <p>Slides: 7</p>
+                <p>Patients: 1</p>
+                <p>Spots: 20987</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/EHPCP1.png'); background-size: cover; background-position: center;">
+                <p id="EHPCP1"><a href="/Datasets_Pages/EHPCP1/dataset_EHPCP1.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MHPC</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 2</p>
+                <p>Spots: 15684</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MHPC.png'); background-size: cover; background-position: center;">
+                <p id="MHPC"><a href="/Datasets_Pages/MHPC/dataset_MHPC.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<div id="Colon">
+    <h2 class="subtitle", style="font-weight: bold;">Colon</h2>
+</div>
+
+<div class="flip-card-container">
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MHCP2</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 2</p>
+                <p>Patients: 2</p>
+                <p>Spots: 7101</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MHCP2.png'); background-size: cover; background-position: center;">
+                <p id="MHCP2"><a href="/Datasets_Pages/MHCP2/dataset_MHCP2.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MHCP1</p>
+                <p>Author: Mirzazadeh et al.</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 2225</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MHCP1.png'); background-size: cover; background-position: center;">
+                <p id="MHCP1"><a href="/Datasets_Pages/MHCP1/dataset_MHCP1.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<div id="Breast">
+    <h2 class="subtitle", style="font-weight: bold;">Breast</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">10XGHBC</p>
+                <p>Author: 10X Genomics</p>
+                <p>Slides: 2</p>
+                <p>Patients: 1</p>
+                <p>Spots: 7785</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/10XGHBC.png'); background-size: cover; background-position: center;">
+                <p id="10XGHBC"><a href="/Datasets_Pages/10XGHBC/dataset_10XGHBC.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<div id="Skin">
+    <h2 class="subtitle", style="font-weight: bold;">Skin</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">AHSCC</p>
+                <p>Author: Abalo et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 1</p>
+                <p>Spots: 10374</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/AHSCC.png'); background-size: cover; background-position: center;">
+                <p id="AHSCC"><a href="/Datasets_Pages/AHSCC/dataset_AHSCC.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<div id="Kidney">
+    <h2 class="subtitle", style="font-weight: bold;">Kidney</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">VKO</p>
+                <p>Villacampa et al.</p>
+                <p>Slides: 3</p>
+                <p>Patients: 1</p>
+                <p>Spots: 1355</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/VKO.png'); background-size: cover; background-position: center;">
+                <p id="VKO"><a href="/Datasets_Pages/VKO/dataset_VKO.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<div id="Lung">
+    <h2 class="subtitle", style="font-weight: bold;">Lung</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">VLO</p>
+                <p>Villacampa et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 1</p>
+                <p>Spots: 1832</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/VLO.png'); background-size: cover; background-position: center;">
+                <p id="VLO"><a href="/Datasets_Pages/VLO/dataset_VLO.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<div id="Small_intestine">
+    <h2 class="subtitle", style="font-weight: bold;">Small Intestine</h2>
+</div>
+
+<div class="flip-card-container">
+    <div class="flip-card">
+        <div class="flip-card-inner">
+            <div class="flip-card-front">
+                <p style="font-weight: bold;">MHSI</p>
+                <p>Mirzazadeh et al.</p>
+                <p>Slides: 4</p>
+                <p>Patients: 2</p>
+                <p>Spots: 10474</p>
+            </div>
+            <div class="flip-card-back" style="background-image: url('slides/MHSI.png'); background-size: cover; background-position: center;">
+                <p id="MHSI"><a href="/Datasets_Pages/MHSI/dataset_MHSI.html" style="color: white;">See more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<style>
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+
+
+                </div>
+                
+            </div>
+        </div>
+    </section>
+    
+        <footer class="footer">
+    <div class="container">
+        
+        
+
+        <div class="content is-small has-text-centered">
+            <p class="">Theme built by <a href="https://www.csrhymes.com">C.S. Rhymes</a></p>
+        </div>
+    </div>
+</footer>
+
+    
+    <script src="/assets/js/app.js" type="text/javascript"></script><!-- footer scripts --></body>
+</html>
