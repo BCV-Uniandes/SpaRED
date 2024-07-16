@@ -15,7 +15,6 @@ scikit_learn==1.4.0
 scipy==1.14.0
 seaborn==0.13.2
 sh==2.0.7
-Sphinx==7.4.5
 squidpy==1.5.0
 tifffile==2024.1.30
 torch==2.2.0
