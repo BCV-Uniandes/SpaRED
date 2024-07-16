@@ -3,7 +3,6 @@ combat==0.3.3
 h5py==3.10.0
 lightning==2.3.3
 matplotlib==3.8.2
-numpy==1.23.4
 opencv_python==4.9.0.80
 pandas==2.2.2
 Pillow==10.4.0
