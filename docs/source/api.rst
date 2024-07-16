@@ -126,17 +126,7 @@ Plotting
     plotting.plot_tests
 
 
-Dataloaders
-~~~~~~~~~~~~~~~
 
-.. module:: spared.dataloaders
-.. currentmodule:: spared
-
-.. autosummary::
-    :toctree: api
-
-    dataloaders.get_pretrain_dataloaders
-    dataloaders.get_graph_dataloaders
 
 
 Models
