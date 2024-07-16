@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.spot_features.spot_features &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.spot_features.spot_features</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.spot_features.spot_features</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torchvision.models</span> <span class="k">as</span> <span class="nn">tmodels</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">scanpy</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">import</span> <span class="nn">squidpy</span> <span class="k">as</span> <span class="nn">sq</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="c1"># Path a spared </span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="c1"># Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+<span class="c1"># Import models.py file</span>
+<span class="kn">from</span> <span class="nn">models</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="c1"># Remove the path from sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+<span class="c1">### Patch processing functions</span>
+
+<span class="c1">## Compute the patch embeddings</span>
+<span class="c1"># TODO: Add reference to the pytorch documentation for the models</span>
+<span class="c1"># FIXME: Not all the backbone strings follow the same standard as pytorch models. Fix this for the consistency.</span>
+<span class="c1"># TODO: Update docstring after above fix</span>
+<div class="viewcode-block" id="compute_patches_embeddings">
+<a class="viewcode-back" href="../../../api/spared.spot_features.compute_patches_embeddings.html#spared.spot_features.compute_patches_embeddings">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_patches_embeddings</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">backbone</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span><span class="s1">&#39;densenet&#39;</span><span class="p">,</span> <span class="n">model_path</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">224</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute model&#39;s embeddings for patches.</span>
+
+<span class="sd">    This function computes patch embeddings (last linear layer representations) for a given backbone model and adata object. It can optionally</span>
+<span class="sd">    compute using a stored model in ``model_path`` or a pretrained model from Pytorch. The embeddings are stored in ``adata.obsm[f&#39;embeddings_{backbone}&#39;]``.</span>
+<span class="sd">    The patches are expected to be have ``int`` values from ``0`` to ``255`` and all the needed transformations are performed inside. They also must be</span>
+<span class="sd">    flattened and stored in ``adata.obsm[f&#39;patches_scale_{patch_scale}&#39;]`` with shape ``(n_patches, patch_size*patch_size*3)``. The ``patch_scale`` value is</span>
+<span class="sd">    not important for this function. The only important condition is that there is a single key starting with ``patches_scale`` in the ``adata.obsm`` keys.</span>
+
+<span class="sd">    The function modifies the AnnData object in place.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to process.</span>
+<span class="sd">        backbone (str, optional): A string specifying the backbone model to use. Must be one of the following ``[&#39;resnet&#39;, &#39;resnet50&#39;, &#39;ConvNeXt&#39;, &#39;EfficientNetV2&#39;, &#39;InceptionV3&#39;, &#39;MaxVit&#39;, &#39;MobileNetV3&#39;, &#39;ResNetXt&#39;, &#39;ShuffleNetV2&#39;, &#39;ViT&#39;, &#39;WideResnet&#39;, &#39;densenet&#39;, &#39;swin&#39;]``. Defaults to ``&#39;densenet&#39;``.</span>
+<span class="sd">        model_path (str, optional): The path to a stored model. If set to ``&#39;None&#39;``, then an ImageNet pretrained model is used. Defaults to ``&#39;None&#39;``.</span>
+<span class="sd">        patch_size (int, optional): The size of the patches. Defaults to 224.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the backbone is not supported. Or if there are more than one key starting with ``patches_scale`` in the ``adata.obsm`` keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Define a cuda device if available</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Verify that the patch scale exists and only exists once</span>
+    <span class="n">obsm_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">patch_scale_key</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">obsm_keys</span> <span class="k">if</span> <span class="s2">&quot;patches_scale&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">patch_scale_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;patches_scale key either does not exist or exists more than once in keys_list.&quot;</span>
+
+    <span class="c1"># Get the patch scale</span>
+    <span class="n">patch_scale</span> <span class="o">=</span> <span class="n">patch_scale_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="c1"># Define the model</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageEncoder</span><span class="p">(</span><span class="n">backbone</span><span class="o">=</span><span class="n">backbone</span><span class="p">,</span> <span class="n">use_pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">latent_dim</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">model_path</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="n">saved_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="c1"># Check if state_dict is inside a nested dictionary</span>
+        <span class="k">if</span> <span class="s1">&#39;state_dict&#39;</span> <span class="ow">in</span> <span class="n">saved_model</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">saved_model</span> <span class="o">=</span> <span class="n">saved_model</span><span class="p">[</span><span class="s1">&#39;state_dict&#39;</span><span class="p">]</span>
+
+        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">saved_model</span><span class="p">)</span>
+    
+    <span class="c1"># Define the weights for the model depending on the backbone</span>
+    <span class="k">if</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;resnet&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ResNet18_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;resnet50&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ResNet50_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;ConvNeXt&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ConvNeXt_Tiny_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;EfficientNetV2&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">EfficientNet_V2_S_Weights</span><span class="o">.</span><span class="n">DEFAULT</span> 
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;InceptionV3&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">Inception_V3_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MaxVit&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">MaxVit_T_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MobileNetV3&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">MobileNet_V3_Small_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ResNetXt&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ResNeXt50_32X4D_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ShuffleNetV2&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ShuffleNet_V2_X0_5_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ViT&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ViT_B_16_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">heads</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;WideResnet&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">Wide_ResNet50_2_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;densenet&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">DenseNet121_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span> 
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;swin&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">Swin_T_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">encoder</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Identity</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Backbone </span><span class="si">{</span><span class="n">backbone</span><span class="si">}</span><span class="s1"> not supported&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Pass model to device and put in eval mode</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="c1"># Perform specific preprocessing for the model</span>
+    <span class="n">preprocess</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">()</span>
+
+    <span class="c1"># Get the patches</span>
+    <span class="c1"># patch_scale = 1.0</span>
+    <span class="n">flat_patches</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;patches_scale_</span><span class="si">{</span><span class="n">patch_scale</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Reshape all the patches to the original shape</span>
+    <span class="n">all_patches</span> <span class="o">=</span> <span class="n">flat_patches</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">torch_patches</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">all_patches</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>    <span class="c1"># Turn all patches to torch</span>
+    <span class="n">rescaled_patches</span> <span class="o">=</span> <span class="n">torch_patches</span> <span class="o">/</span> <span class="mi">255</span>                                       <span class="c1"># Rescale patches to [0, 1]</span>
+    <span class="n">processed_patches</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">rescaled_patches</span><span class="p">)</span>                             <span class="c1"># Preprocess patches</span>
+    
+    <span class="c1"># Create a dataloader</span>
+    <span class="n">dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">processed_patches</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="c1"># Declare lists to store the embeddings </span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Getting embeddings&#39;</span>
+        
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>                    <span class="c1"># Send batch to device                </span>
+            <span class="n">batch_output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>                 <span class="c1"># Get embeddings </span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_output</span><span class="p">)</span>                <span class="c1"># Append to list</span>
+
+
+    <span class="c1"># Concatenate all embeddings</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Pass embeddingsto cpu and add to data.obsm</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;embeddings_</span><span class="si">{</span><span class="n">backbone</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+
+<span class="c1">## Compute the patch predictions</span>
+<span class="c1"># TODO: Add reference to the pytorch documentation for the models</span>
+<span class="c1"># FIXME: Not all the backbone strings follow the same standard as pytorch models. Fix this for the consistency.</span>
+<span class="c1"># TODO: Update docstring after above fix</span>
+<div class="viewcode-block" id="compute_patches_predictions">
+<a class="viewcode-back" href="../../../api/spared.spot_features.compute_patches_predictions.html#spared.spot_features.compute_patches_predictions">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_patches_predictions</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">backbone</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span><span class="s1">&#39;densenet&#39;</span><span class="p">,</span> <span class="n">model_path</span><span class="p">:</span><span class="nb">str</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">224</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute model&#39;s predictions for patches.</span>
+
+<span class="sd">    This function computes patch predictions for a given backbone model and adata object. It can optionally compute using a stored model in ``model_path``</span>
+<span class="sd">    or a pretrained model from Pytorch. The predictions are stored in ``adata.obsm[f&#39;predictions_{backbone}&#39;]``. The patches are expected to be have ``int``</span>
+<span class="sd">    values from ``0`` to ``255`` and all the needed transformations are performed internally. They must also be flattened and stored in</span>
+<span class="sd">    ``adata.obsm[f&#39;patches_scale_{patch_scale}&#39;]`` with shape ``(n_patches, patch_size*patch_size*3)``. The ``patch_scale`` value is not important for this function.</span>
+<span class="sd">    The only important condition is that there is a single key starting with ``patches_scale`` in the ``adata.obsm`` keys. </span>
+
+<span class="sd">    The output dimension of the model is internally set to the number of genes inside the ``adata`` object disregarding if we are using a pretrained pytorch model.</span>
+
+<span class="sd">    The function modifies the AnnData object in place.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to process.</span>
+<span class="sd">        backbone (str, optional): A string specifying the backbone model to use. Must be one of the following ``[&#39;resnet&#39;, &#39;resnet50&#39;, &#39;ConvNeXt&#39;, &#39;EfficientNetV2&#39;, &#39;InceptionV3&#39;, &#39;MaxVit&#39;, &#39;MobileNetV3&#39;, &#39;ResNetXt&#39;, &#39;ShuffleNetV2&#39;, &#39;ViT&#39;, &#39;WideResnet&#39;, &#39;densenet&#39;, &#39;swin&#39;]``. Defaults to ``&#39;densenet&#39;``.</span>
+<span class="sd">        model_path (str, optional): The path to a stored model. If set to ``&#39;None&#39;``, then an ImageNet pretrained model is used. Defaults to ``&#39;None&#39;``.</span>
+<span class="sd">        patch_size (int, optional): The size of the patches. Defaults to 224.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the backbone is not supported. Or if there are more than one key starting with ``patches_scale`` in the ``adata.obsm`` keys.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define a cuda device if available</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda&#39;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Verify that the patch scale exists and only exists once</span>
+    <span class="n">obsm_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">patch_scale_key</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">obsm_keys</span> <span class="k">if</span> <span class="s2">&quot;patches_scale&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">patch_scale_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;patches_scale key either does not exist or exists more than once in keys_list.&quot;</span>
+
+    <span class="c1"># Get the patch scale</span>
+    <span class="n">patch_scale</span> <span class="o">=</span> <span class="n">patch_scale_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    <span class="c1"># Define the model</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ImageEncoder</span><span class="p">(</span><span class="n">backbone</span><span class="o">=</span><span class="n">backbone</span><span class="p">,</span> <span class="n">use_pretrained</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">latent_dim</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">model_path</span> <span class="o">!=</span> <span class="s2">&quot;None&quot;</span><span class="p">:</span>
+        <span class="n">saved_model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+        <span class="c1"># Check if state_dict is inside a nested dictionary</span>
+        <span class="k">if</span> <span class="s1">&#39;state_dict&#39;</span> <span class="ow">in</span> <span class="n">saved_model</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">saved_model</span> <span class="o">=</span> <span class="n">saved_model</span><span class="p">[</span><span class="s1">&#39;state_dict&#39;</span><span class="p">]</span>
+
+        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">saved_model</span><span class="p">)</span>
+    
+    <span class="c1"># Define the weights for the model depending on the backbone</span>
+    <span class="k">if</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;resnet&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ResNet18_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;resnet50&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ResNet50_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;ConvNeXt&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ConvNeXt_Tiny_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;EfficientNetV2&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">EfficientNet_V2_S_Weights</span><span class="o">.</span><span class="n">DEFAULT</span> 
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;InceptionV3&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">Inception_V3_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MaxVit&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">MaxVit_T_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MobileNetV3&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">MobileNet_V3_Small_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ResNetXt&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ResNeXt50_32X4D_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ShuffleNetV2&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ShuffleNet_V2_X0_5_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ViT&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">ViT_B_16_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;WideResnet&quot;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">Wide_ResNet50_2_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;densenet&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">DenseNet121_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">elif</span> <span class="n">backbone</span> <span class="o">==</span> <span class="s1">&#39;swin&#39;</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">tmodels</span><span class="o">.</span><span class="n">Swin_T_Weights</span><span class="o">.</span><span class="n">DEFAULT</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Backbone </span><span class="si">{</span><span class="n">backbone</span><span class="si">}</span><span class="s1"> not supported&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Pass model to device and put in eval mode</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+    <span class="c1"># Perform specific preprocessing for the model</span>
+    <span class="n">preprocess</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">transforms</span><span class="p">()</span>
+
+    <span class="c1"># Get the patches</span>
+    <span class="c1"># patch_scale = 1.0</span>
+    <span class="n">flat_patches</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;patches_scale_</span><span class="si">{</span><span class="n">patch_scale</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Reshape all the patches to the original shape</span>
+    <span class="n">all_patches</span> <span class="o">=</span> <span class="n">flat_patches</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">torch_patches</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">all_patches</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>    <span class="c1"># Turn all patches to torch</span>
+    <span class="n">rescaled_patches</span> <span class="o">=</span> <span class="n">torch_patches</span> <span class="o">/</span> <span class="mi">255</span>                                       <span class="c1"># Rescale patches to [0, 1]</span>
+    <span class="n">processed_patches</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">rescaled_patches</span><span class="p">)</span>                             <span class="c1"># Preprocess patches</span>
+    
+    <span class="c1"># Create a dataloader</span>
+    <span class="n">dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">processed_patches</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="c1"># Declare lists to store the embeddings or predictions</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="s1">&#39;Getting predictions&#39;</span>
+        
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">dataloader</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>                    <span class="c1"># Send batch to device                </span>
+            <span class="n">batch_output</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>                 <span class="c1"># Get predictions</span>
+            <span class="n">outputs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch_output</span><span class="p">)</span>                <span class="c1"># Append to list</span>
+
+
+    <span class="c1"># Concatenate all embeddings or predictions</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Pass predictions to cpu and add to data.obsm</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;predictions_</span><span class="si">{</span><span class="n">backbone</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">outputs</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span></div>
+
+
+<span class="c1">### Define function to get dimensionality reductions depending on the layer</span>
+<span class="c1"># TODO: Add references to functions used in the docstring</span>
+<span class="c1"># TODO: Complete the docstring with the specific attributes and elements that are added to the AnnData object</span>
+<div class="viewcode-block" id="compute_dim_red">
+<a class="viewcode-back" href="../../../api/spared.spot_features.compute_dim_red.html#spared.spot_features.compute_dim_red">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_dim_red</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute dimensionality reduction and clusters</span>
+
+<span class="sd">    Simple wrapper around ``sc.pp.pca()``, ``sc.pp.neighbors()``, ``sc.tl.umap()`` and ``sc.tl.leiden()`` to compute the embeddings and cluster the data.</span>
+<span class="sd">    Everything will be computed using the expression matrix stored in ``adata.layers[from_layer]``. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to transform. Must have expression values in ``adata.layers[from_layer]``.</span>
+<span class="sd">        from_layer (str): The key in ``adata.layers`` where the expression matrix is stored.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The transformed AnnData object with the added embeddings and clusters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Start the timer</span>
+    <span class="c1"># start = time()</span>
+    <span class="c1"># print(f&#39;Computing embeddings and clusters using data of layer {from_layer}...&#39;)</span>
+    
+    <span class="c1"># Set the key layer as the main expression matrix</span>
+    <span class="n">adata_copy</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">adata_copy</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">adata_copy</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">from_layer</span><span class="p">]</span>
+    
+
+    <span class="c1"># Compute the embeddings and clusters</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span><span class="n">adata_copy</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">adata_copy</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">adata_copy</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">tl</span><span class="o">.</span><span class="n">leiden</span><span class="p">(</span><span class="n">adata_copy</span><span class="p">,</span> <span class="n">key_added</span><span class="o">=</span><span class="s2">&quot;cluster&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    
+    <span class="c1"># Restore the original expression matrix as counts layer</span>
+    <span class="n">adata_copy</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">adata_copy</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Print the time it took to compute the embeddings and clusters</span>
+    <span class="c1"># print(f&#39;Embeddings and clusters computed in {time() - start:.2f} seconds&#39;)</span>
+
+    <span class="c1"># Return the adapted AnnData object</span>
+    <span class="k">return</span> <span class="n">adata_copy</span></div>
+
+
+<span class="c1">### Define function to get spatial neighbors in an AnnData object</span>
+<div class="viewcode-block" id="get_spatial_neighbors">
+<a class="viewcode-back" href="../../../api/spared.spot_features.get_spatial_neighbors.html#spared.spot_features.get_spatial_neighbors">[docs]</a>
+<span class="k">def</span> <span class="nf">get_spatial_neighbors</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute neighbors dictionary for an AnnData object.</span>
+<span class="sd">    </span>
+<span class="sd">    This function computes a neighbors dictionary for an AnnData object. The neighbors are computed according to topological distances over</span>
+<span class="sd">    a graph defined by the ``hex_geometry`` connectivity. The neighbors dictionary is a dictionary where the keys are the indexes of the observations</span>
+<span class="sd">    and the values are lists of the indexes of the neighbors of each observation. The neighbors include the observation itself (as the first element of</span>
+<span class="sd">    the list) and are found inside an ``n_hops`` neighborhood (vicinity) of the observation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to process. Importantly it is only from a single slide. Can not be a collection of slides.</span>
+<span class="sd">        n_hops (int): The size of the neighborhood to take into account to compute the neighbors.</span>
+<span class="sd">        hex_geometry (bool): ``True`` when the spots&#39; graph is hexagonal (Visium datasets). If ``False``, then the graph is a grid.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: The neighbors dictionary. The keys are the indexes of the observations and the values are lists of the indexes of the neighbors of each observation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Compute spatial_neighbors</span>
+    <span class="k">if</span> <span class="n">hex_geometry</span><span class="p">:</span>
+        <span class="n">sq</span><span class="o">.</span><span class="n">gr</span><span class="o">.</span><span class="n">spatial_neighbors</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">coord_type</span><span class="o">=</span><span class="s1">&#39;generic&#39;</span><span class="p">,</span> <span class="n">n_neighs</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="c1"># Hexagonal visium case</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sq</span><span class="o">.</span><span class="n">gr</span><span class="o">.</span><span class="n">spatial_neighbors</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">coord_type</span><span class="o">=</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">n_neighs</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="c1"># Grid dataset case</span>
+
+    <span class="c1"># Get the adjacency matrix</span>
+    <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsp</span><span class="p">[</span><span class="s1">&#39;spatial_connectivities&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Define power matrix</span>
+    <span class="n">power_matrix</span> <span class="o">=</span> <span class="n">adj_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Define the output matrix</span>
+    <span class="n">output_matrix</span> <span class="o">=</span> <span class="n">adj_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Iterate through the hops</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_hops</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># Compute the next hop</span>
+        <span class="n">power_matrix</span> <span class="o">=</span> <span class="n">power_matrix</span> <span class="o">*</span> <span class="n">adj_matrix</span>
+        <span class="c1"># Add the next hop to the output matrix</span>
+        <span class="n">output_matrix</span> <span class="o">=</span> <span class="n">output_matrix</span> <span class="o">+</span> <span class="n">power_matrix</span>
+
+    <span class="c1"># Zero out the diagonal</span>
+    <span class="n">output_matrix</span><span class="o">.</span><span class="n">setdiag</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Threshold the matrix to 0 and 1</span>
+    <span class="n">output_matrix</span> <span class="o">=</span> <span class="n">output_matrix</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Define neighbors dict</span>
+    <span class="n">neighbors_dict_index</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Iterate through the rows of the output matrix</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">output_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="c1"># Get the non-zero elements of the row</span>
+        <span class="n">non_zero_elements</span> <span class="o">=</span> <span class="n">output_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Add the neighbors to the neighbors dicts. NOTE: the first index is the query obs</span>
+        <span class="n">neighbors_dict_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">non_zero_elements</span><span class="p">)</span>
+
+    <span class="c1"># Return the neighbors dict</span>
+    <span class="k">return</span> <span class="n">neighbors_dict_index</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

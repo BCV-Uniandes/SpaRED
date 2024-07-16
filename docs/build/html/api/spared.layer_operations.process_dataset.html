@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.layer_operations.process_dataset &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spared.graph_operations.get_graphs_one_slide" href="spared.graph_operations.get_graphs_one_slide.html" />
+    <link rel="prev" title="spared.layer_operations.add_noisy_layer" href="spared.layer_operations.add_noisy_layer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.datasets">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.tpm_normalization.html">spared.layer_operations.tpm_normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.log1p_transformation.html">spared.layer_operations.log1p_transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.combat_transformation.html">spared.layer_operations.combat_transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.get_deltas.html">spared.layer_operations.get_deltas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.add_noisy_layer.html">spared.layer_operations.add_noisy_layer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">spared.layer_operations.process_dataset</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spared.layer_operations.process_dataset"><code class="docutils literal notranslate"><span class="pre">process_dataset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.metrics">Metrics</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">spared.layer_operations.process_dataset</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/spared.layer_operations.process_dataset.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spared-layer-operations-process-dataset">
+<h1>spared.layer_operations.process_dataset<a class="headerlink" href="#spared-layer-operations-process-dataset" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="spared.layer_operations.process_dataset">
+<span class="sig-prename descclassname"><span class="pre">spared.layer_operations.</span></span><span class="sig-name descname"><span class="pre">process_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AnnData</span></span></span><a class="reference internal" href="../_modules/spared/layer_operations/layer_operations.html#process_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.layer_operations.process_dataset" title="Link to this definition"></a></dt>
+<dd><p>Perform complete processing pipeline.</p>
+<p>This function performs the complete processing pipeline for a dataset. It only computes over the expression values of the dataset
+and creates multiple layers. It doesn’t perform any filtering or spots modifications. The processing pipeline is the following:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>Normalize the data with TPM normalization (<code class="docutils literal notranslate"><span class="pre">adata.layers['tpm']</span></code>)</p></li>
+<li><p>Logarithmically transform the data following <span class="math notranslate nohighlight">\(\log_2(TPM+1)\)</span> (<code class="docutils literal notranslate"><span class="pre">adata.layers['log1p']</span></code>)</p></li>
+<li><p>Denoise the data with the adaptive median filter (<code class="docutils literal notranslate"><span class="pre">adata.layers['d_log1p']</span></code>)</p></li>
+<li><p>Compute moran I for each gene in each slide and average moranI across slides (add results to <code class="docutils literal notranslate"><span class="pre">adata.var['d_log1p_moran']</span></code>)</p></li>
+<li><p>Filter dataset to keep the top <code class="docutils literal notranslate"><span class="pre">param_dict['top_moran_genes']</span></code> genes with highest Moran’s I.</p></li>
+<li><p>Perform ComBat batch correction if specified by the <code class="docutils literal notranslate"><span class="pre">param_dict['combat_key']</span></code> (<code class="docutils literal notranslate"><span class="pre">adata.layers['c_d_log1p']</span></code>)</p></li>
+<li><p>Compute the deltas from the mean for each gene in various layers (gets <code class="docutils literal notranslate"><span class="pre">'deltas'</span></code>, <code class="docutils literal notranslate"><span class="pre">'d_deltas'</span></code> and <code class="docutils literal notranslate"><span class="pre">'c_deltas'</span></code>, <code class="docutils literal notranslate"><span class="pre">'c_d_deltas'</span></code> layers)</p></li>
+<li><p>Add a binary mask layer specifying valid (not imputed) observations for metric computation (<code class="docutils literal notranslate"><span class="pre">adata.layers['mask']</span></code> layer, <code class="docutils literal notranslate"><span class="pre">True</span></code> for valid observations, <code class="docutils literal notranslate"><span class="pre">False</span></code> for missing values).</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to process. Should be already filtered with the <code class="docutils literal notranslate"><span class="pre">filter_dataset()</span></code> function or have an analog processing.</p></li>
+<li><p><strong>param_dict</strong> (<em>dict</em>) – <p>Dictionary that contains filtering and processing parameters. Keys that must be present are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'top_moran_genes'</span></code> <strong>(int)</strong>: The number of genes to keep after filtering by Moran’s I. If set to <code class="docutils literal notranslate"><span class="pre">0</span></code>, then the number of genes is internally computed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'combat_key'</span></code> <strong>(str)</strong>: The column in <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> that defines the batches for ComBat batch correction. If set to <code class="docutils literal notranslate"><span class="pre">'None'</span></code>, then no batch correction is performed.</p></li>
+</ul>
+</p></li>
+<li><p><strong>hex_geometry</strong> (<em>bool</em>) – Whether the graph is hexagonal or not. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, then the graph is a grid. Only <code class="docutils literal notranslate"><span class="pre">True</span></code> for Visium datasets.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>The processed AnnData object with all the layers and results added. A list of included layers in <code class="docutils literal notranslate"><span class="pre">adata.layers</span></code> is:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'counts'</span></code>: Raw counts of the dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'tpm'</span></code>: TPM normalized data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'log1p'</span></code>: <span class="math notranslate nohighlight">\(\log_2(TPM+1)\)</span> transformed data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'d_log1p'</span></code>: Denoised data with adaptive median filter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_log1p'</span></code>: Batch corrected data with ComBat (only if <code class="docutils literal notranslate"><span class="pre">combat_key</span></code> is not <code class="docutils literal notranslate"><span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_d_log1p'</span></code>: Batch corrected and denoised data with adaptive median filter (only if <code class="docutils literal notranslate"><span class="pre">combat_key</span></code> is not <code class="docutils literal notranslate"><span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">log1p</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'d_deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">d_log1p</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">c_log1p</span></code> (only if <code class="docutils literal notranslate"><span class="pre">combat_key</span></code> is not <code class="docutils literal notranslate"><span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_d_deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">c_d_log1p</span></code> (only if <code class="docutils literal notranslate"><span class="pre">combat_key</span></code> is not <code class="docutils literal notranslate"><span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'mask'</span></code>: Binary mask layer. <code class="docutils literal notranslate"><span class="pre">True</span></code> for valid observations, <code class="docutils literal notranslate"><span class="pre">False</span></code> for imputed missing values.</p></li>
+</ul>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ad.Anndata</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spared.layer_operations.add_noisy_layer.html" class="btn btn-neutral float-left" title="spared.layer_operations.add_noisy_layer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spared.graph_operations.get_graphs_one_slide.html" class="btn btn-neutral float-right" title="spared.graph_operations.get_graphs_one_slide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

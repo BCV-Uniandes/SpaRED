@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.layer_operations.layer_operations &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.layer_operations.layer_operations</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.layer_operations.layer_operations</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">wget</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">from</span> <span class="nn">combat.pycombat</span> <span class="kn">import</span> <span class="n">pycombat</span>
+<span class="kn">import</span> <span class="nn">scanpy</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># Path a spared </span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="c1"># Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+<span class="c1"># Import im_encoder.py file</span>
+<span class="kn">from</span> <span class="nn">denoising</span> <span class="kn">import</span> <span class="n">denoising</span>
+<span class="kn">from</span> <span class="nn">gene_features</span> <span class="kn">import</span> <span class="n">gene_features</span>
+<span class="kn">from</span> <span class="nn">filtering</span> <span class="kn">import</span> <span class="n">filtering</span>
+<span class="c1"># Remove the path from sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+
+<span class="c1">### Expression data processing functions:</span>
+<span class="c1"># TODO: Add reference to the gtf_tools website in the documentation</span>
+<span class="c1"># TODO: Add reference to TPM normalization paper</span>
+<div class="viewcode-block" id="tpm_normalization">
+<a class="viewcode-back" href="../../../api/spared.layer_operations.tpm_normalization.html#spared.layer_operations.tpm_normalization">[docs]</a>
+<span class="k">def</span> <span class="nf">tpm_normalization</span><span class="p">(</span><span class="n">organism</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize expression using TPM normalization.</span>
+
+<span class="sd">    This function applies TPM normalization to an AnnData object with raw counts. It also removes genes that are not fount in the ``.gtf`` annotation file.</span>
+<span class="sd">    The counts are taken from ``adata.layers[from_layer]`` and the results are stored in ``adata.layers[to_layer]``. It can perform the normalization</span>
+<span class="sd">    for `human &lt;https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.basic.annotation.gtf.gz&gt;`_ and `mouse</span>
+<span class="sd">    &lt;https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M33/gencode.vM33.basic.annotation.gtf.gz&gt;`_ reference genomes.</span>
+<span class="sd">    To specify which GTF annotation file should be used, the ``organism`` parameter must be ``&#39;mouse&#39;`` or ``&#39;human&#39;``.</span>
+
+<span class="sd">    This function uses the public implementation of gtf_tools.py to extract gene lengths from the gtf file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        organism (str): Organism of the dataset. Must be ``&#39;mouse&#39;`` or ``&#39;human&#39;``.</span>
+<span class="sd">        adata (ad.Anndata): The Anndata object to normalize.</span>
+<span class="sd">        from_layer (str): The layer to take the counts from. The data in this layer should be in raw counts.</span>
+<span class="sd">        to_layer (str): The layer to store the results of the normalization.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.Anndata: The updated Anndata object with TPM values in ``adata.layers[to_layer]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Get the number of genes before filtering</span>
+    <span class="n">initial_genes</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Automatically download the human gtf annotation file if it is not already downloaded</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.v43.basic.annotation.gtf.gz&#39;</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Automatically downloading human gtf annotation file...&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">wget</span><span class="o">.</span><span class="n">download</span><span class="p">(</span>
+            <span class="s1">&#39;https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.basic.annotation.gtf.gz&#39;</span><span class="p">,</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.v43.basic.annotation.gtf.gz&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Define gtf human path</span>
+    <span class="n">gtf_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.v43.basic.annotation.gtf&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Unzip the data in annotations folder if it is not already unzipped</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gtf_path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.v43.basic.annotation.gtf.gz&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gtf_path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
+
+    <span class="c1"># FIXME: Set up automatic download of mouse gtf file (DONE)</span>
+    <span class="c1"># Automatically download the mouse gtf annotation file if it is not already downloaded</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.vM33.basic.annotation.gtf.gz&#39;</span><span class="p">)):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Automatically downloading mouse gtf annotation file...&#39;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">wget</span><span class="o">.</span><span class="n">download</span><span class="p">(</span>
+            <span class="s1">&#39;https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M33/gencode.vM33.basic.annotation.gtf.gz&#39;</span><span class="p">,</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.vM33.basic.annotation.gtf.gz&#39;</span><span class="p">))</span>
+    
+    <span class="c1"># Define gtf mouse path</span>
+    <span class="n">gtf_path_mouse</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.vM33.basic.annotation.gtf&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Unzip the data in annotations folder if it is not already unzipped</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gtf_path_mouse</span><span class="p">):</span>            
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gencode.vM33.basic.annotation.gtf.gz&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_in</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">gtf_path_mouse</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_out</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_in</span><span class="p">,</span> <span class="n">f_out</span><span class="p">)</span>
+
+    <span class="c1"># Obtain a txt with gene lengths</span>
+    <span class="n">gene_length_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gene_length.txt&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gene_length_path</span><span class="p">):</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;python </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;gtftools.py&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> -l </span><span class="si">{</span><span class="n">gene_length_path</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gtf_path</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">command_list</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command_list</span><span class="p">)</span>   
+
+    <span class="n">gene_length_path_mouse</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="s1">&#39;gene_length_mouse.txt&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">gene_length_path_mouse</span><span class="p">):</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;python </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;gtftools.py&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1"> -l </span><span class="si">{</span><span class="n">gene_length_path_mouse</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">gtf_path_mouse</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="n">command_list</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command_list</span><span class="p">)</span> 
+
+    <span class="c1"># Upload the gene lengths</span>
+    <span class="k">if</span> <span class="n">organism</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;mouse&quot;</span><span class="p">:</span>
+        <span class="n">glength_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">gene_length_path_mouse</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">,</span> <span class="s1">&#39;merged&#39;</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">organism</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;human&quot;</span><span class="p">:</span>
+        <span class="n">glength_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">gene_length_path</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">,</span> <span class="s1">&#39;merged&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="s2">&quot;Organism not valid&quot;</span>
+
+    <span class="c1"># For the gene column, remove the version number</span>
+    <span class="n">glength_df</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">glength_df</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Drop gene duplicates. NOTE: This only eliminates 40/60k genes so it is not a big deal</span>
+    <span class="n">glength_df</span> <span class="o">=</span> <span class="n">glength_df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;gene&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Find the genes that are in the gtf annotation file</span>
+    <span class="n">common_genes</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span><span class="o">&amp;</span><span class="nb">set</span><span class="p">(</span><span class="n">glength_df</span><span class="p">[</span><span class="s2">&quot;gene&quot;</span><span class="p">]))</span>
+
+    <span class="c1"># Subset both adata and glength_df to keep only the common genes</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[:,</span> <span class="n">common_genes</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">glength_df</span> <span class="o">=</span> <span class="n">glength_df</span><span class="p">[</span><span class="n">glength_df</span><span class="p">[</span><span class="s2">&quot;gene&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">common_genes</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Reindex the glength_df to genes</span>
+    <span class="n">glength_df</span> <span class="o">=</span> <span class="n">glength_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;gene&#39;</span><span class="p">)</span>
+    <span class="c1"># Reindex glength_df to adata.var_names</span>
+    <span class="n">glength_df</span> <span class="o">=</span> <span class="n">glength_df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">)</span>
+    <span class="c1"># Assert indexes of adata.var and glength_df are the same</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">glength_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+    <span class="c1"># Add gene lengths to adata.var</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;gene_length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">glength_df</span><span class="p">[</span><span class="s1">&#39;merged&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># Divide each column of the counts matrix by the gene length. Save the result in layer &quot;to_layer&quot;</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">from_layer</span><span class="p">]</span> <span class="o">/</span> <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;gene_length&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Make that each row sums to 1e6</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mf">1e6</span><span class="p">))</span>
+    <span class="c1"># Pass layer to np.array</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">])</span>
+
+    <span class="c1"># Print the number of genes that were not found in the gtf annotation file</span>
+    <span class="n">failed_genes</span> <span class="o">=</span> <span class="n">initial_genes</span> <span class="o">-</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Number of genes not found in GTF file by TPM normalization: </span><span class="si">{</span><span class="n">initial_genes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="si">}</span><span class="s1"> out of </span><span class="si">{</span><span class="n">initial_genes</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">failed_genes</span><span class="o">/</span><span class="n">initial_genes</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">%) (</span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="si">}</span><span class="s1"> remaining)&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Return the transformed AnnData object</span>
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<div class="viewcode-block" id="log1p_transformation">
+<a class="viewcode-back" href="../../../api/spared.layer_operations.log1p_transformation.html#spared.layer_operations.log1p_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">log1p_transformation</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform :math:`\log_2(x+1)` transformation </span>
+
+<span class="sd">    Performs logarithmic transformation over the ``adata.layers[from_layer]`` matrix. Simple wrapper of scanpy&#39;s ``sc.pp.log1p()``</span>
+<span class="sd">    (base 2) to transform data from ``adata.layers[from_layer]`` and save it into ``adata.layers[to_layer]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to transform.</span>
+<span class="sd">        from_layer (str): The layer to take the data from.</span>
+<span class="sd">        to_layer (str): The layer to store the results of the transformation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated AnnData object with transformed data in ``adata.layers[to_layer]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Transform the data with log1p</span>
+    <span class="n">transformed_adata</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Add the log1p transformed data to adata.layers[to_layer]</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">transformed_adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">from_layer</span><span class="p">]</span>
+
+    <span class="c1"># Return the transformed AnnData object</span>
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<span class="c1"># FIXME: CHange the combat implementation to be updated (look at the pycombat github)</span>
+<span class="c1"># TODO: Add other options of batch correction </span>
+<span class="c1"># TODO: Add reference to the ComBat paper</span>
+<div class="viewcode-block" id="combat_transformation">
+<a class="viewcode-back" href="../../../api/spared.layer_operations.combat_transformation.html#spared.layer_operations.combat_transformation">[docs]</a>
+<span class="k">def</span> <span class="nf">combat_transformation</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">batch_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Perform batch correction with ComBat</span>
+
+<span class="sd">    Compute batch correction using the `pycombat &lt;https://github.com/epigenelabs/pyComBat?tab=readme-ov-file&gt;`_ package. The batches are defined by ``adata.obs[batch_key]`` so</span>
+<span class="sd">    the user can define which variable to use as batch identifier. The input data for the batch correction is ``adata.layers[from_layer]`` and the output is stored in</span>
+<span class="sd">    ``adata.layers[to_layer]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to transform. Must have logarithmically transformed data in ``adata.layers[from_layer]`` (ComBat assumes approximately normal distribution of gene expression).</span>
+<span class="sd">        batch_key (str): The column in ``adata.obs`` that defines the batches.</span>
+<span class="sd">        from_layer (str): The layer to take the data from.</span>
+<span class="sd">        to_layer (str): The layer to store the results of the transformation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated AnnData object with batch corrected data in ``adata.layers[to_layer]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get expression matrix dataframe</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">layer</span> <span class="o">=</span> <span class="n">from_layer</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">batch_list</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="n">batch_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="c1"># Apply pycombat batch correction</span>
+    <span class="n">corrected_df</span> <span class="o">=</span> <span class="n">pycombat</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">batch_list</span><span class="p">,</span> <span class="n">par_prior</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Assign batch corrected expression to .layers[to_layer] attribute</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrected_df</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<span class="c1"># TODO: Put reference to SEPAL&#39;s use of deltas?</span>
+<div class="viewcode-block" id="get_deltas">
+<a class="viewcode-back" href="../../../api/spared.layer_operations.get_deltas.html#spared.layer_operations.get_deltas">[docs]</a>
+<span class="k">def</span> <span class="nf">get_deltas</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get expression deltas from the mean.</span>
+
+<span class="sd">    Compute the deviations from the mean expression of each gene in ``adata.layers[from_layer]`` and save them</span>
+<span class="sd">    in ``adata.layers[to_layer]``. Also add the mean expression of each gene to ``adata.var[f&#39;{from_layer}_avg_exp&#39;]``.</span>
+<span class="sd">    Average expression is computed using only train data determined by the ``adata.obs[&#39;split&#39;]`` column. However, deltas</span>
+<span class="sd">    are computed for all observations.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to update. Must have expression values in ``adata.layers[from_layer]`` and ``&#39;train&#39;`` values in the ``adata.obs[&#39;split&#39;]`` column.</span>
+<span class="sd">        from_layer (str): The layer to take the data from.</span>
+<span class="sd">        to_layer (str): The layer to store the results of the transformation.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated AnnData object with the deltas (``adata.layers[to_layer]``) and mean expression (``adata.var[f&#39;{from_layer}_avg_exp&#39;]``) information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get the expression matrix of both train and global data</span>
+    <span class="n">glob_expression</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">)</span>
+    <span class="n">train_expression</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">)</span>
+
+    <span class="c1"># Define scaler</span>
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">(</span><span class="n">with_mean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">with_std</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Fit the scaler to the train data</span>
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_expression</span><span class="p">)</span>
+    
+    <span class="c1"># Get the centered expression matrix of the global data</span>
+    <span class="n">centered_expression</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">glob_expression</span><span class="p">)</span>
+
+    <span class="c1"># Add the deltas to adata.layers[to_layer]	</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">centered_expression</span>
+
+    <span class="c1"># Add the mean expression to adata.var[f&#39;{from_layer}_avg_exp&#39;]</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">from_layer</span><span class="si">}</span><span class="s1">_avg_exp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">mean_</span>
+
+    <span class="c1"># Return the updated AnnData object</span>
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<span class="c1"># TODO: When cheking this function on its own, try using a prediction layer &quot;delta&quot;</span>
+<span class="c1"># TODO: modify function to add noisy layer to important layers </span>
+<div class="viewcode-block" id="add_noisy_layer">
+<a class="viewcode-back" href="../../../api/spared.layer_operations.add_noisy_layer.html#spared.layer_operations.add_noisy_layer">[docs]</a>
+<span class="k">def</span> <span class="nf">add_noisy_layer</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">prediction_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Add an artificial noisy layer.</span>
+
+<span class="sd">    This function should only be used for experimentation/ablation purposes. It adds a noisy layer to the data which is created by re-inserting missing values to</span>
+<span class="sd">    a previously denoised layer of the ``adata`` object. In case the source layer is on logarithmic scale, the noisy layer is created by assigning zero values to</span>
+<span class="sd">    the missing values. In case the source layer is on delta scale, the noisy layer is created by assigning the negative mean of the gene to the missing values.</span>
+<span class="sd">    The originally missing values must be specified by the binary ``adata.layers[&#39;mask&#39;]`` layer. The name of the added layer will be ``f&#39;noisy_{prediction_layer}&#39;``</span>
+<span class="sd">    The gene means used to compute the deltas must be stored in the ``adata.var[f&#39;{prediction_layer.replace(&quot;deltas&quot;, &quot;log1p&quot;)}_avg_exp&#39;]`` column.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to update. Must have the prediction layer, the gene means if its a delta layer, and the mask layer.</span>
+<span class="sd">        prediction_layer (str): The layer that will be corrupted to create the noisy layer.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated AnnData object with the noisy layer added in ``adata.layers[f&#39;noisy_{prediction_layer}&#39;]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="s1">&#39;deltas&#39;</span> <span class="ow">in</span> <span class="n">prediction_layer</span><span class="p">:</span>
+        <span class="c1"># If there are deltas in the prediction key then the gene mean should be from the log1p correspondent layer. </span>
+        <span class="n">mean_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prediction_layer</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;deltas&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;log1p&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">_avg_exp&#39;</span>
+        <span class="c1"># Get vector with gene means</span>
+        <span class="n">gene_means</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="n">mean_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># Expand gene means to the shape of the layer</span>
+        <span class="n">gene_means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">gene_means</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Get valid mask</span>
+        <span class="n">valid_mask</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span>
+        <span class="c1"># Initialize noisy deltas</span>
+        <span class="n">noisy_deltas</span> <span class="o">=</span> <span class="o">-</span><span class="n">gene_means</span>
+        <span class="c1"># Assign delta values in positions where valid mask is true</span>
+        <span class="n">noisy_deltas</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">prediction_layer</span><span class="p">][</span><span class="n">valid_mask</span><span class="p">]</span>
+        <span class="c1"># Add the layer to the adata</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;noisy_</span><span class="si">{</span><span class="n">prediction_layer</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">noisy_deltas</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Copy the cleaned layer to the layer noisy</span>
+        <span class="n">noised_layer</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">prediction_layer</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Get zero mask</span>
+        <span class="n">zero_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span>
+        <span class="c1"># Zero out the missing values</span>
+        <span class="n">noised_layer</span><span class="p">[</span><span class="n">zero_mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Add the layer to the adata</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;noisy_</span><span class="si">{</span><span class="n">prediction_layer</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">noised_layer</span>
+
+    <span class="c1"># Give warning to say that the noisy layer is being used</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using noisy_delta layer for training. This will probably yield bad results.&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<span class="c1"># TODO: Add reference to TPM normalization paper</span>
+<span class="c1"># FIXME: In this pipeline we should include a denoising with spackle</span>
+<span class="c1"># TODO: Add SEPAL reference to point 3. on denoising</span>
+<span class="c1"># TODO: Add moran I reference</span>
+<span class="c1"># TODO: Put combat reference</span>
+<span class="c1"># TODO: Think in changing the d_ prefix to m_ for median filter</span>
+<div class="viewcode-block" id="process_dataset">
+<a class="viewcode-back" href="../../../api/spared.layer_operations.process_dataset.html#spared.layer_operations.process_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">process_dataset</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Perform complete processing pipeline.</span>
+
+<span class="sd">    This function performs the complete processing pipeline for a dataset. It only computes over the expression values of the dataset</span>
+<span class="sd">    and creates multiple layers. It doesn&#39;t perform any filtering or spots modifications. The processing pipeline is the following:</span>
+
+<span class="sd">        1. Normalize the data with TPM normalization (``adata.layers[&#39;tpm&#39;]``)</span>
+<span class="sd">        2. Logarithmically transform the data following :math:`\log_2(TPM+1)` (``adata.layers[&#39;log1p&#39;]``)</span>
+<span class="sd">        3. Denoise the data with the adaptive median filter (``adata.layers[&#39;d_log1p&#39;]``)</span>
+<span class="sd">        4. Compute moran I for each gene in each slide and average moranI across slides (add results to ``adata.var[&#39;d_log1p_moran&#39;]``)</span>
+<span class="sd">        5. Filter dataset to keep the top ``param_dict[&#39;top_moran_genes&#39;]`` genes with highest Moran&#39;s I.</span>
+<span class="sd">        6. Perform ComBat batch correction if specified by the ``param_dict[&#39;combat_key&#39;]`` (``adata.layers[&#39;c_d_log1p&#39;]``)</span>
+<span class="sd">        7. Compute the deltas from the mean for each gene in various layers (gets ``&#39;deltas&#39;``, ``&#39;d_deltas&#39;`` and ``&#39;c_deltas&#39;``, ``&#39;c_d_deltas&#39;`` layers)</span>
+<span class="sd">        8. Add a binary mask layer specifying valid (not imputed) observations for metric computation (``adata.layers[&#39;mask&#39;]`` layer, ``True`` for valid observations, ``False`` for missing values).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to process. Should be already filtered with the ``filter_dataset()`` function or have an analog processing.</span>
+<span class="sd">        param_dict (dict): Dictionary that contains filtering and processing parameters. Keys that must be present are:</span>
+
+<span class="sd">                            - ``&#39;top_moran_genes&#39;`` **(int)**: The number of genes to keep after filtering by Moran&#39;s I. If set to ``0``, then the number of genes is internally computed.</span>
+<span class="sd">                            - ``&#39;combat_key&#39;`` **(str)**: The column in ``adata.obs`` that defines the batches for ComBat batch correction. If set to ``&#39;None&#39;``, then no batch correction is performed.</span>
+<span class="sd">        </span>
+<span class="sd">        hex_geometry (bool): Whether the graph is hexagonal or not. If ``False``, then the graph is a grid. Only ``True`` for Visium datasets.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.Anndata: The processed AnnData object with all the layers and results added. A list of included layers in ``adata.layers`` is:</span>
+
+<span class="sd">                    - ``&#39;counts&#39;``: Raw counts of the dataset.</span>
+<span class="sd">                    - ``&#39;tpm&#39;``: TPM normalized data.</span>
+<span class="sd">                    - ``&#39;log1p&#39;``: :math:`\log_2(TPM+1)` transformed data.</span>
+<span class="sd">                    - ``&#39;d_log1p&#39;``: Denoised data with adaptive median filter.</span>
+<span class="sd">                    - ``&#39;c_log1p&#39;``: Batch corrected data with ComBat (only if ``combat_key`` is not ``&#39;None&#39;``).</span>
+<span class="sd">                    - ``&#39;c_d_log1p&#39;``: Batch corrected and denoised data with adaptive median filter (only if ``combat_key`` is not ``&#39;None&#39;``).</span>
+<span class="sd">                    - ``&#39;deltas&#39;``: Deltas from the mean expression for ``log1p``.</span>
+<span class="sd">                    - ``&#39;d_deltas&#39;``: Deltas from the mean expression for ``d_log1p``.</span>
+<span class="sd">                    - ``&#39;c_deltas&#39;``: Deltas from the mean expression for ``c_log1p`` (only if ``combat_key`` is not ``&#39;None&#39;``).</span>
+<span class="sd">                    - ``&#39;c_d_deltas&#39;``: Deltas from the mean expression for ``c_d_log1p`` (only if ``combat_key`` is not ``&#39;None&#39;``).</span>
+<span class="sd">                    - ``&#39;mask&#39;``: Binary mask layer. ``True`` for valid observations, ``False`` for imputed missing values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">### Compute all the processing steps</span>
+    <span class="c1"># NOTE: The d prefix stands for denoised</span>
+    <span class="c1"># NOTE: The c prefix stands for combat corrected</span>
+
+    <span class="c1"># Start the timer and print the start message</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting data processing...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># First add raw counts to adata.layers[&#39;counts&#39;]</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    
+    <span class="c1"># 1. Make TPM normalization</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">tpm_normalization</span><span class="p">(</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;organism&quot;</span><span class="p">],</span> <span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;tpm&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 2. Transform the data with log1p (base 2.0)</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">log1p_transformation</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;tpm&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;log1p&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 3. Denoise the data with adaptive median filter</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">denoising</span><span class="o">.</span><span class="n">clean_noise</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;log1p&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;d_log1p&#39;</span><span class="p">,</span> <span class="n">n_hops</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;hex_geometry&quot;</span><span class="p">])</span>
+
+    <span class="c1"># 4. Compute average moran for each gene in the layer d_log1p </span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">gene_features</span><span class="o">.</span><span class="n">compute_moran</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;hex_geometry&quot;</span><span class="p">],</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;d_log1p&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 5. Filter genes by Moran&#39;s I</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">filtering</span><span class="o">.</span><span class="n">filter_by_moran</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">n_keep</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;top_moran_genes&#39;</span><span class="p">],</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;d_log1p&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 6. If combat key is specified, apply batch correction</span>
+    <span class="k">if</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">combat_transformation</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">batch_key</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">],</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;log1p&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;c_log1p&#39;</span><span class="p">)</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">combat_transformation</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">batch_key</span><span class="o">=</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">],</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;d_log1p&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;c_d_log1p&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 7. Compute deltas and mean expression for all log1p, d_log1p, c_log1p and c_d_log1p</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">get_deltas</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;log1p&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;deltas&#39;</span><span class="p">)</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">get_deltas</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;d_log1p&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;d_deltas&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">get_deltas</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;c_log1p&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;c_deltas&#39;</span><span class="p">)</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">get_deltas</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="s1">&#39;c_d_log1p&#39;</span><span class="p">,</span> <span class="n">to_layer</span><span class="o">=</span><span class="s1">&#39;c_d_deltas&#39;</span><span class="p">)</span>
+
+    <span class="c1"># 8. Add a binary mask layer specifying valid observations for metric computation</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;tpm&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
+    
+    <span class="c1"># Print with the percentage of the dataset that was replaced</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Percentage of imputed observations with median filter: </span><span class="si">{:5.3f}</span><span class="s1">%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="o">~</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="o">*</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">)))</span>
+
+    <span class="c1"># Print the number of cells and genes in the dataset</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Processing of the data took </span><span class="si">{</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The processed dataset looks like this:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

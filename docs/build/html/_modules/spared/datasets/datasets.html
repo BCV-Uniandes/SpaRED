@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.datasets.datasets &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.datasets.datasets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.datasets.datasets</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;USE_PYGEOS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span> <span class="c1"># To supress a warning from geopandas</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">Normalize</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1">#El path a spared es ahora diferente</span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="c1">#Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+<span class="c1">#TODO: AJUSTAR UNA VEZ ESTEN CREADOS LOS NUEVOS ARCHIVOS</span>
+<span class="c1"># Import visualization and processing function</span>
+<span class="kn">from</span> <span class="nn">filtering</span> <span class="kn">import</span> <span class="n">filtering</span>
+<span class="kn">from</span> <span class="nn">layer_operations</span> <span class="kn">import</span> <span class="n">layer_operations</span>
+<span class="kn">from</span> <span class="nn">dataloaders</span> <span class="kn">import</span> <span class="n">dataloaders</span>
+<span class="kn">from</span> <span class="nn">plotting</span> <span class="kn">import</span> <span class="n">plotting</span>
+
+
+<span class="c1"># Import all reader classes</span>
+<span class="kn">from</span> <span class="nn">readers.AbaloReader</span> <span class="kn">import</span> <span class="n">AbaloReader</span>
+<span class="kn">from</span> <span class="nn">readers.BatiukReader</span> <span class="kn">import</span> <span class="n">BatiukReader</span>
+<span class="kn">from</span> <span class="nn">readers.EricksonReader</span> <span class="kn">import</span> <span class="n">EricksonReader</span>
+<span class="kn">from</span> <span class="nn">readers.FanReader</span> <span class="kn">import</span> <span class="n">FanReader</span>
+<span class="kn">from</span> <span class="nn">readers.MirzazadehReader</span> <span class="kn">import</span> <span class="n">MirzazadehReader</span>
+<span class="kn">from</span> <span class="nn">readers.ParigiReader</span> <span class="kn">import</span> <span class="n">ParigiReader</span>
+<span class="kn">from</span> <span class="nn">readers.VicariReader</span> <span class="kn">import</span> <span class="n">VicariReader</span>
+<span class="kn">from</span> <span class="nn">readers.VillacampaReader</span> <span class="kn">import</span> <span class="n">VillacampaReader</span>
+<span class="kn">from</span> <span class="nn">readers.VisiumReader</span> <span class="kn">import</span> <span class="n">VisiumReader</span>
+<span class="c1">#Remover el directorio padre al sys.path </span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+<span class="c1"># Remove the max limit of pixels in a figure</span>
+<span class="n">Image</span><span class="o">.</span><span class="n">MAX_IMAGE_PIXELS</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># Get the path of the spared database</span>
+<span class="c1">#SPARED_PATH = pathlib.Path(__file__).parent</span>
+
+<span class="c1"># Set warnings to ignore</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No data for colormapping provided via &#39;c&#39;. Parameters &#39;cmap&#39; will be ignored&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Variable names are not unique. To make them unique, call `.var_names_make_unique`.&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;The &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Changing the sparsity structure of a csr_matrix is expensive. lil_matrix is more efficient.&quot;</span><span class="p">)</span>
+
+<span class="c1"># FIXME: Fix this warning FutureWarning: is_categorical_dtype is deprecated and will be removed in a future version. Use isinstance(dtype, CategoricalDtype) instead</span>
+<span class="c1"># This is a problem between anndata and pandas</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="s1">&#39;anndata&#39;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="s1">&#39;squidpy&#39;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">,</span> <span class="n">module</span><span class="o">=</span><span class="s1">&#39;scanpy&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># TODO: Think of implementing optional random subsampling of the dataset</span>
+<span class="k">class</span> <span class="nc">SpatialDataset</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+        <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;V1_Breast_Cancer_Block_A&#39;</span><span class="p">,</span>
+        <span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;cell_min_counts&#39;</span><span class="p">:</span>      <span class="mi">1000</span><span class="p">,</span>
+            <span class="s1">&#39;cell_max_counts&#39;</span><span class="p">:</span>      <span class="mi">100000</span><span class="p">,</span>
+            <span class="s1">&#39;gene_min_counts&#39;</span><span class="p">:</span>      <span class="mf">1e3</span><span class="p">,</span>
+            <span class="s1">&#39;gene_max_counts&#39;</span><span class="p">:</span>      <span class="mf">1e6</span><span class="p">,</span>
+            <span class="s1">&#39;min_exp_frac&#39;</span><span class="p">:</span>         <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s1">&#39;min_glob_exp_frac&#39;</span><span class="p">:</span>    <span class="mf">0.8</span><span class="p">,</span>
+            <span class="s1">&#39;real_data_percentage&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+            <span class="s1">&#39;top_moran_genes&#39;</span><span class="p">:</span>      <span class="mi">256</span><span class="p">,</span>
+            <span class="s1">&#39;wildcard_genes&#39;</span><span class="p">:</span>       <span class="s1">&#39;None&#39;</span><span class="p">,</span>    
+            <span class="s1">&#39;combat_key&#39;</span><span class="p">:</span>           <span class="s1">&#39;slide_id&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;random_samples&#39;</span><span class="p">:</span>       <span class="o">-</span><span class="mi">1</span><span class="p">,</span>        
+            <span class="s1">&#39;plotting_slides&#39;</span><span class="p">:</span>      <span class="s1">&#39;None&#39;</span><span class="p">,</span>      
+            <span class="s1">&#39;plotting_genes&#39;</span><span class="p">:</span>       <span class="s1">&#39;None&#39;</span><span class="p">,</span>       
+                            <span class="p">},</span> 
+        <span class="n">patch_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">patch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">224</span><span class="p">,</span>
+        <span class="n">force_compute</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">visualize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a spatial data class that contains all the information about the dataset. It will call a reader class depending on the type</span>
+<span class="sd">        of dataset (by now only visium and STNet are supported). The reader class will download the data and read it into an AnnData collection</span>
+<span class="sd">        object. Then the dataset class will filter, process and plot quality control graphs for the dataset. The processed dataset will be stored</span>
+<span class="sd">        for rapid access in the future.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            dataset (str, optional): An string encoding the dataset type. Defaults to &#39;V1_Breast_Cancer_Block_A&#39;.</span>
+<span class="sd">            param_dict (dict, optional): Dictionary that contains filtering and processing parameters.</span>
+<span class="sd">                                        Detailed information about each key can be found in the parser definition over utils.py. </span>
+<span class="sd">                                        Defaults to {</span>
+<span class="sd">                                                &#39;cell_min_counts&#39;:      1000,</span>
+<span class="sd">                                                &#39;cell_max_counts&#39;:      100000,</span>
+<span class="sd">                                                &#39;gene_min_counts&#39;:      1e3,</span>
+<span class="sd">                                                &#39;gene_max_counts&#39;:      1e6, </span>
+<span class="sd">                                                &#39;min_exp_frac&#39;:         0.8,</span>
+<span class="sd">                                                &#39;min_glob_exp_frac&#39;:    0.8,</span>
+<span class="sd">                                                &#39;real_data_percentage&#39;: 0.7,</span>
+<span class="sd">                                                &#39;top_moran_genes&#39;:      256,</span>
+<span class="sd">                                                &#39;wildcard_genes&#39;:       &#39;None&#39;,</span>
+<span class="sd">                                                &#39;combat_key&#39;:           &#39;slide_id&#39;,</span>
+<span class="sd">                                                &#39;random_samples&#39;:       -1,</span>
+<span class="sd">                                                &#39;plotting_slides&#39;:      &#39;None&#39;,</span>
+<span class="sd">                                                &#39;plotting_genes&#39;:       &#39;None&#39;,</span>
+<span class="sd">                                                }.</span>
+<span class="sd">            patch_scale (float, optional): The scale of the patches to take into account. If bigger than 1, then the patches will be bigger than the original image. Defaults to 1.0.</span>
+<span class="sd">            patch_size (int, optional): The pixel size of the patches. Defaults to 224.</span>
+<span class="sd">            force_compute (bool, optional): Whether to force the processing computation or not. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># We define the variables for the SpatialDataset class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span> <span class="o">=</span> <span class="n">param_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span> <span class="o">=</span> <span class="n">patch_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span> <span class="o">=</span> <span class="n">patch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span> <span class="o">=</span> <span class="n">force_compute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visualize</span> <span class="o">=</span> <span class="n">visualize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hex_geometry</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">==</span> <span class="s1">&#39;stnet_dataset&#39;</span> <span class="k">else</span> <span class="kc">True</span> <span class="c1"># FIXME: Be careful with this attribute if we want to include more technologies</span>
+
+        <span class="c1"># We initialize the reader class (Both visium or stnet readers can be returned here)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reader_class</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_reader</span><span class="p">()</span>
+        <span class="c1"># We get the dict of split names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader_class</span><span class="o">.</span><span class="n">split_names</span>
+        <span class="c1"># We get the dataset download path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">download_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader_class</span><span class="o">.</span><span class="n">download_path</span>
+        <span class="c1"># Get the dataset path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader_class</span><span class="o">.</span><span class="n">dataset_path</span>
+        
+        <span class="c1"># We load or compute the processed adata with patches.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_or_compute_adata</span><span class="p">()</span>
+
+    <span class="c1">#villacampa_lung_organoid</span>
+    <span class="k">def</span> <span class="nf">initialize_reader</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function uses the parameters of the class to initialize the appropiate reader class</span>
+<span class="sd">        (Visium or STNet) and returns the reader class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="s1">&#39;vicari&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">VicariReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;villacampa&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">VillacampaReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;mirzazadeh&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">MirzazadehReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;abalo&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">AbaloReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;erickson&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">EricksonReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;batiuk&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">BatiukReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;parigi&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">ParigiReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="s1">&#39;fan&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">FanReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>  
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reader_class</span> <span class="o">=</span> <span class="n">VisiumReader</span><span class="p">(</span>
+                <span class="n">dataset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span>
+                <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span>
+                <span class="n">patch_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span>
+                <span class="n">patch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span>
+                <span class="n">force_compute</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span>
+            <span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">reader_class</span>
+    
+    <span class="c1"># TODO: Update the docstring of this function (regarding process_dataset)</span>
+    <span class="c1">#def load_or_compute_adata(self) -&gt; ad.AnnData:   </span>
+    <span class="k">def</span> <span class="nf">load_or_compute_adata</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function does the main data pipeline. It will first check if the processed data exists in the dataset_path. If it does not exist,</span>
+<span class="sd">        then it will compute it and save it. If it does exist, then it will load it and return it. If it is in the compute mode, then it will</span>
+<span class="sd">        also save quality control plots.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ad.AnnData: The processed AnnData object ready to be used for training.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># If processed data does not exist, then compute and save it </span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;adata.h5ad&#39;</span><span class="p">)))</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">force_compute</span><span class="p">:</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing main adata file from downloaded raw data...&#39;</span><span class="p">)</span>
+            <span class="n">collection_raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader_class</span><span class="o">.</span><span class="n">get_adata_collection</span><span class="p">()</span>
+            <span class="n">collection_filtered</span> <span class="o">=</span> <span class="n">filtering</span><span class="o">.</span><span class="n">filter_dataset</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">collection_raw</span><span class="p">,</span> <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">)</span>
+            <span class="c1"># Process data</span>
+            <span class="n">collection_processed</span> <span class="o">=</span> <span class="n">layer_operations</span><span class="o">.</span><span class="n">process_dataset</span><span class="p">(</span>
+                <span class="n">adata</span><span class="o">=</span><span class="n">collection_filtered</span><span class="p">,</span> <span class="n">param_dict</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">)</span>
+
+            <span class="c1"># Save the processed data</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">collection_raw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;adata_raw.h5ad&#39;</span><span class="p">))</span>
+            <span class="n">collection_processed</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;adata.h5ad&#39;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visualize</span><span class="p">:</span>
+                <span class="c1"># QC plotting</span>
+                <span class="n">plotting</span><span class="o">.</span><span class="n">plot_tests</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">collection_processed</span><span class="p">,</span> <span class="n">collection_raw</span><span class="p">)</span>
+                <span class="c1"># Copy figures folder into public database</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">)):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">))</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">),</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># Create README for dataset</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;README.md&#39;</span><span class="p">)):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="s1">&#39;README_template.md&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;README.md&#39;</span><span class="p">))</span>
+
+        <span class="k">else</span><span class="p">:</span>            
+            <span class="c1"># Load processed adata</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Loading main adata file from disk (</span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span><span class="w"> </span><span class="sa">f</span><span class="s2">&quot;adata.h5ad&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">)...&#39;</span><span class="p">)</span>
+            <span class="c1"># If the file already exists, load it</span>
+            <span class="n">collection_raw</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;adata_raw.h5ad&#39;</span><span class="p">))</span>
+            <span class="n">collection_processed</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;adata.h5ad&#39;</span><span class="p">))</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The loaded adata object looks like this:&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">collection_processed</span><span class="p">)</span>
+
+            <span class="c1"># QC plotting if visualize is set to True</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visualize</span><span class="p">:</span>
+                <span class="n">collection_raw</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">read_h5ad</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;adata_raw.h5ad&#39;</span><span class="p">))</span>
+                <span class="c1"># QC plotting</span>
+                <span class="n">plotting</span><span class="o">.</span><span class="n">plot_tests</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">split_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">collection_processed</span><span class="p">,</span> <span class="n">collection_raw</span><span class="p">)</span>
+                <span class="c1"># Copy figures folder into public database</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">)):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">))</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">),</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Create README for dataset</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;README.md&#39;</span><span class="p">)):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="s1">&#39;README_template.md&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;PublicDatabase&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span><span class="p">,</span> <span class="s1">&#39;README.md&#39;</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">collection_processed</span>
+    
+<span class="k">class</span> <span class="nc">HisToGeneDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adata</span><span class="p">,</span> <span class="n">set_str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span> <span class="o">=</span> <span class="n">set_str</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">set</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">split</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx_2_slide</span> <span class="o">=</span> <span class="p">{</span><span class="n">idx</span><span class="p">:</span> <span class="n">slide</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">slide</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">slide_id</span><span class="o">.</span><span class="n">unique</span><span class="p">())}</span>
+        
+        <span class="c1">#Perform transformations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;patches_scale_1.0&#39;</span><span class="p">]</span>
+        <span class="c1"># Pass to torch tensor</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">tissue_tiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># Permute dimensions to be in correct order for normalization</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="c1"># Make transformations in tissue tiles</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">/</span><span class="mf">255.</span>
+        <span class="c1"># Transform tiles</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+        <span class="c1"># Flatten tiles</span>
+        <span class="c1"># self.adata.obsm[&#39;patches_scale_1.0_transformed&#39;] = tissue_tiles.view(tissue_tiles.shape[0], -1)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;patches_scale_1.0_transformed_numpy&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="c1"># Define mask layer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;tpm&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idx_2_slide</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        
+        <span class="c1"># Get the slide from the index</span>
+        <span class="n">slide</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_2_slide</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="c1"># Get the adata of the slide</span>
+        <span class="n">adata_slide</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">slide_id</span> <span class="o">==</span> <span class="n">slide</span><span class="p">]</span>
+
+        <span class="c1"># Get the patches</span>
+        <span class="n">patch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata_slide</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="s1">&#39;patches_scale_1.0_transformed_numpy&#39;</span><span class="p">])</span>
+        <span class="c1"># Get the coordinates</span>
+        <span class="n">coor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata_slide</span><span class="o">.</span><span class="n">obs</span><span class="p">[[</span><span class="s1">&#39;array_row&#39;</span><span class="p">,</span> <span class="s1">&#39;array_col&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="c1"># Get the expression</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata_slide</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span>
+        <span class="c1"># Get the mask</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata_slide</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">])</span>
+        
+        <span class="k">return</span> <span class="n">patch</span><span class="p">,</span> <span class="n">coor</span><span class="p">,</span> <span class="n">exp</span><span class="p">,</span> <span class="n">mask</span>
+
+<span class="c1"># TODO: Add the possibility to save the dataset and plots in a specific folder</span>
+<span class="c1"># TODO: Update the docstring of this function after adding the folder parameter</span>
+<div class="viewcode-block" id="get_dataset">
+<a class="viewcode-back" href="../../../api/spared.datasets.get_dataset.html#spared.datasets.get_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">visualize</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpatialDataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Retrieve a predefined dataset from SpaRED by name.</span>
+
+<span class="sd">    This function receives the name of a dataset and retrieves a ``SpatialDataset`` object according to its name. The dataset must be defined in the SpaRED database.</span>
+<span class="sd">    Optionally, it can plot a complete set of quality control plots for the dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset_name (str): The name of the dataset. The options are:</span>
+
+<span class="sd">            - ``&#39;10xgenomic_human_brain&#39;``</span>
+<span class="sd">            - ``&#39;10xgenomic_mouse_brain_coronal&#39;``</span>
+<span class="sd">            - ``&#39;10xgenomic_mouse_brain_sagittal_anterior&#39;``</span>
+<span class="sd">            - ``&#39;10xgenomic_mouse_brain_sagittal_posterior&#39;``</span>
+<span class="sd">            - ``&#39;10xgenomic_human_breast_cancer&#39;``</span>
+<span class="sd">            - ``&#39;abalo_human_squamous_cell_carcinoma&#39;``</span>
+<span class="sd">            - ``&#39;erickson_human_prostate_cancer_p1&#39;``</span>
+<span class="sd">            - ``&#39;erickson_human_prostate_cancer_p2&#39;``</span>
+<span class="sd">            - ``&#39;fan_mouse_brain_coronal&#39;``</span>
+<span class="sd">            - ``&#39;fan_mouse_olfatory_bulb&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_human_colon_p1&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_human_colon_p2&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_human_pediatric_brain_tumor_p1&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_human_pediatric_brain_tumor_p2&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_human_prostate_cancer&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_human_small_intestine&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_mouse_brain&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_mouse_brain_p1&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_mouse_brain_p2&#39;``</span>
+<span class="sd">            - ``&#39;mirzazadeh_mouse_bone&#39;``</span>
+<span class="sd">            - ``&#39;parigi_mouse_intestine&#39;``</span>
+<span class="sd">            - ``&#39;vicari_human_striatium&#39;``</span>
+<span class="sd">            - ``&#39;vicari_mouse_brain&#39;``</span>
+<span class="sd">            - ``&#39;villacampa_kidney_organoid&#39;``</span>
+<span class="sd">            - ``&#39;villacampa_lung_organoid&#39;``</span>
+<span class="sd">            - ``&#39;villacampa_mouse_brain&#39;``</span>
+<span class="sd">            </span>
+<span class="sd">            </span>
+<span class="sd">        visualize (bool): If ``True``, it will plot a complete set of quality control plots for the dataset.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        SpatialDataset: The specified dataset object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    
+    <span class="c1"># Get the name of the config based on the dataset</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;configs&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">)</span>
+    <span class="c1"># Load the config</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Assign auxiliary variables for dataset</span>
+    <span class="n">patch_scale</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;patch_scale&#39;</span><span class="p">]</span>
+    <span class="n">patch_size</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;patch_size&#39;</span><span class="p">]</span>
+    <span class="n">force_compute</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s1">&#39;force_compute&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Refine config dict into a param dict</span>
+    <span class="p">[</span><span class="n">config_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;patch_scale&#39;</span><span class="p">,</span> <span class="s1">&#39;patch_size&#39;</span><span class="p">,</span> <span class="s1">&#39;force_compute&#39;</span><span class="p">,</span> <span class="s1">&#39;dataset&#39;</span><span class="p">,</span> <span class="s1">&#39;n_hops&#39;</span><span class="p">,</span> <span class="s1">&#39;prediction_layer&#39;</span><span class="p">]]</span>
+ 
+    <span class="c1"># Declare the spatial dataset</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">SpatialDataset</span><span class="p">(</span>
+        <span class="n">dataset</span><span class="o">=</span><span class="n">dataset_name</span><span class="p">,</span> 
+        <span class="n">param_dict</span><span class="o">=</span><span class="n">config_dict</span><span class="p">,</span> 
+        <span class="n">patch_scale</span><span class="o">=</span><span class="n">patch_scale</span><span class="p">,</span> 
+        <span class="n">patch_size</span><span class="o">=</span><span class="n">patch_size</span><span class="p">,</span> 
+        <span class="n">force_compute</span><span class="o">=</span><span class="n">force_compute</span><span class="p">,</span>
+        <span class="n">visualize</span><span class="o">=</span><span class="n">visualize</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dataset</span>   </div>
+
+
+<span class="c1"># Test code only for debugging</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    
+    <span class="c1"># Auxiliary function to use booleans in parser</span>
+    <span class="n">str2bool</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;true&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Define a simple parser and add an argument for the config file</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Test code for datasets.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--config&#39;</span><span class="p">,</span>             <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>       <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;configs&#39;</span><span class="p">,</span> <span class="s1">&#39;10xgenomic_human_breast_cancer.json&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the config file.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--prepare_datasets&#39;</span><span class="p">,</span>   <span class="nb">type</span><span class="o">=</span><span class="n">str2bool</span><span class="p">,</span>  <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;If True then it processes all datasets.&#39;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--graphs_ie_paths&#39;</span><span class="p">,</span>    <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>       <span class="n">default</span><span class="o">=</span><span class="s1">&#39;None&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Path to the folders with optimal image encoder models to get graphs from. E.g. os.path.join(&quot;optimal_models&quot;, &quot;spared_vit_backbone_c_d_deltas&quot;&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    
+    <span class="c1"># Define dataset list</span>
+    <span class="n">dataset_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;10xgenomic_human_brain&#39;</span><span class="p">,</span>                      <span class="s1">&#39;10xgenomic_human_breast_cancer&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;10xgenomic_mouse_brain_coronal&#39;</span><span class="p">,</span>              <span class="s1">&#39;10xgenomic_mouse_brain_sagittal_anterior&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;10xgenomic_mouse_brain_sagittal_posterior&#39;</span><span class="p">,</span>   <span class="s1">&#39;abalo_human_squamous_cell_carcinoma&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;erickson_human_prostate_cancer_p1&#39;</span><span class="p">,</span>           <span class="s1">&#39;erickson_human_prostate_cancer_p2&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;fan_mouse_brain_coronal&#39;</span><span class="p">,</span>                     <span class="s1">&#39;fan_mouse_olfatory_bulb&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;mirzazadeh_human_colon_p1&#39;</span><span class="p">,</span>                   <span class="s1">&#39;mirzazadeh_human_colon_p2&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;mirzazadeh_human_pediatric_brain_tumor_p1&#39;</span><span class="p">,</span>   <span class="s1">&#39;mirzazadeh_human_pediatric_brain_tumor_p2&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;mirzazadeh_human_prostate_cancer&#39;</span><span class="p">,</span>            <span class="s1">&#39;mirzazadeh_human_small_intestine&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;mirzazadeh_mouse_bone&#39;</span><span class="p">,</span>                       <span class="s1">&#39;mirzazadeh_mouse_brain_p1&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;mirzazadeh_mouse_brain_p2&#39;</span><span class="p">,</span>                   <span class="s1">&#39;mirzazadeh_mouse_brain&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;parigi_mouse_intestine&#39;</span><span class="p">,</span>                      <span class="s1">&#39;vicari_human_striatium&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;vicari_mouse_brain&#39;</span><span class="p">,</span>                          <span class="s1">&#39;villacampa_kidney_organoid&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;villacampa_lung_organoid&#39;</span><span class="p">,</span>                    <span class="s1">&#39;villacampa_mouse_brain&#39;</span><span class="p">]</span>
+    
+    <span class="c1"># If prepare datasets then run the dataset pipeline for all available datasets</span>
+    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">prepare_datasets</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        
+        <span class="c1"># Define complete config files list</span>
+        <span class="n">config_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">,</span> <span class="s1">&#39;configs&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dset</span><span class="si">}</span><span class="s1">.json&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">dataset_list</span><span class="p">]</span>
+
+        <span class="c1"># Iterate over config files</span>
+        <span class="k">for</span> <span class="n">curr_config_path</span> <span class="ow">in</span> <span class="n">config_list</span><span class="p">:</span>
+
+           <span class="c1"># Load the config file</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">curr_config_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+            <span class="c1"># Define param dict</span>
+            <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;cell_min_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cell_min_counts&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;cell_max_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cell_max_counts&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;gene_min_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gene_min_counts&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;gene_max_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gene_max_counts&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;min_exp_frac&#39;</span><span class="p">:</span>          <span class="n">config</span><span class="p">[</span><span class="s1">&#39;min_exp_frac&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;min_glob_exp_frac&#39;</span><span class="p">:</span>     <span class="n">config</span><span class="p">[</span><span class="s1">&#39;min_glob_exp_frac&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;real_data_percentage&#39;</span><span class="p">:</span>  <span class="n">config</span><span class="p">[</span><span class="s1">&#39;real_data_percentage&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;top_moran_genes&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;top_moran_genes&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;wildcard_genes&#39;</span><span class="p">:</span>        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;wildcard_genes&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;combat_key&#39;</span><span class="p">:</span>            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;random_samples&#39;</span><span class="p">:</span>        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;random_samples&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;plotting_slides&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;plotting_genes&#39;</span><span class="p">:</span>        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;plotting_genes&#39;</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Process the dataset and store it as adata</span>
+            <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">SpatialDataset</span><span class="p">(</span>
+                <span class="n">dataset</span> <span class="o">=</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">],</span> 
+                <span class="n">param_dict</span> <span class="o">=</span>    <span class="n">param_dict</span><span class="p">,</span> 
+                <span class="n">patch_scale</span> <span class="o">=</span>   <span class="n">config</span><span class="p">[</span><span class="s1">&#39;patch_scale&#39;</span><span class="p">],</span> 
+                <span class="n">patch_size</span> <span class="o">=</span>    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;patch_size&#39;</span><span class="p">],</span> 
+                <span class="n">force_compute</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;force_compute&#39;</span><span class="p">]</span>
+                <span class="p">)</span> 
+    
+    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">graphs_ie_paths</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+
+        <span class="c1"># iterate over datasets</span>
+        <span class="k">for</span> <span class="n">dset</span> <span class="ow">in</span> <span class="n">dataset_list</span><span class="p">:</span>
+            <span class="c1"># Get the dataset</span>
+            <span class="n">dataset</span> <span class="o">=</span> <span class="n">get_dataset</span><span class="p">(</span><span class="n">dset</span><span class="p">)</span>
+            <span class="c1"># Get model path</span>
+            <span class="n">model_path</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">graphs_ie_paths</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;**&#39;</span><span class="p">,</span> <span class="s1">&#39;*.ckpt&#39;</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># Get layer</span>
+            <span class="n">layer_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;spared_vit_backbone_c_d_deltas&#39;</span><span class="p">:</span> <span class="s1">&#39;c_d_deltas&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;spared_vit_backbone_c_t_deltas&#39;</span><span class="p">:</span> <span class="s1">&#39;c_t_deltas&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;spared_vit_backbone_noisy_d&#39;</span><span class="p">:</span>    <span class="s1">&#39;noisy_d&#39;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">layer</span> <span class="o">=</span> <span class="n">layer_dict</span><span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">graphs_ie_paths</span><span class="p">))]</span>
+            <span class="c1"># Get the graphs</span>
+            <span class="n">train_dl</span><span class="p">,</span> <span class="n">val_dl</span><span class="p">,</span> <span class="n">test_dl</span> <span class="o">=</span> <span class="n">dataloaders</span><span class="o">.</span><span class="n">get_graph_dataloaders</span><span class="p">(</span>
+                <span class="n">adata</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">adata</span><span class="p">,</span> <span class="n">dataset_path</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">layer</span><span class="p">,</span> <span class="n">n_hops</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">backbone</span><span class="o">=</span><span class="s1">&#39;ViT&#39;</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">hex_geometry</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">hex_geometry</span><span class="p">,</span> <span class="n">patch_size</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">patch_size</span><span class="p">,</span> <span class="n">patch_scale</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">patch_scale</span><span class="p">)</span>
+            
+    <span class="c1"># If prepare datasets and get graphs are false then only process the single dataset specified by the config arg</span>
+    <span class="k">else</span><span class="p">:</span> 
+        <span class="c1"># Load the config file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># Define param dict</span>
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;cell_min_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cell_min_counts&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;cell_max_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;cell_max_counts&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;gene_min_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gene_min_counts&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;gene_max_counts&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;gene_max_counts&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;min_exp_frac&#39;</span><span class="p">:</span>          <span class="n">config</span><span class="p">[</span><span class="s1">&#39;min_exp_frac&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;min_glob_exp_frac&#39;</span><span class="p">:</span>     <span class="n">config</span><span class="p">[</span><span class="s1">&#39;min_glob_exp_frac&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;real_data_percentage&#39;</span><span class="p">:</span>  <span class="n">config</span><span class="p">[</span><span class="s1">&#39;real_data_percentage&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;top_moran_genes&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;top_moran_genes&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;wildcard_genes&#39;</span><span class="p">:</span>        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;wildcard_genes&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;combat_key&#39;</span><span class="p">:</span>            <span class="n">config</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;random_samples&#39;</span><span class="p">:</span>        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;random_samples&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;plotting_slides&#39;</span><span class="p">:</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">],</span>
+            <span class="s1">&#39;plotting_genes&#39;</span><span class="p">:</span>        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;plotting_genes&#39;</span><span class="p">],</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Process the dataset and store it as adata</span>
+        <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">SpatialDataset</span><span class="p">(</span>
+            <span class="n">dataset</span> <span class="o">=</span>       <span class="n">config</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">],</span> 
+            <span class="n">param_dict</span> <span class="o">=</span>    <span class="n">param_dict</span><span class="p">,</span> 
+            <span class="n">patch_scale</span> <span class="o">=</span>   <span class="n">config</span><span class="p">[</span><span class="s1">&#39;patch_scale&#39;</span><span class="p">],</span> 
+            <span class="n">patch_size</span> <span class="o">=</span>    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;patch_size&#39;</span><span class="p">],</span> 
+            <span class="n">force_compute</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;force_compute&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        
+
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

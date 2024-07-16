@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.graph_operations.graph_operations &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.graph_operations.graph_operations</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.graph_operations.graph_operations</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">positional_encodings.torch_encodings</span> <span class="kn">import</span> <span class="n">PositionalEncoding2D</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.data</span> <span class="kn">import</span> <span class="n">Data</span> <span class="k">as</span> <span class="n">geo_Data</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">squidpy</span> <span class="k">as</span> <span class="nn">sq</span>
+<span class="kn">from</span> <span class="nn">torch_geometric.utils</span> <span class="kn">import</span> <span class="n">from_scipy_sparse_matrix</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="c1"># Path a spared </span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="c1"># Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+<span class="c1"># Import im_encoder.py file</span>
+<span class="kn">from</span> <span class="nn">filtering</span> <span class="kn">import</span> <span class="n">filtering</span>
+<span class="c1"># Remove the path from sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+<span class="c1">### Graph building functions:</span>
+<span class="c1"># TODO: Change the name of the layer parameter to prediction_layer</span>
+<span class="c1"># TODO: Add reference to the get predictions and embeddings functions in the documentation at the end of the first paragraph</span>
+<div class="viewcode-block" id="get_graphs_one_slide">
+<a class="viewcode-back" href="../../../api/spared.graph_operations.get_graphs_one_slide.html#spared.graph_operations.get_graphs_one_slide">[docs]</a>
+<span class="k">def</span> <span class="nf">get_graphs_one_slide</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get neighbor graphs for a single slide.</span>
+
+<span class="sd">    This function receives an AnnData object with a single slide and for each node computes the neighbor graph in an</span>
+<span class="sd">    ``n_hops`` radius in a pytorch geometric format. The AnnData object must have both embeddings and predictions in the</span>
+<span class="sd">    ``adata.obsm`` attribute.</span>
+
+<span class="sd">    It returns a dictionary where the patch names are the keys and a pytorch geometric graph for each one as</span>
+<span class="sd">    values. **NOTE:** The first node of every graph is the center.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object with the slide data.</span>
+<span class="sd">        n_hops (int): The number of hops to compute the graph.</span>
+<span class="sd">        layer (str): The layer of the graph to predict. Will be added as ``y`` to the graph.</span>
+<span class="sd">        hex_geometry (bool): Whether the slide has hexagonal geometry or not.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple[dict,int]: Tuple of the following two elements:</span>
+
+<span class="sd">            - graph_dict: A dictionary where the patch names are the keys and pytorch geometric graph for each one as values. The first node of every graph is the center. The available attributes for each graph are:</span>
+
+<span class="sd">                - ``y``: The layer of the graph to predict.</span>
+<span class="sd">                - ``edge_index``: The edge index of the graph indicating the graph connections.</span>
+<span class="sd">                - ``pos``: The positions of the nodes with respect to the columns and rows of the slide.</span>
+<span class="sd">                - ``d_pos``: The delta positions of the nodes in the graph relative to the center node.</span>
+<span class="sd">                - ``embeddings``: The embeddings of the nodes in the graph.</span>
+<span class="sd">                - ``predictions``: The predictions of the nodes in the graph.</span>
+<span class="sd">                - ``used_mean``: The mean of the layer used to compute the deltas. Only present if the ``layer`` parameter contains the ``&#39;deltas&#39;`` substring.</span>
+<span class="sd">                - ``num_nodes``: The number of nodes in the graph.</span>
+<span class="sd">                - ``mask``: Mask indicating which of the values of ``y`` is real (``True``) or imputed (``False``).</span>
+
+<span class="sd">            - max_abs_d_pos: Max absolute column or row difference between the center and the neighbors. Used for positional encoding.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Compute spatial_neighbors</span>
+    <span class="k">if</span> <span class="n">hex_geometry</span><span class="p">:</span>
+        <span class="n">sq</span><span class="o">.</span><span class="n">gr</span><span class="o">.</span><span class="n">spatial_neighbors</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">coord_type</span><span class="o">=</span><span class="s1">&#39;generic&#39;</span><span class="p">,</span> <span class="n">n_neighs</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="c1"># Hexagonal visium case</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sq</span><span class="o">.</span><span class="n">gr</span><span class="o">.</span><span class="n">spatial_neighbors</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">coord_type</span><span class="o">=</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">n_neighs</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="c1"># Grid STNet dataset case</span>
+
+    <span class="c1"># Get the adjacency matrix</span>
+    <span class="n">adj_matrix</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsp</span><span class="p">[</span><span class="s1">&#39;spatial_connectivities&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Define power matrix</span>
+    <span class="n">power_matrix</span> <span class="o">=</span> <span class="n">adj_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Define the output matrix</span>
+    <span class="n">output_matrix</span> <span class="o">=</span> <span class="n">adj_matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Iterate through the hops</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_hops</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># Compute the next hop</span>
+        <span class="n">power_matrix</span> <span class="o">=</span> <span class="n">power_matrix</span> <span class="o">*</span> <span class="n">adj_matrix</span>
+        <span class="c1"># Add the next hop to the output matrix</span>
+        <span class="n">output_matrix</span> <span class="o">=</span> <span class="n">output_matrix</span> <span class="o">+</span> <span class="n">power_matrix</span>
+
+    <span class="c1"># Zero out the diagonal</span>
+    <span class="n">output_matrix</span><span class="o">.</span><span class="n">setdiag</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Threshold the matrix to 0 and 1</span>
+    <span class="n">output_matrix</span> <span class="o">=</span> <span class="n">output_matrix</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="c1"># Define dict from index to obs name</span>
+    <span class="n">index_to_obs</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">obs</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obs</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">)}</span>
+
+    <span class="c1"># Define neighbors dicts (one with names and one with indexes)</span>
+    <span class="n">neighbors_dict_index</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">neighbors_dict_names</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">matrices_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Iterate through the rows of the output matrix</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">output_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="c1"># Get the non-zero elements of the row</span>
+        <span class="n">non_zero_elements</span> <span class="o">=</span> <span class="n">output_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">nonzero</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Get the names of the neighbors</span>
+        <span class="n">non_zero_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">index_to_obs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">non_zero_elements</span><span class="p">]</span>
+        <span class="c1"># Add the neighbors to the neighbors dicts. NOTE: the first index is the query obs</span>
+        <span class="n">neighbors_dict_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">non_zero_elements</span><span class="p">)</span>
+        <span class="n">neighbors_dict_names</span><span class="p">[</span><span class="n">index_to_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">index_to_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">+</span> <span class="n">non_zero_names</span><span class="p">)</span>
+        
+        <span class="c1"># Subset the matrix to the non-zero elements and store it in the matrices dict</span>
+        <span class="n">matrices_dict</span><span class="p">[</span><span class="n">index_to_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">output_matrix</span><span class="p">[</span><span class="n">neighbors_dict_index</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">:][:,</span> <span class="n">neighbors_dict_index</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+
+    
+    <span class="c1">### Get pytorch geometric graphs ###</span>
+    <span class="n">layers_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span> <span class="c1"># Get global layers</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[[</span><span class="s1">&#39;array_row&#39;</span><span class="p">,</span> <span class="s1">&#39;array_col&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>                                        <span class="c1"># Get global positions</span>
+
+    <span class="c1"># Get embeddings and predictions keys</span>
+    <span class="n">emb_key_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;embeddings&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+    <span class="n">pred_key_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;predictions&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">emb_key_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;There are more than 1 or no embedding keys in adata.obsm&#39;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">pred_key_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;There are more than 1 or no prediction keys in adata.obsm&#39;</span>
+    <span class="n">emb_key</span><span class="p">,</span> <span class="n">pred_key</span> <span class="o">=</span> <span class="n">emb_key_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pred_key_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># If embeddings and predictions are present in obsm, get them</span>
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="n">emb_key</span><span class="p">])</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="n">pred_key</span><span class="p">])</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># If layer contains delta then add a used_mean attribute to the graph</span>
+    <span class="n">used_mean</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s1">_avg_exp&#39;</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;deltas&#39;</span><span class="p">,</span> <span class="s1">&#39;log1p&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="k">if</span> <span class="s1">&#39;deltas&#39;</span> <span class="ow">in</span> <span class="n">layer</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="c1"># Define the empty graph dict</span>
+    <span class="n">graph_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">max_abs_d_pos</span><span class="o">=-</span><span class="mi">1</span>
+
+    <span class="c1"># Cycle over each obs</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">neighbors_dict_index</span><span class="p">)),</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">central_node_name</span> <span class="o">=</span> <span class="n">index_to_obs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>                                                 <span class="c1"># Get the name of the central node</span>
+        <span class="n">curr_nodes_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">neighbors_dict_index</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>                              <span class="c1"># Get the indexes of the nodes in the graph</span>
+        <span class="n">curr_adj_matrix</span> <span class="o">=</span> <span class="n">matrices_dict</span><span class="p">[</span><span class="n">central_node_name</span><span class="p">]</span>                                  <span class="c1"># Get the adjacency matrix of the graph (precomputed)</span>
+        <span class="n">curr_edge_index</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">from_scipy_sparse_matrix</span><span class="p">(</span><span class="n">curr_adj_matrix</span><span class="p">)</span>                      <span class="c1"># Get the edge index and edge attribute of the graph</span>
+        <span class="n">curr_layers</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">layers_dict</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">curr_nodes_idx</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">layers_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span> <span class="c1"># Get the layers of the graph filtered by the nodes</span>
+        <span class="n">curr_pos</span> <span class="o">=</span> <span class="n">pos</span><span class="p">[</span><span class="n">curr_nodes_idx</span><span class="p">]</span>                                                      <span class="c1"># Get the positions of the nodes in the graph</span>
+        <span class="n">curr_d_pos</span> <span class="o">=</span> <span class="n">curr_pos</span> <span class="o">-</span> <span class="n">curr_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                                                 <span class="c1"># Get the relative positions of the nodes in the graph</span>
+
+        <span class="c1"># Define the graph</span>
+        <span class="n">graph_dict</span><span class="p">[</span><span class="n">central_node_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">geo_Data</span><span class="p">(</span>
+            <span class="n">y</span><span class="o">=</span><span class="n">curr_layers</span><span class="p">[</span><span class="n">layer</span><span class="p">],</span>
+            <span class="n">edge_index</span><span class="o">=</span><span class="n">curr_edge_index</span><span class="p">,</span>
+            <span class="n">pos</span><span class="o">=</span><span class="n">curr_pos</span><span class="p">,</span>
+            <span class="n">d_pos</span><span class="o">=</span><span class="n">curr_d_pos</span><span class="p">,</span>
+            <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">[</span><span class="n">curr_nodes_idx</span><span class="p">],</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">[</span><span class="n">curr_nodes_idx</span><span class="p">],</span>
+            <span class="n">used_mean</span><span class="o">=</span><span class="n">used_mean</span> <span class="k">if</span> <span class="n">used_mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">num_nodes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">curr_nodes_idx</span><span class="p">),</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">layers_dict</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">][</span><span class="n">curr_nodes_idx</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">max_curr_d_pos</span><span class="o">=</span><span class="n">curr_d_pos</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">max_curr_d_pos</span><span class="o">&gt;</span><span class="n">max_abs_d_pos</span><span class="p">:</span>
+            <span class="n">max_abs_d_pos</span><span class="o">=</span><span class="n">max_curr_d_pos</span>
+
+    <span class="c1">#cast as int</span>
+    <span class="n">max_abs_d_pos</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">max_abs_d_pos</span><span class="p">)</span>
+    
+    <span class="c1"># Return the graph dict</span>
+    <span class="k">return</span> <span class="n">graph_dict</span><span class="p">,</span> <span class="n">max_abs_d_pos</span></div>
+
+
+<span class="c1"># TODO: Add reference to the get graphs_one_slide() in docstring to set the format of the graphs</span>
+<span class="c1"># TODO: Add reference to the github where we found the positional encodings</span>
+<div class="viewcode-block" id="get_sin_cos_positional_embeddings">
+<a class="viewcode-back" href="../../../api/spared.graph_operations.get_sin_cos_positional_embeddings.html#spared.graph_operations.get_sin_cos_positional_embeddings">[docs]</a>
+<span class="k">def</span> <span class="nf">get_sin_cos_positional_embeddings</span><span class="p">(</span><span class="n">graph_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">max_d_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get positional encodings for a neighbors graph.</span>
+
+<span class="sd">    This function adds a transformer-like positional encodings to each graph in a graph dictionary. It adds the positional</span>
+<span class="sd">    encodings under the attribute ``graph.positional_embeddings`` for each graph and returns the modified dictionary. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        graph_dict (dict): A dictionary where the patch names are the keys and a pytorch geometric graphs for each one are values.</span>
+<span class="sd">        max_d_pos (int): Max absolute column or row difference between the center and the neighbors.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: The input graph dict with the information of positional encodings for each graph.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">graph_dict_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">graph_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">graph_dict</span><span class="p">[</span><span class="n">graph_dict_keys</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Define the positional encoding model</span>
+    <span class="n">p_encoding_model</span><span class="o">=</span> <span class="n">PositionalEncoding2D</span><span class="p">(</span><span class="n">embedding_dim</span><span class="p">)</span>
+
+    <span class="c1"># Define the empty grid with size (batch_size, x, y, channels)</span>
+    <span class="n">grid_size</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">max_d_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">max_d_pos</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">embedding_dim</span><span class="p">])</span>
+
+    <span class="c1"># Obtain the embeddings for each position</span>
+    <span class="n">positional_look_up_table</span> <span class="o">=</span> <span class="n">p_encoding_model</span><span class="p">(</span><span class="n">grid_size</span><span class="p">)</span>        
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">graph_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">d_pos</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">d_pos</span>
+        <span class="n">grid_pos</span> <span class="o">=</span> <span class="n">d_pos</span> <span class="o">+</span> <span class="n">max_d_pos</span>
+        <span class="n">graph_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">positional_embeddings</span> <span class="o">=</span> <span class="n">positional_look_up_table</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="n">grid_pos</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">grid_pos</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],:]</span>
+    
+    <span class="k">return</span> <span class="n">graph_dict</span></div>
+
+
+<span class="c1"># TODO: Add references to the functions inside the docstring</span>
+<span class="c1"># TODO: Change the name of the layer parameter to prediction_layer</span>
+<div class="viewcode-block" id="get_graphs">
+<a class="viewcode-back" href="../../../api/spared.graph_operations.get_graphs.html#spared.graph_operations.get_graphs">[docs]</a>
+<span class="k">def</span> <span class="nf">get_graphs</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get graphs for all the slides in a dataset.</span>
+
+<span class="sd">    This function wraps the ``get_graphs_one_slide()`` and ``get_sin_cos_positional_embeddings()`` function to get the graphs</span>
+<span class="sd">    with positional encoding for all the slides in a slide collection.</span>
+<span class="sd">    After computing the graph dicts for each slide it concatenates them into a single dictionary which is then used to compute</span>
+<span class="sd">    the positional embeddings all the graphs.</span>
+
+<span class="sd">    For details see ``get_graphs_one_slide()`` and ``get_sin_cos_positional_embeddings()`` functions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object used to build the graphs.</span>
+<span class="sd">        n_hops (int): The number of hops to compute each graph.</span>
+<span class="sd">        layer (str): The layer of the graph to predict. Will be added as the ``y`` attribute to the graph.</span>
+<span class="sd">        hex_geometry (bool): Whether the graph is hexagonal or not. Only ``True`` for Visium datasets. Defaults to ``True``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary for the slide collection where the spots&#39; names are the keys and pytorch geometric graphs are values. The available attributes for each graph are:</span>
+
+<span class="sd">            - ``y``: The layer of the graph to predict.</span>
+<span class="sd">            - ``edge_index``: The edge index of the graph indicating the graph connections.</span>
+<span class="sd">            - ``pos``: The positions of the nodes with respect to the columns and rows of the slide.</span>
+<span class="sd">            - ``d_pos``: The delta positions of the nodes in the graph relative to the center node.</span>
+<span class="sd">            - ``embeddings``: The embeddings of the nodes in the graph.</span>
+<span class="sd">            - ``predictions``: The predictions of the nodes in the graph.</span>
+<span class="sd">            - ``used_mean``: The mean of the layer used to compute the deltas. Only present if the ``layer`` parameter contains the ``&#39;deltas&#39;`` substring.</span>
+<span class="sd">            - ``num_nodes``: The number of nodes in the graph.</span>
+<span class="sd">            - ``mask``: Mask indicating which of the values of ``y`` is real (``True``) or imputed (``False``).</span>
+<span class="sd">            - ``positional_embeddings``: The positional encodings of the nodes in the graph.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing graphs...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get unique slide ids</span>
+    <span class="n">unique_ids</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="c1"># Global dictionary to store the graphs (pytorch geometric graphs)</span>
+    <span class="n">graph_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">max_global_d_pos</span><span class="o">=-</span><span class="mi">1</span>
+
+    <span class="c1"># Iterate through slides</span>
+    <span class="k">for</span> <span class="n">slide</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">unique_ids</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">curr_adata</span> <span class="o">=</span> <span class="n">filtering</span><span class="o">.</span><span class="n">get_slide_from_collection</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">slide</span><span class="p">)</span>
+        <span class="n">curr_graph_dict</span><span class="p">,</span> <span class="n">max_curr_d_pos</span> <span class="o">=</span> <span class="n">get_graphs_one_slide</span><span class="p">(</span><span class="n">curr_adata</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">,</span> <span class="n">layer</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">)</span>
+        
+        <span class="c1"># Join the current dictionary to the global dictionary</span>
+        <span class="n">graph_dict</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">graph_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">curr_graph_dict</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">max_curr_d_pos</span><span class="o">&gt;</span><span class="n">max_global_d_pos</span><span class="p">:</span>
+            <span class="n">max_global_d_pos</span><span class="o">=</span><span class="n">max_curr_d_pos</span>
+    
+    <span class="n">graph_dict</span> <span class="o">=</span> <span class="n">get_sin_cos_positional_embeddings</span><span class="p">(</span><span class="n">graph_dict</span><span class="p">,</span> <span class="n">max_global_d_pos</span><span class="p">)</span>
+
+    <span class="c1"># Return the graph dict</span>
+    <span class="k">return</span> <span class="n">graph_dict</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

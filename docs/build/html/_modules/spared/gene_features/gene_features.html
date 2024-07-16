@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.gene_features.gene_features &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.gene_features.gene_features</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.gene_features.gene_features</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">squidpy</span> <span class="k">as</span> <span class="nn">sq</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># El path a spared es ahora diferente</span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="c1"># Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+<span class="c1"># Import im_encoder.py file</span>
+<span class="kn">from</span> <span class="nn">filtering</span> <span class="kn">import</span> <span class="n">filtering</span>
+<span class="c1"># Remove the path from sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+<div class="viewcode-block" id="get_exp_frac">
+<a class="viewcode-back" href="../../../api/spared.gene_features.get_exp_frac.html#spared.gene_features.get_exp_frac">[docs]</a>
+<span class="k">def</span> <span class="nf">get_exp_frac</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute the expression fraction for all genes.</span>
+
+<span class="sd">    The expression fraction of a gene in a slide is defined as the proportion of spots where that gene is expressed. It is a number between ``0``</span>
+<span class="sd">    and ``1`` where ``0`` means that the gene is not expressed in any spot and ``1`` means that the gene is expressed in all the spots of the slide.</span>
+
+<span class="sd">    To compute an aggregation of expression fractions in a collection of slides, this function gets the</span>
+<span class="sd">    expression fraction for each slide and then takes the minimum across all the slides. Hence the final number is a lower bound that ensures</span>
+<span class="sd">    that the gene is expressed in at least that fraction of the spots in each one of the slides.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): A slide collection where non-expressed genes have a value of ``0`` in the ``adata.X`` matrix.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated slide collection with the added information into the ``adata.var[&#39;exp_frac&#39;]`` column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the unique slide ids</span>
+    <span class="n">slide_ids</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="c1"># Define zeros matrix of shape (n_genes, n_slides)</span>
+    <span class="n">exp_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">slide_ids</span><span class="p">)))</span>
+
+    <span class="c1"># Iterate over the slide ids</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">slide_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slide_ids</span><span class="p">):</span>
+        <span class="c1"># Get current slide adata</span>
+        <span class="n">slide_adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">slide_id</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="c1"># Get current slide expression fraction</span>
+        <span class="n">curr_exp_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">slide_adata</span><span class="o">.</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">slide_adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
+        <span class="c1"># Add current slide expression fraction to the matrix</span>
+        <span class="n">exp_frac</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">curr_exp_frac</span>
+    
+    <span class="c1"># Compute the minimum expression fraction for each gene across all the slides</span>
+    <span class="n">min_exp_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">exp_frac</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Add the minimum expression fraction to the var dataframe of the slide collection</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;exp_frac&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_exp_frac</span>
+
+    <span class="c1"># Return the adata</span>
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<div class="viewcode-block" id="get_glob_exp_frac">
+<a class="viewcode-back" href="../../../api/spared.gene_features.get_glob_exp_frac.html#spared.gene_features.get_glob_exp_frac">[docs]</a>
+<span class="k">def</span> <span class="nf">get_glob_exp_frac</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute the global expression fraction for all genes.</span>
+<span class="sd">    </span>
+<span class="sd">    This function computes the global expression fraction for each gene in a dataset.</span>
+
+<span class="sd">    The global expression fraction of a gene in a dataset is defined as the proportion of spots where that gene is expressed. It is a number between ``0``</span>
+<span class="sd">    and ``1`` where ``0`` means that the gene is not expressed in any spot and ``1`` means that the gene is expressed in all the spots. Its difference</span>
+<span class="sd">    with the expression fraction is that the global expression fraction is computed for the whole dataset and not for each slide.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): A slide collection where a non-expressed genes have a value of ``0`` in the ``adata.X`` matrix.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated slide collection with the information added into the  ``adata.var[&#39;glob_exp_frac&#39;]`` column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get global expression fraction</span>
+    <span class="n">glob_exp_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">))</span>
+
+    <span class="c1"># Add the global expression fraction to the var dataframe of the slide collection</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;glob_exp_frac&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">glob_exp_frac</span>
+
+    <span class="c1"># Return the adata</span>
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<span class="c1"># TODO: Add documentation reference to some literature of the moran&#39;s I statistic</span>
+<div class="viewcode-block" id="compute_moran">
+<a class="viewcode-back" href="../../../api/spared.gene_features.compute_moran.html#spared.gene_features.compute_moran">[docs]</a>
+<span class="k">def</span> <span class="nf">compute_moran</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Moran&#39;s I statistic for each gene.</span>
+
+<span class="sd">    Compute average Moran&#39;s I statistic for a collection of slides. Internally cycles over each slide in the ``adata`` collection</span>
+<span class="sd">    and computes the Moran&#39;s I statistic for each gene. After that, it averages the Moran&#39;s I for each gene across all</span>
+<span class="sd">    slides and saves it in ``adata.var[f&#39;{from_layer}_moran&#39;]``.The input data for the Moran&#39;s I computation is ``adata.layers[from_layer]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to update. Must have expression values in ``adata.layers[from_layer]``.</span>
+<span class="sd">        from_layer (str): The key in ``adata.layers`` with the values used to compute Moran&#39;s I.</span>
+<span class="sd">        hex_geometry (bool): Whether the geometry is hexagonal or not. This is used to compute the spatial neighbors before computing Moran&#39;s I. Only ``True`` for Visium datasets.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated AnnData object with the average Moran&#39;s I for each gene in ``adata.var[f&#39;{from_layer}_moran&#39;]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Computing Moran</span><span class="se">\&#39;</span><span class="s1">s I for each gene over each slide using data of layer </span><span class="si">{</span><span class="n">from_layer</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get the unique slide_ids</span>
+    <span class="n">slide_ids</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="c1"># Create a dataframe to store the Moran&#39;s I for each slide</span>
+    <span class="n">moran_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">slide_ids</span><span class="p">)</span>
+
+    <span class="c1"># Cycle over each slide</span>
+    <span class="k">for</span> <span class="n">slide</span> <span class="ow">in</span> <span class="n">slide_ids</span><span class="p">:</span>
+        <span class="c1"># Get the annData for the current slide</span>
+        <span class="n">slide_adata</span> <span class="o">=</span> <span class="n">filtering</span><span class="o">.</span><span class="n">get_slide_from_collection</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">slide</span><span class="p">)</span>
+        <span class="c1"># Compute spatial_neighbors</span>
+        <span class="k">if</span> <span class="n">hex_geometry</span><span class="p">:</span>
+            <span class="c1"># Hexagonal visium case</span>
+            <span class="n">sq</span><span class="o">.</span><span class="n">gr</span><span class="o">.</span><span class="n">spatial_neighbors</span><span class="p">(</span><span class="n">slide_adata</span><span class="p">,</span> <span class="n">coord_type</span><span class="o">=</span><span class="s1">&#39;generic&#39;</span><span class="p">,</span> <span class="n">n_neighs</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Grid STNet dataset case</span>
+            <span class="n">sq</span><span class="o">.</span><span class="n">gr</span><span class="o">.</span><span class="n">spatial_neighbors</span><span class="p">(</span><span class="n">slide_adata</span><span class="p">,</span> <span class="n">coord_type</span><span class="o">=</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="n">n_neighs</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="c1"># Compute Moran&#39;s I</span>
+        <span class="n">sq</span><span class="o">.</span><span class="n">gr</span><span class="o">.</span><span class="n">spatial_autocorr</span><span class="p">(</span>
+            <span class="n">slide_adata</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;moran&quot;</span><span class="p">,</span>
+            <span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">,</span>
+            <span class="n">genes</span><span class="o">=</span><span class="n">slide_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span>
+            <span class="n">n_perms</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="mi">42</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get moran I</span>
+        <span class="n">moranI</span> <span class="o">=</span> <span class="n">slide_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;moranI&#39;</span><span class="p">][</span><span class="s1">&#39;I&#39;</span><span class="p">]</span>
+        <span class="c1"># Reindex moranI to match the order of the genes in the adata object</span>
+        <span class="n">moranI</span> <span class="o">=</span> <span class="n">moranI</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="c1"># Add the Moran&#39;s I to the dataframe</span>
+        <span class="n">moran_df</span><span class="p">[</span><span class="n">slide</span><span class="p">]</span> <span class="o">=</span> <span class="n">moranI</span>
+
+    <span class="c1"># Compute the average Moran&#39;s I for each gene</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">from_layer</span><span class="si">}</span><span class="s1">_moran&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">moran_df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Return the updated AnnData object</span>
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.filtering.filter_dataset &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="spared.filtering.get_slide_from_collection" href="spared.filtering.get_slide_from_collection.html" />
+    <link rel="prev" title="spared.filtering.filter_by_moran" href="spared.filtering.filter_by_moran.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.datasets">Datasets</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="spared.filtering.filter_by_moran.html">spared.filtering.filter_by_moran</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">spared.filtering.filter_dataset</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#spared.filtering.filter_dataset"><code class="docutils literal notranslate"><span class="pre">filter_dataset()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="spared.filtering.get_slide_from_collection.html">spared.filtering.get_slide_from_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spared.filtering.get_slides_adata.html">spared.filtering.get_slides_adata</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.metrics">Metrics</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API</a></li>
+      <li class="breadcrumb-item active">spared.filtering.filter_dataset</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/spared.filtering.filter_dataset.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spared-filtering-filter-dataset">
+<h1>spared.filtering.filter_dataset<a class="headerlink" href="#spared-filtering-filter-dataset" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="spared.filtering.filter_dataset">
+<span class="sig-prename descclassname"><span class="pre">spared.filtering.</span></span><span class="sig-name descname"><span class="pre">filter_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AnnData</span></span></span><a class="reference internal" href="../_modules/spared/filtering/filtering.html#filter_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.filtering.filter_dataset" title="Link to this definition"></a></dt>
+<dd><p>Perform complete filtering pipeline of a slide collection.</p>
+<p>This function takes a completely unfiltered and unprocessed (in raw counts) slide collection and filters it
+(both samples and genes) according to the <code class="docutils literal notranslate"><span class="pre">param_dict</span></code> argument.
+A summary list of the steps is the following:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p>Filter out observations with <code class="docutils literal notranslate"><span class="pre">total_counts</span></code> outside the range <code class="docutils literal notranslate"><span class="pre">[param_dict['cell_min_counts'],</span> <span class="pre">param_dict['cell_max_counts']]</span></code>.
+This filters out low quality observations not suitable for analysis.</p></li>
+<li><p>Compute the <code class="docutils literal notranslate"><span class="pre">exp_frac</span></code> for each gene. This means that for each slide in the collection we compute the fraction of the spots that express each gene and then take the minimum across all the slides (see <code class="docutils literal notranslate"><span class="pre">get_exp_frac</span></code> function for more details).</p></li>
+<li><p>Compute the <code class="docutils literal notranslate"><span class="pre">glob_exp_frac</span></code> for each gene. This is similar to the <code class="docutils literal notranslate"><span class="pre">exp_frac</span></code> but instead of computing for each
+slide and taking the minimum we compute it for the whole collection. Slides don’t matter here
+(see <code class="docutils literal notranslate"><span class="pre">get_glob_exp_frac</span></code> function for more details).</p></li>
+<li><p>Filter out genes depending on the <code class="docutils literal notranslate"><span class="pre">param_dict['wildcard_genes']</span></code> value, the options are the following:</p>
+<blockquote>
+<div><ol class="loweralpha">
+<li><p><code class="docutils literal notranslate"><span class="pre">param_dict['wildcard_genes']</span> <span class="pre">==</span> <span class="pre">'None'</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Filter out genes that are not expressed in at least <code class="docutils literal notranslate"><span class="pre">param_dict['min_exp_frac']</span></code> of spots in each slide.</p></li>
+<li><p>Filter out genes that are not expressed in at least <code class="docutils literal notranslate"><span class="pre">param_dict['min_glob_exp_frac']</span></code> of spots in the whole collection.</p></li>
+<li><p>Filter out genes with counts outside the range <code class="docutils literal notranslate"><span class="pre">[param_dict['gene_min_counts'],</span> <span class="pre">param_dict['gene_max_counts']]</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">param_dict['wildcard_genes']</span> <span class="pre">!=</span> <span class="pre">'None'</span></code>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Read <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file specified by <code class="docutils literal notranslate"><span class="pre">param_dict['wildcard_genes']</span></code> and leave only the genes that are in this file.</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ol>
+</div></blockquote>
+</li>
+<li><p>If there are spots with zero counts in all genes after gene filtering, remove them.</p></li>
+<li><p>Compute quality control metrics using scanpy’s <code class="docutils literal notranslate"><span class="pre">sc.pp.calculate_qc_metrics</span></code> function.</p></li>
+</ol>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – An unfiltered (unexpressed genes are encoded as <code class="docutils literal notranslate"><span class="pre">0</span></code> on the <code class="docutils literal notranslate"><span class="pre">adata.X</span> <span class="pre">matrix</span></code>) slide collection.</p></li>
+<li><p><strong>param_dict</strong> (<em>dict</em>) – <p>Dictionary that contains filtering and processing parameters. Keys that must be present are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'cell_min_counts'</span></code> (<em>int</em>):      Minimum total counts for a spot to be valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'cell_max_counts'</span></code> (<em>int</em>):      Maximum total counts for a spot to be valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'gene_min_counts'</span></code> (<em>int</em>):      Minimum total counts for a gene to be valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'gene_max_counts'</span></code> (<em>int</em>):      Maximum total counts for a gene to be valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'min_exp_frac'</span></code> (<em>float</em>):       Minimum fraction of spots in any slide that must express a gene for it to be valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'min_glob_exp_frac'</span></code> (<em>float</em>):  Minimum fraction of spots in the whole collection that must express a gene for it to be valid.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'wildcard_genes'</span></code> (<em>str</em>):       Path to a <code class="docutils literal notranslate"><span class="pre">.txt</span></code> file with the genes to keep or <code class="docutils literal notranslate"><span class="pre">'None'</span></code> to filter genes based on the other keys.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The filtered adata collection.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ad.AnnData</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spared.filtering.filter_by_moran.html" class="btn btn-neutral float-left" title="spared.filtering.filter_by_moran" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="spared.filtering.get_slide_from_collection.html" class="btn btn-neutral float-right" title="spared.filtering.get_slide_from_collection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

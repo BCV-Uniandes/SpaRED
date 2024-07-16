@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.plotting.plotting &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.plotting.plotting</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.plotting.plotting</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">scanpy</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;USE_PYGEOS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span> <span class="c1"># To supress a warning from geopandas</span>
+<span class="kn">import</span> <span class="nn">squidpy</span> <span class="k">as</span> <span class="nn">sq</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">matplotlib.colors</span> <span class="kn">import</span> <span class="n">LinearSegmentedColormap</span>   
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">colors</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1">#Path a spared</span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="c1">#Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+<span class="c1">#import requiere files</span>
+<span class="kn">from</span> <span class="nn">gene_features</span> <span class="kn">import</span> <span class="n">gene_features</span>
+<span class="kn">from</span> <span class="nn">filtering</span> <span class="kn">import</span> <span class="n">filtering</span>
+<span class="kn">from</span> <span class="nn">spot_features</span> <span class="kn">import</span> <span class="n">spot_features</span>
+
+<div class="viewcode-block" id="plot_all_slides">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_all_slides.html#spared.plotting.plot_all_slides">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_all_slides</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot all the whole slide images</span>
+
+<span class="sd">    This function takes a slide collection and plot all the whole slide images in a square aspect ratio.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: Name of the dataset</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        path (str): Path to save the plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Get unique slide ids</span>
+    <span class="n">unique_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+
+    <span class="c1"># Get number of rows and columns for the number of slides</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_ids</span><span class="p">))))</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_ids</span><span class="p">))</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+
+    <span class="c1"># Define figure</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="p">(</span><span class="mi">7</span><span class="o">*</span><span class="n">m</span><span class="o">/</span><span class="n">n</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># Flatten axes list</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">curr_id</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">unique_ids</span><span class="p">):</span>
+        <span class="n">curr_img</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">][</span><span class="n">curr_id</span><span class="p">][</span><span class="s1">&#39;images&#39;</span><span class="p">][</span><span class="s1">&#39;lowres&#39;</span><span class="p">]</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">curr_img</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">curr_id</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;large&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Remove axis for all the figure</span>
+    <span class="p">[</span><span class="n">axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">]</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;All Histology Images from </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="s1">&#39;x-large&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_exp_frac">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_exp_frac.html#spared.plotting.plot_exp_frac">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_exp_frac</span><span class="p">(</span><span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">raw_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot heatmap of expression fraction</span>
+
+<span class="sd">    This function plots a heatmap of the expression fraction and global expression fraction for the complete collection of slides.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        raw_adata (ad.AnnData): An unfiltered and unprocessed (in raw counts) slide collection.</span>
+<span class="sd">        path (str): Path to save the plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    
+    <span class="c1"># Find indexes of cells with total_counts outside the range [cell_min_counts, cell_max_counts]</span>
+    <span class="n">sample_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">raw_adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">bool_valid_samples</span> <span class="o">=</span> <span class="p">(</span><span class="n">sample_counts</span> <span class="o">&gt;</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;cell_min_counts&#39;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sample_counts</span> <span class="o">&lt;</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;cell_max_counts&#39;</span><span class="p">])</span>
+    <span class="n">valid_samples</span> <span class="o">=</span> <span class="n">raw_adata</span><span class="o">.</span><span class="n">obs_names</span><span class="p">[</span><span class="n">bool_valid_samples</span><span class="p">]</span>
+
+    <span class="c1"># Subset the raw_adata to keep only the valid samples</span>
+    <span class="n">raw_adata</span> <span class="o">=</span> <span class="n">raw_adata</span><span class="p">[</span><span class="n">valid_samples</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Compute the min expression fraction for each gene across all the slides</span>
+    <span class="n">raw_adata</span> <span class="o">=</span> <span class="n">gene_features</span><span class="o">.</span><span class="n">get_exp_frac</span><span class="p">(</span><span class="n">raw_adata</span><span class="p">)</span>
+    <span class="c1"># Compute the global expression fraction for each gene</span>
+    <span class="n">raw_adata</span> <span class="o">=</span> <span class="n">gene_features</span><span class="o">.</span><span class="n">get_glob_exp_frac</span><span class="p">(</span><span class="n">raw_adata</span><span class="p">)</span>
+    
+    <span class="c1"># Histogram matrix</span>
+    <span class="n">hist_mat</span><span class="p">,</span> <span class="n">edge_exp_frac</span><span class="p">,</span> <span class="n">edge_glob_exp_frac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span><span class="n">raw_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;exp_frac&#39;</span><span class="p">],</span> <span class="n">raw_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;glob_exp_frac&#39;</span><span class="p">],</span> <span class="nb">range</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="c1"># Define dataframe</span>
+    <span class="n">index_str</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">per</span><span class="p">)</span><span class="si">}</span><span class="s1">%&#39;</span> <span class="k">for</span> <span class="n">per</span> <span class="ow">in</span> <span class="n">edge_exp_frac</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+    <span class="n">col_str</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">per</span><span class="p">)</span><span class="si">}</span><span class="s1">%&#39;</span> <span class="k">for</span> <span class="n">per</span> <span class="ow">in</span> <span class="n">edge_glob_exp_frac</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+
+    <span class="n">hist_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">hist_mat</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">index_str</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">col_str</span><span class="p">)</span>
+    <span class="c1"># Plot params</span>
+    <span class="n">scale</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">fig_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+    <span class="n">tit_size</span> <span class="o">=</span> <span class="mi">80</span>
+    <span class="n">lab_size</span> <span class="o">=</span> <span class="mi">40</span>
+    
+    <span class="c1"># Define colormap</span>
+    <span class="n">d_colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="s2">&quot;darkcyan&quot;</span><span class="p">]</span>
+    <span class="n">cmap1</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">&quot;mycmap&quot;</span><span class="p">,</span> <span class="n">d_colors</span><span class="p">)</span>
+
+    <span class="c1"># Plot global expression fraction dataframe</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">fig_size</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">font_scale</span><span class="o">=</span><span class="n">scale</span><span class="p">)</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">hist_df</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap1</span><span class="p">,</span> <span class="n">linecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">colors</span><span class="o">.</span><span class="n">LogNorm</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">10000</span><span class="p">))</span>
+    
+    <span class="c1"># Define figure styling</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Expression Fraction </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tit_size</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">lab_size</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Global Expression Fraction&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tit_size</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Expression Fraction&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tit_size</span><span class="p">)</span>
+
+    <span class="c1"># Define color bar configs</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">colorbar</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="n">lab_size</span><span class="p">)</span>
+    <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Number of Genes&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">tit_size</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    
+    <span class="c1"># Save figure</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="c1"># Return font scale to normal and matplotlib defaults to not mess the other figures</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">set_theme</span><span class="p">(</span><span class="n">font_scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">mpl</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">mpl</span><span class="o">.</span><span class="n">rcParamsDefault</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_histograms">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_histograms.html#spared.plotting.plot_histograms">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_histograms</span><span class="p">(</span><span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">raw_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot filtering histograms</span>
+
+<span class="sd">    This function plots a figure that analyses the effect of the filtering over the data.</span>
+<span class="sd">    The first row corresponds to the raw data (which has patches and excludes constant genes) and the second row</span>
+<span class="sd">    plots the filtered and processed data. Histograms of total:</span>
+<span class="sd">        </span>
+<span class="sd">        1. Counts per cell</span>
+<span class="sd">        2. Cells with expression</span>
+<span class="sd">        3. Total counts per gene</span>
+<span class="sd">        4. Moran I statistics (only in processed data)</span>
+<span class="sd">    </span>
+<span class="sd">    are generated. The plot is saved in the specified path.</span>
+<span class="sd">    Cell filtering histograms are in red, gene filtering histograms are in blue and autocorrelation filtering histograms are in green.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        raw_adata (ad.AnnData): Loaded data from .h5ad file that is not filtered but has patch information.</span>
+<span class="sd">        path (str): Path to save histogram plot.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c1"># Compute qc metrics for raw and processed data in order to have total counts updated</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">calculate_qc_metrics</span><span class="p">(</span><span class="n">raw_adata</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log1p</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">percent_top</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">calculate_qc_metrics</span><span class="p">(</span><span class="n">processed_adata</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log1p</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">percent_top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Compute the expression fraction of the raw_adata</span>
+    <span class="n">raw_adata</span> <span class="o">=</span> <span class="n">gene_features</span><span class="o">.</span><span class="n">get_exp_frac</span><span class="p">(</span><span class="n">raw_adata</span><span class="p">)</span>
+
+    <span class="c1"># Create figures</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mf">18.75</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="n">bin_num</span> <span class="o">=</span> <span class="mi">50</span>
+
+    <span class="c1"># Plot histogram of the number of counts that each cell has</span>
+    <span class="n">raw_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;total_counts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+    <span class="n">processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;total_counts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkred&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Plot histogram of the expression fraction of each gene</span>
+    <span class="n">raw_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;exp_frac&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">processed_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;exp_frac&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkcyan&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Plot histogram of the number of cells that express a given gene</span>
+    <span class="n">raw_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;n_cells_by_counts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">processed_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;n_cells_by_counts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkcyan&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># Plot histogram of the number of total counts per gene</span>
+    <span class="n">raw_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;total_counts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">processed_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;total_counts&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkcyan&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># Plot histogram of the MoranI statistic per gene</span>
+    <span class="c1"># raw_adata.var[&#39;moranI&#39;].plot(kind=&#39;hist&#39;, ax=ax[0,4], bins=bin_num, grid=False, color=&#39;k&#39;, logy=True)</span>
+    <span class="n">processed_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;d_log1p_moran&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">bin_num</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;darkgreen&#39;</span><span class="p">,</span> <span class="n">logy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Lists to format axes</span>
+    <span class="n">tit_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Raw: Total counts&#39;</span><span class="p">,</span>        <span class="s1">&#39;Raw: Expression fraction&#39;</span><span class="p">,</span>         <span class="s1">&#39;Raw: Cells with expression&#39;</span><span class="p">,</span>       <span class="s1">&#39;Raw: Total gene counts&#39;</span><span class="p">,</span>       <span class="s1">&#39;Raw: MoranI statistic&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;Processed: Total counts&#39;</span><span class="p">,</span>  <span class="s1">&#39;Processed: Expression fraction&#39;</span><span class="p">,</span>   <span class="s1">&#39;Processed: Cells with expression&#39;</span><span class="p">,</span> <span class="s1">&#39;Processed: Total gene counts&#39;</span><span class="p">,</span> <span class="s1">&#39;Processed: MoranI statistic&#39;</span><span class="p">]</span>
+    <span class="n">x_lab_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Total counts&#39;</span><span class="p">,</span> <span class="s1">&#39;Expression fraction&#39;</span><span class="p">,</span> <span class="s1">&#39;Cells with expression&#39;</span><span class="p">,</span> <span class="s1">&#39;Total counts&#39;</span><span class="p">,</span> <span class="s1">&#39;MoranI statistic&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span>
+    <span class="n">y_lab_list</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;# of cells&#39;</span><span class="p">,</span> <span class="s1">&#39;# of genes&#39;</span><span class="p">,</span> <span class="s1">&#39;# of genes&#39;</span><span class="p">,</span> <span class="s1">&#39;# of genes&#39;</span><span class="p">,</span> <span class="s1">&#39;# of genes&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">2</span>
+
+    <span class="c1"># Format axes</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()):</span>
+        <span class="c1"># Not show moran in raw data because it has no sense to compute it</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="c1"># Delete frame </span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">tit_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_lab_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">y_lab_list</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Shared x axes between plots</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sharex</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sharex</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">sharex</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">sharex</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">sharex</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+
+    <span class="c1"># Shared y axes between</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sharey</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+    
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    
+<div class="viewcode-block" id="plot_random_patches">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_random_patches.html#spared.plotting.plot_random_patches">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_random_patches</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">224</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot random set of patches</span>
+
+<span class="sd">    This function gets 16 flat random patches (with the specified dims) from the processed adata objects. It</span>
+<span class="sd">    reshapes them to a bidimensional form and shows them. The plot is saved to the specified path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        patch_size: Patch size (default 224)</span>
+<span class="sd">        dataset: Name of the dataset</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        path (str): Path to save the image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Verify that the patch scale exists and only exists once</span>
+    <span class="n">obsm_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">processed_adata</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">patch_scale_key</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">obsm_keys</span> <span class="k">if</span> <span class="s2">&quot;patches_scale&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">patch_scale_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;patches_scale key either does not exist or exists more than once in keys_list.&quot;</span>
+    <span class="c1"># Get the patch scale</span>
+    <span class="n">patch_scale</span> <span class="o">=</span> <span class="n">patch_scale_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># Get the flat patches from the dataset</span>
+    <span class="n">flat_patches</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;patches_scale_</span><span class="si">{</span><span class="n">patch_scale</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span>
+    <span class="c1"># Reshape the patches for them to have image form</span>
+    <span class="n">patches</span> <span class="o">=</span> <span class="n">flat_patches</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">,</span> <span class="n">patch_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="c1"># Choose 16 random patches</span>
+    <span class="n">chosen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">patches</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+    <span class="c1"># Get plotting patches</span>
+    <span class="n">plotting_patches</span> <span class="o">=</span> <span class="n">patches</span><span class="p">[</span><span class="n">chosen</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+    <span class="c1"># Declare image</span>
+    <span class="n">im</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+    <span class="c1"># Cycle over each random patch</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">plotting_patches</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Set figure formatting</span>
+    <span class="n">im</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Random patches from </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">im</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="visualize_moran_filtering">
+<a class="viewcode-back" href="../../../api/spared.plotting.visualize_moran_filtering.html#spared.plotting.visualize_moran_filtering">[docs]</a>
+<span class="k">def</span> <span class="nf">visualize_moran_filtering</span><span class="p">(</span><span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_names</span><span class="p">:</span><span class="nb">dict</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot the most or least auto-correlated genes</span>
+
+<span class="sd">    This function visualizes the spatial expression of the 4 most and least auto-correlated genes in processed_adata.</span>
+<span class="sd">    The title of each subplot shows the value of the moran I statistic for a given gene. The plot is saved to the specified</span>
+<span class="sd">    path. This plot uses the slide list in string format in param_dict[&#39;plotting_slides&#39;] to plot these specific observations.</span>
+<span class="sd">    If no list is provided (param_dict[&#39;plotting_slides&#39;]==&#39;None&#39;), 4 random slides are chosen. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        param_dict: Dictionary with dataset parameters</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model</span>
+<span class="sd">        from_layer (str): Layer of the adata object to use for plotting</span>
+<span class="sd">        path (str): Path to save the generated image</span>
+<span class="sd">        split_names (dict): dictionary containing split names</span>
+<span class="sd">        top (bool, optional): If True, the top 4 most auto-correlated genes are visualized. If False, the top 4 least</span>
+<span class="sd">                            auto-correlated genes are visualized. Defaults to True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">plotting_key</span> <span class="o">=</span> <span class="n">from_layer</span>
+    
+    <span class="c1"># Refine plotting slides string to assure they are in the dataset</span>
+    <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refine_plotting_slides_str</span><span class="p">(</span><span class="n">split_names</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Get the slides to visualize in adata format</span>
+    <span class="n">s_adata_list</span> <span class="o">=</span> <span class="n">filtering</span><span class="o">.</span><span class="n">get_slides_adata</span><span class="p">(</span><span class="n">processed_adata</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Get te top 4 most or least auto-correlated genes in processed data depending on the value of top</span>
+    <span class="c1"># NOTE: The selection of genes is done in the complete collection of slides, not in the specified slides</span>
+    <span class="n">moran_key</span> <span class="o">=</span> <span class="s1">&#39;d_log1p_moran&#39;</span>
+    <span class="k">if</span> <span class="n">top</span><span class="p">:</span>
+        <span class="n">selected_table</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">nlargest</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">moran_key</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">selected_table</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">nsmallest</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">moran_key</span><span class="p">)</span>
+
+    <span class="c1"># Declare figure</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">))</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">)</span> <span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+
+    <span class="c1"># Cycle over slides</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected_table</span><span class="p">)):</span>
+
+        <span class="c1"># Get min and max of the selected gene in the slides</span>
+        <span class="n">gene_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">dat</span><span class="p">[:,</span> <span class="n">selected_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">plotting_key</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="k">for</span> <span class="n">dat</span> <span class="ow">in</span> <span class="n">s_adata_list</span><span class="p">])</span>
+        <span class="n">gene_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">dat</span><span class="p">[:,</span> <span class="n">selected_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">plotting_key</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">for</span> <span class="n">dat</span> <span class="ow">in</span> <span class="n">s_adata_list</span><span class="p">])</span>
+
+        <span class="c1"># Define color normalization</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">gene_min</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">gene_max</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">)):</span>
+            
+            <span class="c1"># Define bool to only plot the colorbar in the last column</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+
+            <span class="c1"># Plot selected genes in the specified slides</span>
+            <span class="n">sq</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">spatial_scatter</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">selected_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">layer</span><span class="o">=</span> <span class="n">plotting_key</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="n">cbar</span><span class="p">)</span>
+            
+            <span class="c1"># Set slide name</span>
+            <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;plotting_slides&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Set gene name and moran I value</span>
+            <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">selected_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">: $I = </span><span class="si">{</span><span class="n">selected_table</span><span class="p">[</span><span class="n">moran_key</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Format figure</span>
+    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="c1"># Turn off all spines</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Define title</span>
+    <span class="n">tit_str</span> <span class="o">=</span> <span class="s1">&#39;most (top)&#39;</span> <span class="k">if</span> <span class="n">top</span> <span class="k">else</span> <span class="s1">&#39;least (bottom)&#39;</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Top 4 </span><span class="si">{</span><span class="n">tit_str</span><span class="si">}</span><span class="s1"> auto-correlated genes in processed data&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="c1"># Save plot </span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="visualize_gene_expression">
+<a class="viewcode-back" href="../../../api/spared.plotting.visualize_gene_expression.html#spared.plotting.visualize_gene_expression">[docs]</a>
+<span class="k">def</span> <span class="nf">visualize_gene_expression</span><span class="p">(</span><span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_names</span><span class="p">:</span><span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot specific gene expression</span>
+
+<span class="sd">    This function selects the genes specified in param_dict[&#39;plotting_genes&#39;] and param_dict[&#39;plotting_slides&#39;]</span>
+<span class="sd">    to plot gene expression for the specified genes in the specified slides. If either of them is &#39;None&#39;, then the method</span>
+<span class="sd">    chooses randomly (4 genes or 4 slides in the stnet_dataset or 2 slides in visium datasets). The data is plotted from</span>
+<span class="sd">    the .layers[from_layer] expression matrix</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        param_dict: Dictionary of dataset parameters</span>
+<span class="sd">        processed_adata (ad.AnnData): The processed adata with the filtered patient collection</span>
+<span class="sd">        from_layer (str): The key to the layer of the data to plot</span>
+<span class="sd">        path (str): Path to save the image</span>
+<span class="sd">        split_names (dict): dictionary containing split names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Refine plotting slides string to assure they are in the dataset</span>
+    <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refine_plotting_slides_str</span><span class="p">(</span><span class="n">split_names</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Get the slides to visualize in adata format</span>
+    <span class="n">s_adata_list</span> <span class="o">=</span> <span class="n">filtering</span><span class="o">.</span><span class="n">get_slides_adata</span><span class="p">(</span><span class="n">processed_adata</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Define gene list</span>
+    <span class="n">gene_list</span> <span class="o">=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_genes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Try to get the specified genes otherwise choose randomly</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">gene_table</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="p">[:,</span> <span class="n">gene_list</span><span class="p">]</span><span class="o">.</span><span class="n">var</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Could not find all the specified plotting genes, choosing randomly&#39;</span><span class="p">)</span>
+        <span class="n">gene_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">processed_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">gene_table</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="p">[:,</span> <span class="n">gene_list</span><span class="p">]</span><span class="o">.</span><span class="n">var</span>
+    
+    <span class="c1"># Declare figure</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">))</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">)</span> <span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+
+    <span class="c1"># Cycle over slides</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gene_table</span><span class="p">)):</span>
+
+        <span class="c1"># Get min and max of the selected gene in the slides</span>
+        <span class="n">gene_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">([</span><span class="n">dat</span><span class="p">[:,</span> <span class="n">gene_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">from_layer</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="k">for</span> <span class="n">dat</span> <span class="ow">in</span> <span class="n">s_adata_list</span><span class="p">])</span>
+        <span class="n">gene_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">dat</span><span class="p">[:,</span> <span class="n">gene_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">from_layer</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">for</span> <span class="n">dat</span> <span class="ow">in</span> <span class="n">s_adata_list</span><span class="p">])</span>
+
+        <span class="c1"># Define color normalization</span>
+        <span class="n">norm</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">gene_min</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">gene_max</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">)):</span>
+
+            <span class="c1"># Define bool to only plot the colorbar in the last column</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+            
+            <span class="c1"># Plot selected genes in the specified slides</span>
+            <span class="n">sq</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">spatial_scatter</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">gene_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span> <span class="n">norm</span><span class="o">=</span><span class="n">norm</span><span class="p">,</span> <span class="n">colorbar</span><span class="o">=</span><span class="n">cbar</span><span class="p">)</span>
+            
+            <span class="c1"># Set slide name</span>
+            <span class="k">if</span> <span class="n">i</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;plotting_slides&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+            
+            <span class="c1"># Set gene name with moran I value </span>
+            <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">moran_key</span> <span class="o">=</span> <span class="s1">&#39;d_log1p_moran&#39;</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gene_table</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">: $I = </span><span class="si">{</span><span class="n">gene_table</span><span class="p">[</span><span class="n">moran_key</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s1">$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Format figure</span>
+    <span class="k">for</span> <span class="n">axis</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="c1"># Turn off all spines</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">axis</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s1">&#39;Gene expression in processed data&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="c1"># Save plot</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_clusters">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_clusters.html#spared.plotting.plot_clusters">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_clusters</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_names</span><span class="p">:</span><span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot clusters spatially</span>
+
+<span class="sd">    This function generates a plot that visualizes Leiden clusters spatially in the slides in param_dict[&#39;plotting_slides&#39;].</span>
+<span class="sd">    The slides can be specified in param_dict[&#39;plotting_slides&#39;] or chosen randomly.</span>
+<span class="sd">    </span>
+<span class="sd">    It plots:</span>
+<span class="sd">    </span>
+<span class="sd">        1. The spatial distribution of the Leiden clusters in the slides.</span>
+<span class="sd">        2. UMAP embeddings of each slide colored by Leiden clusters.</span>
+<span class="sd">        3. General UMAP embedding of the complete dataset colored by Leiden clusters and the batch correction key.</span>
+<span class="sd">        4. PCA embeddings of the complete dataset colored by the batch correction key.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: Name of the dataset</span>
+<span class="sd">        param_dict: Dictionary of dataset parameters</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        from_layer (str): The key in adata.layers where the expression matrix is stored.</span>
+<span class="sd">        path (str): Path to save the image</span>
+<span class="sd">        split_names (dict): dictionary containing split names</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Update the adata object with the embeddings and clusters</span>
+    <span class="n">updated_adata</span> <span class="o">=</span> <span class="n">spot_features</span><span class="o">.</span><span class="n">compute_dim_red</span><span class="p">(</span><span class="n">processed_adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">)</span>
+
+    <span class="c1"># Refine plotting slides string to assure they are in the dataset</span>
+    <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refine_plotting_slides_str</span><span class="p">(</span><span class="n">split_names</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Get the slides to visualize in adata format</span>
+    <span class="n">s_adata_list</span> <span class="o">=</span> <span class="n">filtering</span><span class="o">.</span><span class="n">get_slides_adata</span><span class="p">(</span><span class="n">updated_adata</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Define dictionary from cluster to color</span>
+    <span class="n">clusters</span> <span class="o">=</span> <span class="n">updated_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="c1"># Sort clusters</span>
+    <span class="n">clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">cl</span><span class="p">)</span> <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="n">clusters</span><span class="p">])</span>
+    <span class="n">clusters</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cl</span><span class="p">)</span> <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="n">clusters</span><span class="p">]</span>
+    <span class="c1"># Define color palette</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;hls&#39;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">clusters</span><span class="p">))</span>
+    <span class="n">palette</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span> <span class="n">colors</span><span class="p">))</span>
+    <span class="n">gray_palette</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;gray&#39;</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">clusters</span><span class="p">)))</span>
+
+    <span class="c1"># Declare figure</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+    <span class="n">gs0</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">gs00</span> <span class="o">=</span> <span class="n">gs0</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subgridspec</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">gs01</span> <span class="o">=</span> <span class="n">gs0</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">subgridspec</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">14</span><span class="p">)</span>
+
+    <span class="c1"># Cycle over slides</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">)):</span>
+        
+        <span class="n">curr_clusters</span> <span class="o">=</span> <span class="n">s_adata_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="c1"># Sort clusters</span>
+        <span class="n">curr_clusters</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">cl</span><span class="p">)</span> <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="n">curr_clusters</span><span class="p">])</span>
+        <span class="n">curr_clusters</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">cl</span><span class="p">)</span> <span class="k">for</span> <span class="n">cl</span> <span class="ow">in</span> <span class="n">curr_clusters</span><span class="p">]</span>
+        <span class="c1"># # Define color palette</span>
+        <span class="n">spatial_colors</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">ListedColormap</span><span class="p">([</span><span class="n">palette</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">curr_clusters</span><span class="p">])</span>
+        
+        <span class="c1"># Get ax for spatial plot and UMAP plot</span>
+        <span class="n">spatial_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs00</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">umap_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs00</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Plot cluster colors in spatial space</span>
+        <span class="n">sq</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">spatial_scatter</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">spatial_ax</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">spatial_colors</span><span class="p">)</span>
+
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Spatial&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;plotting_slides&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="c1"># Turn off all spines</span>
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">spatial_ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>        
+
+        <span class="c1"># Plot cluster colors in UMAP space for slide and all collection</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">updated_adata</span><span class="p">,</span> <span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">umap_ax</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">gray_palette</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="n">umap_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">s_adata_list</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">umap_ax</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">umap_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+        <span class="n">umap_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;UMAP&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+        
+    <span class="c1"># Get axes for leiden clusters, patient and cancer types</span>
+    <span class="n">leiden_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs01</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">patient_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs01</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">pca_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs01</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="c1"># Plot leiden clusters in UMAP space</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">updated_adata</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cluster&#39;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">leiden_ax</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="n">palette</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">leiden_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Leiden Clusters&#39;</span><span class="p">)</span>
+    <span class="n">leiden_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">leiden_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;UMAP &amp; Leiden Clusters&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+
+    <span class="c1"># Plot batch_key in UMAP space</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">umap</span><span class="p">(</span><span class="n">updated_adata</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">]],</span> <span class="n">ax</span><span class="o">=</span><span class="n">patient_ax</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;tab20&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">patient_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">])</span>
+    <span class="n">patient_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">patient_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;UMAP &amp; </span><span class="si">{</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+
+    <span class="c1"># Plot cancer types in UMAP space</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pl</span><span class="o">.</span><span class="n">pca</span><span class="p">(</span><span class="n">updated_adata</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">]],</span> <span class="n">ax</span><span class="o">=</span><span class="n">pca_ax</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">palette</span><span class="o">=</span><span class="s1">&#39;tab20&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">pca_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;combat_key&#39;</span><span class="p">])</span>
+    <span class="n">pca_ax</span><span class="o">.</span><span class="n">get_legend</span><span class="p">()</span><span class="o">.</span><span class="n">get_title</span><span class="p">()</span><span class="o">.</span><span class="n">set_fontsize</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+    <span class="n">pca_ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;PCA &amp; </span><span class="si">{</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;combat_key&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+    
+    <span class="c1"># Format figure and save</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cluster visualization for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1"> in layer </span><span class="si">{</span><span class="n">from_layer</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+    <span class="c1"># fig.tight_layout()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_mean_std">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_mean_std.html#spared.plotting.plot_mean_std">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_mean_std</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">raw_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot mean and std of all genes</span>
+
+<span class="sd">    This function plots a scatter of mean and standard deviation of genes present in raw_adata (black) and all the layers with non-zero</span>
+<span class="sd">    mean in processed_adata. It is used to see the effect of filtering and processing in the genes. The plot is saved to the specified path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: Name of the dataset</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        raw_adata (ad.AnnData): Data loaded data from .h5ad file that is not filtered but has patch information.</span>
+<span class="sd">        path (str): Path to save the image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Copy raw data to auxiliary data</span>
+    <span class="n">aux_raw_adata</span> <span class="o">=</span> <span class="n">raw_adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Normalize and log transform aux_raw_adata</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">normalize_total</span><span class="p">(</span><span class="n">aux_raw_adata</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">aux_raw_adata</span><span class="p">)</span>
+
+    <span class="c1"># Get means and stds from raw data</span>
+    <span class="n">raw_mean</span> <span class="o">=</span> <span class="n">aux_raw_adata</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">raw_std</span> <span class="o">=</span> <span class="n">aux_raw_adata</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Define list of layers to plot</span>
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;log1p&#39;</span><span class="p">,</span> <span class="s1">&#39;d_log1p&#39;</span><span class="p">,</span> <span class="s1">&#39;c_log1p&#39;</span><span class="p">,</span> <span class="s1">&#39;c_d_log1p&#39;</span><span class="p">]</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">raw_mean</span><span class="p">,</span> <span class="n">raw_std</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Raw data&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">layers</span><span class="p">:</span>
+        <span class="c1"># Get means and stds from processed data</span>
+        <span class="n">pro_mean</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">layer</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">pro_std</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">layer</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">pro_mean</span><span class="p">,</span> <span class="n">pro_std</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">layer</span><span class="si">}</span><span class="s1"> data&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Mean $Log(x+1)$&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Std $Log(x+1)$&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean Std plot </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_data_distribution_stats">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_data_distribution_stats.html#spared.plotting.plot_data_distribution_stats">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_data_distribution_stats</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot dataset&#39;s general stats</span>
+
+<span class="sd">    This function plots a pie chart and bar plots of the distribution of spots and slides in the dataset split.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: Name of the dataset</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        path (str): Path to save the image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">patients</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;patient&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">slides</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">quant_spots</span> <span class="o">=</span> <span class="p">[</span><span class="n">processed_adata</span><span class="p">[</span><span class="n">processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">split</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">]]</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Patients: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">patients</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">Slides: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">slides</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">Spots: </span><span class="si">{</span><span class="n">processed_adata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">labels_pie</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Train&#39;</span><span class="p">,</span> <span class="s1">&#39;Valid&#39;</span><span class="p">,</span> <span class="s1">&#39;Test&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">quant_spots</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">quant_spots</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="n">labels_pie</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+    <span class="c1"># Create figures</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mf">18.75</span><span class="p">,</span> <span class="mf">6.5</span><span class="p">)</span>
+    
+    <span class="c1"># Format axes</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">pie</span><span class="p">(</span><span class="n">quant_spots</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">labels_pie</span><span class="p">,</span>
+            <span class="n">wedgeprops</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;white&quot;</span><span class="p">},</span> 
+            <span class="n">autopct</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{:.1f}</span><span class="s1">%</span><span class="se">\n</span><span class="si">{:.0f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="o">*</span><span class="n">processed_adata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="mi">100</span><span class="p">),</span> 
+            <span class="n">colors</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;Set2&#39;</span><span class="p">),</span>
+            <span class="n">textprops</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fontsize&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">})</span>
+
+    <span class="n">spot_counts</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;patient&#39;</span><span class="p">,</span> <span class="s1">&#39;split&#39;</span><span class="p">],</span> <span class="n">observed</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="s1">&#39;unique_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">spot_counts</span> <span class="o">=</span> <span class="n">spot_counts</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span><span class="s1">&#39;val&#39;</span><span class="p">,</span><span class="s1">&#39;test&#39;</span><span class="p">])</span>
+    <span class="n">slide_counts</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;patient&#39;</span><span class="p">,</span> <span class="s1">&#39;split&#39;</span><span class="p">],</span> <span class="n">observed</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">slide_counts</span> <span class="o">=</span> <span class="n">slide_counts</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span><span class="s1">&#39;val&#39;</span><span class="p">,</span><span class="s1">&#39;test&#39;</span><span class="p">])</span>
+
+    <span class="n">spot_counts</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;Set2&#39;</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+    <span class="n">slide_counts</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;Set2&#39;</span><span class="p">),</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">13</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Spot distribution per split&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">17</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Spots per patient&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">17</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Slides per patient&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">17</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;# spots&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;# slides&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Patient&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data distribution for </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figtext</span><span class="p">(</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.08</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox</span> <span class="o">=</span><span class="p">{</span><span class="s1">&#39;facecolor&#39;</span><span class="p">:</span><span class="s1">&#39;whitesmoke&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.3</span><span class="p">,</span> <span class="s1">&#39;pad&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">})</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="plot_mean_std_partitions">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_mean_std_partitions.html#spared.plotting.plot_mean_std_partitions">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_mean_std_partitions</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot mean and std of genes by data split</span>
+
+<span class="sd">    This function plots a scatter of mean and standard deviation of genes present in processed_adata drawing with a different color different data</span>
+<span class="sd">    splits (train/val/test). This is all done for the specified layer in the from_layer parameter. This function is used to see how tractable is</span>
+<span class="sd">    the task. The plot is saved to the specified path.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: Name of the dataset</span>
+<span class="sd">        processed_adata (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        from_layer (str): The key in adata.layers where the expression matrix is stored.</span>
+<span class="sd">        path (str): Path to save the image.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="c1"># Copy processed adata to avoid problems</span>
+    <span class="n">aux_processed_adata</span> <span class="o">=</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> 
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">curr_split</span> <span class="ow">in</span> <span class="n">aux_processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;split&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="c1"># Get means and stds from processed data</span>
+        <span class="n">curr_mean</span> <span class="o">=</span> <span class="n">aux_processed_adata</span><span class="p">[</span><span class="n">aux_processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">split</span><span class="o">==</span><span class="n">curr_split</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">curr_std</span> <span class="o">=</span> <span class="n">aux_processed_adata</span><span class="p">[</span><span class="n">aux_processed_adata</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">split</span><span class="o">==</span><span class="n">curr_split</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">curr_mean</span><span class="p">,</span> <span class="n">curr_std</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">curr_split</span><span class="si">}</span><span class="s1"> data&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Mean $Log(x+1)$&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Std $Log(x+1)$&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean Std plot </span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">spines</span><span class="p">[[</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+
+<span class="c1">#TODO: revisar para eventualmente eliminar (se usa en plot_test)</span>
+<span class="k">def</span> <span class="nf">refine_plotting_slides_str</span><span class="p">(</span><span class="n">split_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">collection</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">slide_list</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Assure plotting slides are on the dataset.</span>
+
+<span class="sd">    This function refines the plotting slides string to assure all slides are on the dataset. It works in the following way:</span>
+
+<span class="sd">    1. If all slides are in the dataset it does nothing and returns the same slide_list parameter.</span>
+<span class="sd">    2. If any slide is missing in the dataset or slide_list==&#39;None&#39; then it does one of 2 things:</span>
+
+<span class="sd">        a. If the dataset has 4 or less slides all slides are set as plotting slides</span>
+<span class="sd">        b. If the dataset has more than 4 slides it iterates over splits (train/val/test) and choses a single slide at a time without replacement. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        split_names: dictionary containing split names</span>
+<span class="sd">        collection (ad.AnnData): Processed and filtered data ready to use by the model.</span>
+<span class="sd">        slide_list (str): String with a list of slides separated by commas.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Refined version of the slide_list string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get bool value indicating if all slides in the string are on the dataset</span>
+    <span class="n">plot_slides_in_dataset</span> <span class="o">=</span> <span class="nb">all</span><span class="p">([</span><span class="n">sl</span> <span class="ow">in</span> <span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">slide_id</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">for</span> <span class="n">sl</span> <span class="ow">in</span> <span class="n">slide_list</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)])</span>
+
+    <span class="c1"># Decide if a refinement must be done</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">plot_slides_in_dataset</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">slide_list</span><span class="o">==</span><span class="s1">&#39;None&#39;</span><span class="p">):</span>
+        
+        <span class="c1"># Check if there are less than 4 slides. If so, all are plotting slides</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">slide_id</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&lt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">slide_list</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">slide_id</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting slides were None or missing in the dataset. And there are 4 or less slides. Setting all slides as plotting slides: </span><span class="si">{</span><span class="n">slide_list</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># If more than 4 slides, iterate over splits and chose randomly without replacement</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plotting_slide_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="c1"># Get list of unique splits</span>
+            <span class="n">split_list</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">split</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="c1"># Get a copy of the dictionary of splits to slides</span>
+            <span class="n">split2slide_list</span> <span class="o">=</span> <span class="n">split_names</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            
+            <span class="c1"># Set counter to 0</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Iterate until we get 4 slides</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">plotting_slide_list</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+                
+                <span class="c1"># Get current split ant current slide list</span>
+                <span class="n">curr_split</span> <span class="o">=</span> <span class="n">split_list</span><span class="p">[</span><span class="n">count</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">split_list</span><span class="p">)]</span>
+                <span class="n">curr_slide_list</span> <span class="o">=</span> <span class="n">split2slide_list</span><span class="p">[</span><span class="n">curr_split</span><span class="p">]</span>
+
+                <span class="c1"># If the current slide list has slides choose one and delete it from the list</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">curr_slide_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">curr_slide</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">curr_slide_list</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">plotting_slide_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr_slide</span><span class="p">)</span>
+                    <span class="n">split2slide_list</span><span class="p">[</span><span class="n">curr_split</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">curr_slide</span><span class="p">)</span>
+                
+                <span class="c1"># Update counter</span>
+                <span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+            
+            <span class="c1"># Update dataset parameter</span>
+            <span class="n">slide_list</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">plotting_slide_list</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting slides were None or missing in the dataset. And there are more than 4 slides. Setting slides internally from all splits: </span><span class="si">{</span><span class="n">slide_list</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">slide_list</span>
+
+<div class="viewcode-block" id="plot_tests">
+<a class="viewcode-back" href="../../../api/spared.plotting.plot_tests.html#spared.plotting.plot_tests">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_tests</span><span class="p">(</span><span class="n">patch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">split_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">folder_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">raw_adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">)</span><span class="o">-&gt;</span><span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Plot all quality control plots</span>
+
+<span class="sd">    This function calls all the plotting functions in the class to create 6 quality control plots to check if the processing step of</span>
+<span class="sd">    the dataset is performed correctly. The results are saved in dataset_logs folder and indexed by date and time. A dictionary</span>
+<span class="sd">    in json format with all the dataset parameters is saved in the same log folder for reproducibility. Finally, a txt with the names of the</span>
+<span class="sd">    genes used in processed adata is also saved in the folder.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">### Define function to get an adata list of plotting slides</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started quality control plotting&#39;</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+    <span class="c1"># Define directory path to save data</span>
+    <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="s1">&#39;qc_plots&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Define interest layers</span>
+    <span class="n">relevant_layers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;log1p&#39;</span><span class="p">,</span> <span class="s1">&#39;d_log1p&#39;</span><span class="p">,</span> <span class="s1">&#39;c_d_log1p&#39;</span><span class="p">]</span>
+    <span class="n">complete_layers</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="s1">&#39;tpm&#39;</span><span class="p">,</span> <span class="s1">&#39;log1p&#39;</span><span class="p">,</span> <span class="s1">&#39;d_log1p&#39;</span><span class="p">,</span> <span class="s1">&#39;c_d_log1p&#39;</span><span class="p">]</span>
+    
+    <span class="c1"># Assure that the plotting genes are in the data and if not, set random plotting genes</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">gene</span> <span class="ow">in</span> <span class="n">processed_adata</span><span class="o">.</span><span class="n">var_names</span> <span class="k">for</span> <span class="n">gene</span> <span class="ow">in</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_genes&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]):</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_genes&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">processed_adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Plotting genes not in data. Setting random plotting genes: </span><span class="si">{</span><span class="n">param_dict</span><span class="p">[</span><span class="s2">&quot;plotting_genes&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># Refine plotting slides string to assure they are in the dataset</span>
+    <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">refine_plotting_slides_str</span><span class="p">(</span><span class="n">split_names</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;plotting_slides&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Plot partitions mean vs std scatter</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started partitions mean vs std scatter plotting&#39;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;mean_vs_std_partitions&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">relevant_layers</span><span class="p">):</span>
+        <span class="n">plot_mean_std_partitions</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="n">lay</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;mean_vs_std_partitions&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lay</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">))</span>
+ 
+    <span class="c1"># Plot all slides in collection</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started all slides plotting&#39;</span><span class="p">)</span>
+    <span class="n">plot_all_slides</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;all_slides.png&#39;</span><span class="p">))</span>
+ 
+    <span class="c1"># Make plot of filtering histograms</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started filtering histograms plotting&#39;</span><span class="p">)</span>
+    <span class="n">plot_histograms</span><span class="p">(</span><span class="n">processed_adata</span><span class="p">,</span> <span class="n">raw_adata</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;filtering_histograms.png&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Make plot of random patches</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started random patches plotting&#39;</span><span class="p">)</span>
+    <span class="n">plot_random_patches</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;random_patches.png&#39;</span><span class="p">),</span> <span class="n">patch_size</span><span class="p">)</span>
+
+    <span class="c1"># Create save paths fot top and bottom moran genes</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;top_moran_genes&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;bottom_moran_genes&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started moran filtering plotting&#39;</span><span class="p">)</span>
+    <span class="c1"># Plot moran filtering</span>
+    <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">relevant_layers</span><span class="p">):</span>
+        <span class="c1"># Make plot of 4 most moran genes and 4 less moran genes (in the chosen slides)</span>
+        <span class="n">visualize_moran_filtering</span><span class="p">(</span><span class="n">param_dict</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="n">lay</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;top_moran_genes&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lay</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">),</span> <span class="n">split_names</span><span class="o">=</span><span class="n">split_names</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">visualize_moran_filtering</span><span class="p">(</span><span class="n">param_dict</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="n">lay</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;bottom_moran_genes&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lay</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">),</span> <span class="n">split_names</span><span class="o">=</span><span class="n">split_names</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+    
+
+    <span class="c1"># Create save paths for cluster plots</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;cluster_plots&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started cluster plotting&#39;</span><span class="p">)</span>
+    <span class="c1"># Plot cluster graphs</span>
+    <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">relevant_layers</span><span class="p">):</span>
+        <span class="n">plot_clusters</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="n">lay</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;cluster_plots&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lay</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">),</span> <span class="n">split_names</span><span class="o">=</span><span class="n">split_names</span><span class="p">,)</span>
+    
+    <span class="c1"># Define expression layers</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;expression_plots&#39;</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started gene expression plotting&#39;</span><span class="p">)</span>
+    <span class="c1"># Plot of gene expression in the chosen slides for the 4 chosen genes</span>
+    <span class="k">for</span> <span class="n">lay</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">complete_layers</span><span class="p">):</span>
+        <span class="n">visualize_gene_expression</span><span class="p">(</span><span class="n">param_dict</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="o">=</span><span class="n">lay</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span><span class="s1">&#39;expression_plots&#39;</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">lay</span><span class="si">}</span><span class="s1">.png&#39;</span><span class="p">),</span> <span class="n">split_names</span><span class="o">=</span><span class="n">split_names</span><span class="p">,)</span>
+
+    <span class="c1"># Make plot of mean vs std per gene must be programmed manually.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started mean vs std plotting&#39;</span><span class="p">)</span>
+    <span class="n">plot_mean_std</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">raw_adata</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;mean_std_scatter.png&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Make plot of data distribution statistics.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started data distribution statistics plotting&#39;</span><span class="p">)</span>
+    <span class="n">plot_data_distribution_stats</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">processed_adata</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;splits_stats.png&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Plot expression fraction 2D histogram</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Started expression fraction plotting&#39;</span><span class="p">)</span>
+    <span class="n">plot_exp_frac</span><span class="p">(</span><span class="n">param_dict</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">raw_adata</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;exp_frac.png&#39;</span><span class="p">))</span>
+    
+    <span class="c1"># Print the time that took to plot quality control</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Quality control plotting took </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">end</span><span class="o">-</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Images saved in </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

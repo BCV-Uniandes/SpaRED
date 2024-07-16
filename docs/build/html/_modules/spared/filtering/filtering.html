@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.filtering.filtering &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.filtering.filtering</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.filtering.filtering</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">import</span> <span class="nn">scanpy</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># El path a spared es ahora diferente</span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="c1"># Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+<span class="c1"># Import im_encoder.py file</span>
+<span class="kn">from</span> <span class="nn">gene_features</span> <span class="kn">import</span> <span class="n">gene_features</span>
+<span class="c1"># Remove the path from sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+<span class="c1"># TODO: add documentation reference to the compute moran function</span>
+<div class="viewcode-block" id="filter_by_moran">
+<a class="viewcode-back" href="../../../api/spared.filtering.filter_by_moran.html#spared.filtering.filter_by_moran">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_by_moran</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">n_keep</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Filter prediction genes by Moran&#39;s I.</span>
+
+<span class="sd">    This function filters the genes in ``adata.var`` by the Moran&#39;s I statistic. It keeps the ``n_keep`` genes with the highest Moran&#39;s I.</span>
+<span class="sd">    The Moran&#39;s I values will be selected from ``adata.var[f&#39;{from_layer}_moran&#39;]`` which must be already present in the ``adata``.</span>
+<span class="sd">    If ``n_keep &lt;= 0``, it means the number of genes is not specified and wee proceed to automatically compute it in the following way:</span>
+<span class="sd">    </span>
+<span class="sd">        a. If ``adata.n_vars &gt; 320`` then ``n_keep = 128``.</span>
+<span class="sd">        b. else, ``n_keep = 32``. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to update. Must have ``adata.var[f&#39;{from_layer}_moran&#39;]`` column.</span>
+<span class="sd">        n_keep (int): The number of genes to keep. If less than ``0`` the number of genes to keep is computed automatically.</span>
+<span class="sd">        from_layer (str): Layer for which the Moran&#39;s I was already computed (``adata.var[f&#39;{from_layer}_moran&#39;]``).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The updated AnnData object with the filtered genes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Assert that the number of genes is at least n_keep</span>
+    <span class="k">assert</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span> <span class="o">&gt;=</span> <span class="n">n_keep</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;The number of genes in the AnnData object is </span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="si">}</span><span class="s1">, which is less than n_keep (</span><span class="si">{</span><span class="n">n_keep</span><span class="si">}</span><span class="s1">).&#39;</span>
+
+    <span class="c1"># FIXME: This part is weird, we can define a simple threshold without all the computation (DONE)</span>
+    <span class="c1"># threshold: 320</span>
+    <span class="k">if</span> <span class="n">n_keep</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span> <span class="o">&gt;</span> <span class="mi">320</span><span class="p">:</span>
+            <span class="n">n_keep</span> <span class="o">=</span> <span class="mi">128</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">n_keep</span> <span class="o">=</span> <span class="mi">32</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filtering genes by Moran&#39;s I. Keeping top </span><span class="si">{</span><span class="n">n_keep</span><span class="si">}</span><span class="s2"> genes.&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># Sort the genes by Moran&#39;s I</span>
+    <span class="n">sorted_genes</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">from_layer</span><span class="si">}</span><span class="s1">_moran&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="c1"># Get genes to keep list</span>
+    <span class="n">genes_to_keep</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sorted_genes</span><span class="p">[:</span><span class="n">n_keep</span><span class="p">])</span>
+
+    <span class="c1"># Filter the genes andata object</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[:,</span> <span class="n">genes_to_keep</span><span class="p">]</span>
+
+    <span class="c1"># Return the updated AnnData object</span>
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<span class="c1"># TODO: add documentation reference to the get_exp_frac, get_glob_exp_frac, and sc.pp.calculate_qc_metrics functions</span>
+<span class="c1"># TODO: CHange name of param_dict[&#39;cell_min_counts&#39;] and param_dict[&#39;cell_max_counts&#39;] keys for &#39;spot_min_counts&#39; and &#39;spot_max_counts&#39; respectively</span>
+<span class="c1"># TODO: Change documentation after including the previous TODO&#39;s</span>
+<div class="viewcode-block" id="filter_dataset">
+<a class="viewcode-back" href="../../../api/spared.filtering.filter_dataset.html#spared.filtering.filter_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">filter_dataset</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Perform complete filtering pipeline of a slide collection.</span>
+
+<span class="sd">    This function takes a completely unfiltered and unprocessed (in raw counts) slide collection and filters it</span>
+<span class="sd">    (both samples and genes) according to the ``param_dict`` argument.</span>
+<span class="sd">    A summary list of the steps is the following:</span>
+
+<span class="sd">        1. Filter out observations with ``total_counts`` outside the range ``[param_dict[&#39;cell_min_counts&#39;], param_dict[&#39;cell_max_counts&#39;]]``.</span>
+<span class="sd">           This filters out low quality observations not suitable for analysis.</span>
+<span class="sd">        2. Compute the ``exp_frac`` for each gene. This means that for each slide in the collection we compute the fraction of the spots that express each gene and then take the minimum across all the slides (see ``get_exp_frac`` function for more details).</span>
+<span class="sd">        3. Compute the ``glob_exp_frac`` for each gene. This is similar to the ``exp_frac`` but instead of computing for each</span>
+<span class="sd">           slide and taking the minimum we compute it for the whole collection. Slides don&#39;t matter here</span>
+<span class="sd">           (see ``get_glob_exp_frac`` function for more details).</span>
+<span class="sd">        4. Filter out genes depending on the ``param_dict[&#39;wildcard_genes&#39;]`` value, the options are the following:</span>
+
+<span class="sd">            a. ``param_dict[&#39;wildcard_genes&#39;] == &#39;None&#39;``:</span>
+
+<span class="sd">                - Filter out genes that are not expressed in at least ``param_dict[&#39;min_exp_frac&#39;]`` of spots in each slide.</span>
+<span class="sd">                - Filter out genes that are not expressed in at least ``param_dict[&#39;min_glob_exp_frac&#39;]`` of spots in the whole collection.</span>
+<span class="sd">                - Filter out genes with counts outside the range ``[param_dict[&#39;gene_min_counts&#39;], param_dict[&#39;gene_max_counts&#39;]]``</span>
+<span class="sd">            b. ``param_dict[&#39;wildcard_genes&#39;] != &#39;None&#39;``:</span>
+
+<span class="sd">                - Read ``.txt`` file specified by ``param_dict[&#39;wildcard_genes&#39;]`` and leave only the genes that are in this file.</span>
+<span class="sd">        5. If there are spots with zero counts in all genes after gene filtering, remove them.</span>
+<span class="sd">        6. Compute quality control metrics using scanpy&#39;s ``sc.pp.calculate_qc_metrics`` function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        adata (ad.AnnData): An unfiltered (unexpressed genes are encoded as ``0`` on the ``adata.X matrix``) slide collection.</span>
+<span class="sd">        param_dict (dict): Dictionary that contains filtering and processing parameters. Keys that must be present are:</span>
+
+<span class="sd">            - ``&#39;cell_min_counts&#39;`` (*int*):      Minimum total counts for a spot to be valid.</span>
+<span class="sd">            - ``&#39;cell_max_counts&#39;`` (*int*):      Maximum total counts for a spot to be valid.</span>
+<span class="sd">            - ``&#39;gene_min_counts&#39;`` (*int*):      Minimum total counts for a gene to be valid.</span>
+<span class="sd">            - ``&#39;gene_max_counts&#39;`` (*int*):      Maximum total counts for a gene to be valid.</span>
+<span class="sd">            - ``&#39;min_exp_frac&#39;`` (*float*):       Minimum fraction of spots in any slide that must express a gene for it to be valid.</span>
+<span class="sd">            - ``&#39;min_glob_exp_frac&#39;`` (*float*):  Minimum fraction of spots in the whole collection that must express a gene for it to be valid.</span>
+<span class="sd">            - ``&#39;wildcard_genes&#39;`` (*str*):       Path to a ``.txt`` file with the genes to keep or ``&#39;None&#39;`` to filter genes based on the other keys.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: The filtered adata collection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Start tracking time</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Starting data filtering...&#39;</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+
+    <span class="c1"># Get initial gene and observation numbers</span>
+    <span class="n">n_genes_init</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span>
+    <span class="n">n_obs_init</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span>
+
+    <span class="c1">### Filter out samples:</span>
+
+    <span class="c1"># Find indexes of cells with total_counts outside the range [cell_min_counts, cell_max_counts]</span>
+    <span class="n">sample_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="n">bool_valid_samples</span> <span class="o">=</span> <span class="p">(</span><span class="n">sample_counts</span> <span class="o">&gt;</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;cell_min_counts&#39;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sample_counts</span> <span class="o">&lt;</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;cell_max_counts&#39;</span><span class="p">])</span>
+    <span class="n">valid_samples</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">obs_names</span><span class="p">[</span><span class="n">bool_valid_samples</span><span class="p">]</span>
+
+    <span class="c1"># Subset the adata to keep only the valid samples</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">valid_samples</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1">### Filter out genes:</span>
+
+    <span class="c1"># Compute the min expression fraction for each gene across all the slides</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">gene_features</span><span class="o">.</span><span class="n">get_exp_frac</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+    <span class="c1"># Compute the global expression fraction for each gene</span>
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">gene_features</span><span class="o">.</span><span class="n">get_glob_exp_frac</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+    
+    <span class="c1"># If no wildcard genes are specified then filter genes based in min_exp_frac and total counts</span>
+    <span class="k">if</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;wildcard_genes&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
+        
+        <span class="n">gene_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+                    
+        <span class="c1"># Find indexes of genes with total_counts inside the range [gene_min_counts, gene_max_counts]</span>
+        <span class="n">bool_valid_gene_counts</span> <span class="o">=</span> <span class="p">(</span><span class="n">gene_counts</span> <span class="o">&gt;</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;gene_min_counts&#39;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">gene_counts</span> <span class="o">&lt;</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;gene_max_counts&#39;</span><span class="p">])</span>
+        <span class="c1"># Get the valid genes</span>
+        <span class="n">valid_genes</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">var_names</span><span class="p">[</span><span class="n">bool_valid_gene_counts</span><span class="p">]</span>
+        
+        <span class="c1"># Subset the adata to keep only the valid genes</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[:,</span> <span class="n">valid_genes</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>     
+    
+        <span class="c1"># Filter by expression fractions - order by descending expression fraction</span>
+        <span class="n">df_exp</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;exp_frac&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Calculate the mean glob_exp_frac of top expression fraction genes</span>
+        <span class="n">df_exp</span><span class="p">[</span><span class="s1">&#39;Row&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_exp</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">df_exp</span><span class="p">[</span><span class="s1">&#39;vol_real_data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_exp</span><span class="p">[</span><span class="s1">&#39;glob_exp_frac&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">/</span> <span class="p">(</span><span class="n">df_exp</span><span class="p">[</span><span class="s1">&#39;Row&#39;</span><span class="p">])</span>      
+        <span class="n">df_exp</span> <span class="o">=</span> <span class="n">df_exp</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;Row&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Get the valid genes</span>
+        <span class="n">num_genes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df_exp</span><span class="p">[</span><span class="s1">&#39;vol_real_data&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;real_data_percentage&#39;</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">valid_genes</span> <span class="o">=</span> <span class="n">df_exp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">num_genes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;gene_ids&#39;</span><span class="p">]</span>
+        <span class="c1"># Subset the adata to keep only the valid genes</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[:,</span> <span class="n">valid_genes</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="c1"># If there are wildcard genes then read them and subset the dataset to just use them</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Read valid wildcard genes</span>
+        <span class="n">genes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;wildcard_genes&#39;</span><span class="p">],</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Turn wildcard genes to pandas Index object</span>
+        <span class="n">valid_genes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">genes</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="c1"># Subset processed adata with wildcard genes</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[:,</span> <span class="n">valid_genes</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    
+    <span class="c1">### Remove cells with zero counts in all genes:</span>
+
+    <span class="c1"># If there are cells with zero counts in all genes then remove them</span>
+    <span class="n">null_cells</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">null_cells</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="o">~</span><span class="n">null_cells</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Removed </span><span class="si">{</span><span class="n">null_cells</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> cells with zero counts in all selected genes&quot;</span><span class="p">)</span>
+    
+    <span class="c1">### Compute quality control metrics:</span>
+
+    <span class="c1"># As we have removed the majority of the genes, we recompute the quality metrics</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">pp</span><span class="o">.</span><span class="n">calculate_qc_metrics</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log1p</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">percent_top</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># Print the number of genes and cells that survived the filtering</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Data filtering took </span><span class="si">{</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> seconds&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of genes that passed the filtering:        </span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="si">}</span><span class="s2"> out of </span><span class="si">{</span><span class="n">n_genes_init</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="o">/</span><span class="n">n_genes_init</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of observations that passed the filtering: </span><span class="si">{</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="si">}</span><span class="s2"> out of </span><span class="si">{</span><span class="n">n_obs_init</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="mi">100</span><span class="o">*</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="o">/</span><span class="n">n_obs_init</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">adata</span></div>
+
+
+<span class="c1"># FIXME: Join the following 2 functions into one </span>
+<div class="viewcode-block" id="get_slide_from_collection">
+<a class="viewcode-back" href="../../../api/spared.filtering.get_slide_from_collection.html#spared.filtering.get_slide_from_collection">[docs]</a>
+<span class="k">def</span> <span class="nf">get_slide_from_collection</span><span class="p">(</span><span class="n">collection</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span>  <span class="n">slide</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Retrieve a slide from a collection of slides.</span>
+
+<span class="sd">    This function receives a slide name and returns an AnnData object of the specified slide based on the collection of slides</span>
+<span class="sd">    in the collection parameter.</span>
+
+<span class="sd">    Args: </span>
+<span class="sd">        collection (ad.AnnData): AnnData object with all the slides concatenated.</span>
+<span class="sd">        slide (str): Name of the slide to get from the collection. Must be in the the ``collection.obs[&#39;slide_id&#39;]`` column.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: An AnnData object with the specified slide.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get the slide from the collection</span>
+    <span class="n">slide_adata</span> <span class="o">=</span> <span class="n">collection</span><span class="p">[</span><span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">slide</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Modify the uns dictionary to include only the information of the slide</span>
+    <span class="n">slide_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">slide</span><span class="p">:</span> <span class="n">collection</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">][</span><span class="n">slide</span><span class="p">]}</span>
+
+    <span class="c1"># Return the slide</span>
+    <span class="k">return</span> <span class="n">slide_adata</span></div>
+
+
+<span class="c1"># TODO: Make the name of the function more explicit (specify we will get a list)</span>
+<span class="c1"># TODO: Update documentation .rst after the change is done</span>
+<div class="viewcode-block" id="get_slides_adata">
+<a class="viewcode-back" href="../../../api/spared.filtering.get_slides_adata.html#spared.filtering.get_slides_adata">[docs]</a>
+<span class="k">def</span> <span class="nf">get_slides_adata</span><span class="p">(</span><span class="n">collection</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">slide_list</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get list of adatas from collection</span>
+
+<span class="sd">    This function receives a string with a list of slides separated by commas and returns a list of anndata objects with</span>
+<span class="sd">    the specified slides taken from the collection parameter. </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        collection (ad.AnnData): AnnData object with all the slides concatenated.</span>
+<span class="sd">        slide_list (str): String with a list of slides separated by commas (without spaces). All slides must be present in the ``collection.obs[&#39;slide_id&#39;]`` column.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list: List of anndata objects with the specified slides.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get the slides from the collection</span>
+    <span class="c1">#s_adata_list = [self.get_slide_from_collection(collection,  slide) for slide in slide_list.split(&#39;,&#39;)]</span>
+    <span class="n">s_adata_list</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">slide</span> <span class="ow">in</span> <span class="n">slide_list</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>  
+        <span class="c1"># Get the slide from the collection</span>
+        <span class="n">slide_adata</span> <span class="o">=</span> <span class="n">collection</span><span class="p">[</span><span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">slide</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Modify the uns dictionary to include only the information of the slide</span>
+        <span class="n">slide_adata</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">slide</span><span class="p">:</span> <span class="n">collection</span><span class="o">.</span><span class="n">uns</span><span class="p">[</span><span class="s1">&#39;spatial&#39;</span><span class="p">][</span><span class="n">slide</span><span class="p">]}</span>
+        <span class="n">s_adata_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">slide_adata</span><span class="p">)</span>
+
+    <span class="c1"># Return the slides</span>
+    <span class="k">return</span> <span class="n">s_adata_list</span></div>
+
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
