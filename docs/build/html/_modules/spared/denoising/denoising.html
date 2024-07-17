@@ -107,25 +107,28 @@
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
 
 
-<span class="c1">#clean noise limpia con medianas</span>
+<span class="c1">#clean noise with medians</span>
+<span class="c1"># TODO: Think in making this function also add the binary mask layer</span>
 <div class="viewcode-block" id="median_cleaner">
 <a class="viewcode-back" href="../../../api/spared.denoising.median_cleaner.html#spared.denoising.median_cleaner">[docs]</a>
 <span class="k">def</span> <span class="nf">median_cleaner</span><span class="p">(</span><span class="n">collection</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove noise with median filter.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove noise with adaptive median filter.</span>
 
-<span class="sd">    Function that cleans noise (missing data) with a modified adaptive median filter for each slide in an AnnData collection.</span>
-<span class="sd">    Details of the adaptive median filter can be found in the ``adaptive_median_filter_pepper()`` function inside the source code.</span>
-<span class="sd">    The data will be taken from ``adata.layers[from_layer]`` and the results will be stored in ``adata.layers[to_layer]``.</span>
+<span class="sd">    Function that cleans noise (missing data) with the modified adaptive median initially proposed by `SEPAL &lt;https://doi.org/10.48550/arXiv.2309.01036&gt;`_</span>
+<span class="sd">    filter for each slide in an AnnData collection. Windows to compute the medians are defined by topological distances (hops) in the neighbors graph defined</span>
+<span class="sd">    by the ``hex_geometry`` parameter with a maximum window size of ``n_hops``. The adaptive median filter denoises each gene independently. In other words</span>
+<span class="sd">    gene A has no influence on the denoising of gene B. The data will be taken from ``adata.layers[from_layer]`` and the results will be stored in</span>
+<span class="sd">    ``adata.layers[to_layer]``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        collection (ad.AnnData): The AnnData collection to process.</span>
 <span class="sd">        from_layer (str): The layer to compute the adaptive median filter from. Where to clean the noise from.</span>
 <span class="sd">        to_layer (str): The layer to store the results of the adaptive median filter. Where to store the cleaned data.</span>
 <span class="sd">        n_hops (int): The maximum number of concentric rings in the neighbors graph to take into account to compute the median. Analogous to the maximum window size.</span>
-<span class="sd">        hex_geometry (bool): ``True``, if the graph has hexagonal spatial geometry (Visium technology). If False, then the graph is a grid.</span>
+<span class="sd">        hex_geometry (bool): ``True`` if the graph has hexagonal spatial geometry (Visium technology). If ``False``, then the graph is a grid.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        ad.AnnData: New AnnData collection with the results of the adaptive median filter stored in the layer ``adata.layers[to_layer]``.</span>
+<span class="sd">        ad.AnnData: New AnnData collection with the results of the adaptive median filter stored in ``adata.layers[to_layer]``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1">### Define cleaning function for single slide:</span>

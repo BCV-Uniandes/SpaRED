@@ -129,7 +129,7 @@ variables. However, it doesn’t perform spot (sample) filtering for which the <
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to process. Should be already spot/sample filtered with the <code class="docutils literal notranslate"><span class="pre">filter_dataset()</span></code> function.</p></li>
+<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to process. Should be already spot/sample filtered..</p></li>
 <li><p><strong>param_dict</strong> (<em>dict</em>) – <p>Dictionary that contains filtering and processing parameters. Keys that must be present are:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">'top_moran_genes'</span></code> (<em>int</em>): The number of genes to keep after filtering by Moran’s I. If set to <code class="docutils literal notranslate"><span class="pre">0</span></code>, then the number of genes is internally computed.</p></li>

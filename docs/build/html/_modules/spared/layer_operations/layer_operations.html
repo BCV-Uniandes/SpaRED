@@ -385,6 +385,7 @@
 
 <span class="c1"># TODO: Put reference to the filter_dataset() function</span>
 <span class="c1"># FIXME: Here we should have the transformer cleaner too</span>
+<span class="c1"># TODO: Add combat link</span>
 <div class="viewcode-block" id="process_dataset">
 <a class="viewcode-back" href="../../../api/spared.layer_operations.process_dataset.html#spared.layer_operations.process_dataset">[docs]</a>
 <span class="k">def</span> <span class="nf">process_dataset</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">param_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
@@ -404,7 +405,7 @@
 <span class="sd">        8. Add a binary mask layer specifying valid observations for metric computation (adds ``adata.layers[&#39;mask&#39;]``, ``True`` for valid observations, ``False`` for missing values).</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        adata (ad.AnnData): The AnnData object to process. Should be already spot/sample filtered with the ``filter_dataset()`` function.</span>
+<span class="sd">        adata (ad.AnnData): The AnnData object to process. Should be already spot/sample filtered..</span>
 <span class="sd">        param_dict (dict): Dictionary that contains filtering and processing parameters. Keys that must be present are:</span>
 
 <span class="sd">                            - ``&#39;top_moran_genes&#39;`` (*int*): The number of genes to keep after filtering by Moran&#39;s I. If set to ``0``, then the number of genes is internally computed.</span>
