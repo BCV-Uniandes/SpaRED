@@ -66,9 +66,9 @@
 <li class="toctree-l3"><a class="reference internal" href="spared.spot_features.get_spatial_neighbors.html">spared.spot_features.get_spatial_neighbors</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
@@ -107,24 +107,25 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spared.spot_features.compute_patches_embeddings">
 <span class="sig-prename descclassname"><span class="pre">spared.spot_features.</span></span><span class="sig-name descname"><span class="pre">compute_patches_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backbone</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'densenet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'None'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">224</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/spared/spot_features/spot_features.html#compute_patches_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.spot_features.compute_patches_embeddings" title="Link to this definition"></a></dt>
-<dd><p>Compute model’s embeddings for patches.</p>
-<p>This function computes patch embeddings (last linear layer representations) for a given backbone model and adata object. It can optionally
-compute using a stored model in <code class="docutils literal notranslate"><span class="pre">model_path</span></code> or a pretrained model from Pytorch. The embeddings are stored in <code class="docutils literal notranslate"><span class="pre">adata.obsm[f'embeddings_{backbone}']</span></code>.
-The patches are expected to be have <code class="docutils literal notranslate"><span class="pre">int</span></code> values from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">255</span></code> and all the needed transformations are performed inside. They also must be
-flattened and stored in <code class="docutils literal notranslate"><span class="pre">adata.obsm[f'patches_scale_{patch_scale}']</span></code> with shape <code class="docutils literal notranslate"><span class="pre">(n_patches,</span> <span class="pre">patch_size*patch_size*3)</span></code>. The <code class="docutils literal notranslate"><span class="pre">patch_scale</span></code> value is
-not important for this function. The only important condition is that there is a single key starting with <code class="docutils literal notranslate"><span class="pre">patches_scale</span></code> in the <code class="docutils literal notranslate"><span class="pre">adata.obsm</span></code> keys.</p>
-<p>The function modifies the AnnData object in place.</p>
+<dd><p>Compute embeddings for patches.</p>
+<p>This function computes embeddings (last layer representations) for a given backbone model and adata object. It can optionally
+compute using a stored model in <code class="docutils literal notranslate"><span class="pre">model_path</span></code> or a pretrained model from <a class="reference external" href="https://pytorch.org/vision/stable/models.html">pytorch</a>. The embeddings are
+stored in <code class="docutils literal notranslate"><span class="pre">adata.obsm[f'embeddings_{backbone}']</span></code>. The patches must already be stored in a flattened format inside
+<code class="docutils literal notranslate"><span class="pre">adata.obsm[f'patches_scale_{patch_scale}']</span></code> and must be of shape <code class="docutils literal notranslate"><span class="pre">(n_patches,</span> <span class="pre">patch_size*patch_size*3)</span></code>. The <code class="docutils literal notranslate"><span class="pre">patch_scale</span></code> key can
+be whatever you want as long as there is only one key with the word <code class="docutils literal notranslate"><span class="pre">patches_scale</span></code> in the <code class="docutils literal notranslate"><span class="pre">obsm</span></code> keys. Normally, the key is <code class="docutils literal notranslate"><span class="pre">patches_scale_1.0</span></code>.</p>
+<p>The function only modifies the AnnData object in place. The patch information should be in <code class="docutils literal notranslate"><span class="pre">int</span></code> format from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">255</span></code>. All needed transformations
+are done inside the function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to process.</p></li>
+<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object with the patches to process.</p></li>
 <li><p><strong>backbone</strong> (<em>str</em><em>, </em><em>optional</em>) – A string specifying the backbone model to use. Must be one of the following <code class="docutils literal notranslate"><span class="pre">['resnet',</span> <span class="pre">'resnet50',</span> <span class="pre">'ConvNeXt',</span> <span class="pre">'EfficientNetV2',</span> <span class="pre">'InceptionV3',</span> <span class="pre">'MaxVit',</span> <span class="pre">'MobileNetV3',</span> <span class="pre">'ResNetXt',</span> <span class="pre">'ShuffleNetV2',</span> <span class="pre">'ViT',</span> <span class="pre">'WideResnet',</span> <span class="pre">'densenet',</span> <span class="pre">'swin']</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">'densenet'</span></code>.</p></li>
 <li><p><strong>model_path</strong> (<em>str</em><em>, </em><em>optional</em>) – The path to a stored model. If set to <code class="docutils literal notranslate"><span class="pre">'None'</span></code>, then an ImageNet pretrained model is used. Defaults to <code class="docutils literal notranslate"><span class="pre">'None'</span></code>.</p></li>
-<li><p><strong>patch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The size of the patches. Defaults to 224.</p></li>
+<li><p><strong>patch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The size of the patches. Defaults to <code class="docutils literal notranslate"><span class="pre">224</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the backbone is not supported. Or if there are more than one key starting with <code class="docutils literal notranslate"><span class="pre">patches_scale</span></code> in the <code class="docutils literal notranslate"><span class="pre">adata.obsm</span></code> keys.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If the backbone is not supported.</p>
 </dd>
 </dl>
 </dd></dl>

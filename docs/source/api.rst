@@ -61,7 +61,7 @@ Spot Features
 
 
 Layer Operations
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. module:: spared.layer_operations
 .. currentmodule:: spared
@@ -91,7 +91,7 @@ Denoising
 
 
 Graph Operations
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. module:: spared.graph_operations
 .. currentmodule:: spared

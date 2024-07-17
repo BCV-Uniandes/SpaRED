@@ -98,10 +98,10 @@
 <span class="k">def</span> <span class="nf">get_exp_frac</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Compute the expression fraction for all genes.</span>
 
-<span class="sd">    The expression fraction of a gene in a slide is defined as the proportion of spots where that gene is expressed. It is a number between ``0``</span>
-<span class="sd">    and ``1`` where ``0`` means that the gene is not expressed in any spot and ``1`` means that the gene is expressed in all the spots of the slide.</span>
+<span class="sd">    The expression fraction of a gene in a slide is defined as the proportion of spots where that gene is expressed. It is a number between ``0.0``</span>
+<span class="sd">    and ``1.0`` where ``0.0`` means that the gene is not expressed in any spot and ``1.0`` means that the gene is expressed in all the spots.</span>
 
-<span class="sd">    To compute an aggregation of expression fractions in a collection of slides, this function gets the</span>
+<span class="sd">    To compute an aggregation of expression fractions in a complete dataset, this function gets the</span>
 <span class="sd">    expression fraction for each slide and then takes the minimum across all the slides. Hence the final number is a lower bound that ensures</span>
 <span class="sd">    that the gene is expressed in at least that fraction of the spots in each one of the slides.</span>
 
@@ -136,6 +136,7 @@
     <span class="k">return</span> <span class="n">adata</span></div>
 
 
+<span class="c1"># TODO: Add reference for get_exp_frac function when mentioning the differences</span>
 <div class="viewcode-block" id="get_glob_exp_frac">
 <a class="viewcode-back" href="../../../api/spared.gene_features.get_glob_exp_frac.html#spared.gene_features.get_glob_exp_frac">[docs]</a>
 <span class="k">def</span> <span class="nf">get_glob_exp_frac</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
@@ -143,8 +144,8 @@
 <span class="sd">    </span>
 <span class="sd">    This function computes the global expression fraction for each gene in a dataset.</span>
 
-<span class="sd">    The global expression fraction of a gene in a dataset is defined as the proportion of spots where that gene is expressed. It is a number between ``0``</span>
-<span class="sd">    and ``1`` where ``0`` means that the gene is not expressed in any spot and ``1`` means that the gene is expressed in all the spots. Its difference</span>
+<span class="sd">    The global expression fraction of a gene in a dataset is defined as the proportion of spots where that gene is expressed. It is a number between ``0.0``</span>
+<span class="sd">    and ``1.0`` where ``0.0`` means that the gene is not expressed in any spot and ``1.0`` means that the gene is expressed in all the spots. Its difference</span>
 <span class="sd">    with the expression fraction is that the global expression fraction is computed for the whole dataset and not for each slide.</span>
 
 <span class="sd">    Args:</span>
@@ -163,11 +164,10 @@
     <span class="k">return</span> <span class="n">adata</span></div>
 
 
-<span class="c1"># TODO: Add documentation reference to some literature of the moran&#39;s I statistic</span>
+<span class="c1"># TODO: Add link to what the moran&#39;s I statistic is in wikipedia or something</span>
 <div class="viewcode-block" id="compute_moran">
 <a class="viewcode-back" href="../../../api/spared.gene_features.compute_moran.html#spared.gene_features.compute_moran">[docs]</a>
 <span class="k">def</span> <span class="nf">compute_moran</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
-<span class="w">    </span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Moran&#39;s I statistic for each gene.</span>
 
 <span class="sd">    Compute average Moran&#39;s I statistic for a collection of slides. Internally cycles over each slide in the ``adata`` collection</span>
@@ -177,7 +177,7 @@
 <span class="sd">    Args:</span>
 <span class="sd">        adata (ad.AnnData): The AnnData object to update. Must have expression values in ``adata.layers[from_layer]``.</span>
 <span class="sd">        from_layer (str): The key in ``adata.layers`` with the values used to compute Moran&#39;s I.</span>
-<span class="sd">        hex_geometry (bool): Whether the geometry is hexagonal or not. This is used to compute the spatial neighbors before computing Moran&#39;s I. Only ``True`` for Visium datasets.</span>
+<span class="sd">        hex_geometry (bool): Whether the geometry is hexagonal or not. This is used to compute the spatial neighbors before computing Moran&#39;s I. Only ``True`` for visium datasets.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        ad.AnnData: The updated AnnData object with the average Moran&#39;s I for each gene in ``adata.var[f&#39;{from_layer}_moran&#39;]``.</span>

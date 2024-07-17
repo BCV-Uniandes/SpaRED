@@ -101,42 +101,27 @@
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
 
 <span class="c1">### Graph building functions:</span>
-<span class="c1"># TODO: Change the name of the layer parameter to prediction_layer</span>
-<span class="c1"># TODO: Add reference to the get predictions and embeddings functions in the documentation at the end of the first paragraph</span>
 <div class="viewcode-block" id="get_graphs_one_slide">
 <a class="viewcode-back" href="../../../api/spared.graph_operations.get_graphs_one_slide.html#spared.graph_operations.get_graphs_one_slide">[docs]</a>
 <span class="k">def</span> <span class="nf">get_graphs_one_slide</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span><span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Get neighbor graphs for a single slide.</span>
-
-<span class="sd">    This function receives an AnnData object with a single slide and for each node computes the neighbor graph in an</span>
-<span class="sd">    ``n_hops`` radius in a pytorch geometric format. The AnnData object must have both embeddings and predictions in the</span>
-<span class="sd">    ``adata.obsm`` attribute.</span>
+<span class="sd">    This function receives an AnnData object with a single slide and for each node computes the graph in an</span>
+<span class="sd">    n_hops radius in a pytorch geometric format. The AnnData object must have both embeddings and predictions in the</span>
+<span class="sd">    adata.obsm attribute.</span>
 
 <span class="sd">    It returns a dictionary where the patch names are the keys and a pytorch geometric graph for each one as</span>
-<span class="sd">    values. **NOTE:** The first node of every graph is the center.</span>
+<span class="sd">    values. NOTE: The first node of every graph is the center.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        adata (ad.AnnData): The AnnData object with the slide data.</span>
 <span class="sd">        n_hops (int): The number of hops to compute the graph.</span>
-<span class="sd">        layer (str): The layer of the graph to predict. Will be added as ``y`` to the graph.</span>
+<span class="sd">        layer (str): The layer of the graph to predict. Will be added as y to the graph.</span>
 <span class="sd">        hex_geometry (bool): Whether the slide has hexagonal geometry or not.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple[dict,int]: Tuple of the following two elements:</span>
-
-<span class="sd">            - graph_dict: A dictionary where the patch names are the keys and pytorch geometric graph for each one as values. The first node of every graph is the center. The available attributes for each graph are:</span>
-
-<span class="sd">                - ``y``: The layer of the graph to predict.</span>
-<span class="sd">                - ``edge_index``: The edge index of the graph indicating the graph connections.</span>
-<span class="sd">                - ``pos``: The positions of the nodes with respect to the columns and rows of the slide.</span>
-<span class="sd">                - ``d_pos``: The delta positions of the nodes in the graph relative to the center node.</span>
-<span class="sd">                - ``embeddings``: The embeddings of the nodes in the graph.</span>
-<span class="sd">                - ``predictions``: The predictions of the nodes in the graph.</span>
-<span class="sd">                - ``used_mean``: The mean of the layer used to compute the deltas. Only present if the ``layer`` parameter contains the ``&#39;deltas&#39;`` substring.</span>
-<span class="sd">                - ``num_nodes``: The number of nodes in the graph.</span>
-<span class="sd">                - ``mask``: Mask indicating which of the values of ``y`` is real (``True``) or imputed (``False``).</span>
-
-<span class="sd">            - max_abs_d_pos: Max absolute column or row difference between the center and the neighbors. Used for positional encoding.</span>
+<span class="sd">        Tuple(dict,int)</span>
+<span class="sd">        dict: A dictionary where the patch names are the keys and pytorch geometric graph for each one as values. The first node of every graph is the center.</span>
+<span class="sd">        int: Max column or row difference between the center and the neighbors. Used for positional encoding.                   </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Compute spatial_neighbors</span>
     <span class="k">if</span> <span class="n">hex_geometry</span><span class="p">:</span>
@@ -225,7 +210,7 @@
             <span class="n">pos</span><span class="o">=</span><span class="n">curr_pos</span><span class="p">,</span>
             <span class="n">d_pos</span><span class="o">=</span><span class="n">curr_d_pos</span><span class="p">,</span>
             <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">[</span><span class="n">curr_nodes_idx</span><span class="p">],</span>
-            <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">[</span><span class="n">curr_nodes_idx</span><span class="p">],</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">[</span><span class="n">curr_nodes_idx</span><span class="p">]</span> <span class="k">if</span> <span class="n">predictions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">used_mean</span><span class="o">=</span><span class="n">used_mean</span> <span class="k">if</span> <span class="n">used_mean</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">num_nodes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">curr_nodes_idx</span><span class="p">),</span>
             <span class="n">mask</span><span class="o">=</span><span class="n">layers_dict</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">][</span><span class="n">curr_nodes_idx</span><span class="p">]</span>
@@ -242,19 +227,16 @@
     <span class="k">return</span> <span class="n">graph_dict</span><span class="p">,</span> <span class="n">max_abs_d_pos</span></div>
 
 
-<span class="c1"># TODO: Add reference to the get graphs_one_slide() in docstring to set the format of the graphs</span>
-<span class="c1"># TODO: Add reference to the github where we found the positional encodings</span>
 <div class="viewcode-block" id="get_sin_cos_positional_embeddings">
 <a class="viewcode-back" href="../../../api/spared.graph_operations.get_sin_cos_positional_embeddings.html#spared.graph_operations.get_sin_cos_positional_embeddings">[docs]</a>
 <span class="k">def</span> <span class="nf">get_sin_cos_positional_embeddings</span><span class="p">(</span><span class="n">graph_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">max_d_pos</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get positional encodings for a neighbors graph.</span>
-
-<span class="sd">    This function adds a transformer-like positional encodings to each graph in a graph dictionary. It adds the positional</span>
-<span class="sd">    encodings under the attribute ``graph.positional_embeddings`` for each graph and returns the modified dictionary. </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get positional encodings for a neighbor graph.</span>
+<span class="sd">    This function adds a transformer-like positional encodings to each graph in a graph dict. It adds the positional</span>
+<span class="sd">    encodings under the attribute &#39;positional_embeddings&#39; for each graph. </span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        graph_dict (dict): A dictionary where the patch names are the keys and a pytorch geometric graphs for each one are values.</span>
-<span class="sd">        max_d_pos (int): Max absolute column or row difference between the center and the neighbors.</span>
+<span class="sd">        max_d_pos (int): Max absolute value in the relative position matrix.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: The input graph dict with the information of positional encodings for each graph.</span>
@@ -279,39 +261,24 @@
     <span class="k">return</span> <span class="n">graph_dict</span></div>
 
 
-<span class="c1"># TODO: Add references to the functions inside the docstring</span>
-<span class="c1"># TODO: Change the name of the layer parameter to prediction_layer</span>
 <div class="viewcode-block" id="get_graphs">
 <a class="viewcode-back" href="../../../api/spared.graph_operations.get_graphs.html#spared.graph_operations.get_graphs">[docs]</a>
 <span class="k">def</span> <span class="nf">get_graphs</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Get graphs for all the slides in a dataset.</span>
-
-<span class="sd">    This function wraps the ``get_graphs_one_slide()`` and ``get_sin_cos_positional_embeddings()`` function to get the graphs</span>
-<span class="sd">    with positional encoding for all the slides in a slide collection.</span>
+<span class="sd">    This function wraps the get_graphs_one_slide function to get the graphs for all the slides in the dataset.</span>
 <span class="sd">    After computing the graph dicts for each slide it concatenates them into a single dictionary which is then used to compute</span>
-<span class="sd">    the positional embeddings all the graphs.</span>
+<span class="sd">    the positional embeddings for each graph.</span>
 
-<span class="sd">    For details see ``get_graphs_one_slide()`` and ``get_sin_cos_positional_embeddings()`` functions.</span>
+<span class="sd">    For details see get_graphs_one_slide and get_sin_cos_positional_embeddings functions.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        adata (ad.AnnData): The AnnData object used to build the graphs.</span>
 <span class="sd">        n_hops (int): The number of hops to compute each graph.</span>
-<span class="sd">        layer (str): The layer of the graph to predict. Will be added as the ``y`` attribute to the graph.</span>
-<span class="sd">        hex_geometry (bool): Whether the graph is hexagonal or not. Only ``True`` for Visium datasets. Defaults to ``True``.</span>
+<span class="sd">        layer (str): The layer of the graph to predict. Will be added as y to the graph.</span>
+<span class="sd">        hex_geometry (bool): Whether the graph is hexagonal or not. Only true for visium datasets. Defaults to True.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        dict: A dictionary for the slide collection where the spots&#39; names are the keys and pytorch geometric graphs are values. The available attributes for each graph are:</span>
-
-<span class="sd">            - ``y``: The layer of the graph to predict.</span>
-<span class="sd">            - ``edge_index``: The edge index of the graph indicating the graph connections.</span>
-<span class="sd">            - ``pos``: The positions of the nodes with respect to the columns and rows of the slide.</span>
-<span class="sd">            - ``d_pos``: The delta positions of the nodes in the graph relative to the center node.</span>
-<span class="sd">            - ``embeddings``: The embeddings of the nodes in the graph.</span>
-<span class="sd">            - ``predictions``: The predictions of the nodes in the graph.</span>
-<span class="sd">            - ``used_mean``: The mean of the layer used to compute the deltas. Only present if the ``layer`` parameter contains the ``&#39;deltas&#39;`` substring.</span>
-<span class="sd">            - ``num_nodes``: The number of nodes in the graph.</span>
-<span class="sd">            - ``mask``: Mask indicating which of the values of ``y`` is real (``True``) or imputed (``False``).</span>
-<span class="sd">            - ``positional_embeddings``: The positional encodings of the nodes in the graph.</span>
+<span class="sd">        dict: A dictionary where the spots&#39; names are the keys and pytorch geometric graphs are values.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Computing graphs...&#39;</span><span class="p">)</span>

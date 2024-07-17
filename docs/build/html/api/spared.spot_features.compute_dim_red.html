@@ -66,9 +66,9 @@
 <li class="toctree-l3"><a class="reference internal" href="spared.spot_features.get_spatial_neighbors.html">spared.spot_features.get_spatial_neighbors</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
@@ -107,8 +107,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spared.spot_features.compute_dim_red">
 <span class="sig-prename descclassname"><span class="pre">spared.spot_features.</span></span><span class="sig-name descname"><span class="pre">compute_dim_red</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AnnData</span></span></span><a class="reference internal" href="../_modules/spared/spot_features/spot_features.html#compute_dim_red"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.spot_features.compute_dim_red" title="Link to this definition"></a></dt>
-<dd><p>Compute dimensionality reduction and clusters</p>
-<p>Simple wrapper around <code class="docutils literal notranslate"><span class="pre">sc.pp.pca()</span></code>, <code class="docutils literal notranslate"><span class="pre">sc.pp.neighbors()</span></code>, <code class="docutils literal notranslate"><span class="pre">sc.tl.umap()</span></code> and <code class="docutils literal notranslate"><span class="pre">sc.tl.leiden()</span></code> to compute the embeddings and cluster the data.
+<dd><p>Compute dimensionality reductions and clusters</p>
+<p>Simple wrapper around <code class="docutils literal notranslate"><span class="pre">sc.pp.pca()</span></code>, <code class="docutils literal notranslate"><span class="pre">sc.pp.neighbors()</span></code>, <code class="docutils literal notranslate"><span class="pre">sc.tl.umap()</span></code> and <code class="docutils literal notranslate"><span class="pre">sc.tl.leiden()</span></code> with default parameters to compute the embeddings and cluster the data.
 Everything will be computed using the expression matrix stored in <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -118,7 +118,7 @@ Everything will be computed using the expression matrix stored in <code class="d
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The transformed AnnData object with the added embeddings and clusters.</p>
+<dd class="field-even"><p>The transformed AnnData object with the dimensionality reductions and clusters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>ad.AnnData</p>

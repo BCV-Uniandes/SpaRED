@@ -57,9 +57,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="spared.plotting.plot_all_slides.html">spared.plotting.plot_all_slides</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spared.plotting.plot_exp_frac.html">spared.plotting.plot_exp_frac</a></li>
@@ -117,15 +117,15 @@
 <dd><p>Plot clusters spatially</p>
 <p>This function generates a plot that visualizes Leiden clusters spatially in the slides in param_dict[‘plotting_slides’].
 The slides can be specified in param_dict[‘plotting_slides’] or chosen randomly.</p>
-<p>It plots:</p>
-<blockquote>
-<div><ol class="arabic simple">
+<dl class="simple">
+<dt>It plots:</dt><dd><ol class="arabic simple">
 <li><p>The spatial distribution of the Leiden clusters in the slides.</p></li>
 <li><p>UMAP embeddings of each slide colored by Leiden clusters.</p></li>
 <li><p>General UMAP embedding of the complete dataset colored by Leiden clusters and the batch correction key.</p></li>
 <li><p>PCA embeddings of the complete dataset colored by the batch correction key.</p></li>
 </ol>
-</div></blockquote>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

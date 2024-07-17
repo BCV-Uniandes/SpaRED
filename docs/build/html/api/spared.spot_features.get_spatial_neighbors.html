@@ -66,9 +66,9 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
@@ -110,14 +110,15 @@
 <dd><p>Compute neighbors dictionary for an AnnData object.</p>
 <p>This function computes a neighbors dictionary for an AnnData object. The neighbors are computed according to topological distances over
 a graph defined by the <code class="docutils literal notranslate"><span class="pre">hex_geometry</span></code> connectivity. The neighbors dictionary is a dictionary where the keys are the indexes of the observations
-and the values are lists of the indexes of the neighbors of each observation. The neighbors include the observation itself (as the first element of
-the list) and are found inside an <code class="docutils literal notranslate"><span class="pre">n_hops</span></code> neighborhood (vicinity) of the observation.</p>
+and the values are lists of the indexes of the neighbors of each observation. The neighbors include the observation itself as first element and are found
+inside an <code class="docutils literal notranslate"><span class="pre">n_hops</span></code> neighborhood (vicinity) of the observation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to process. Importantly it is only from a single slide. Can not be a collection of slides.</p></li>
 <li><p><strong>n_hops</strong> (<em>int</em>) – The size of the neighborhood to take into account to compute the neighbors.</p></li>
-<li><p><strong>hex_geometry</strong> (<em>bool</em>) – <code class="docutils literal notranslate"><span class="pre">True</span></code> when the spots’ graph is hexagonal (Visium datasets). If <code class="docutils literal notranslate"><span class="pre">False</span></code>, then the graph is a grid.</p></li>
+<li><p><strong>hex_geometry</strong> (<em>bool</em>) – Whether the graph is hexagonal or not. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then the graph is hexagonal. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, then the graph is a grid. Only
+<code class="docutils literal notranslate"><span class="pre">True</span></code> for Visium datasets.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

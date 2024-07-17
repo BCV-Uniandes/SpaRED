@@ -57,9 +57,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="spared.graph_operations.get_graphs_one_slide.html">spared.graph_operations.get_graphs_one_slide</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spared.graph_operations.get_sin_cos_positional_embeddings.html">spared.graph_operations.get_sin_cos_positional_embeddings</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">spared.graph_operations.get_graphs</a><ul>
@@ -106,38 +106,22 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spared.graph_operations.get_graphs">
 <span class="sig-prename descclassname"><span class="pre">spared.graph_operations.</span></span><span class="sig-name descname"><span class="pre">get_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_hops</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hex_geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/spared/graph_operations/graph_operations.html#get_graphs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.graph_operations.get_graphs" title="Link to this definition"></a></dt>
-<dd><p>Get graphs for all the slides in a dataset.</p>
-<p>This function wraps the <code class="docutils literal notranslate"><span class="pre">get_graphs_one_slide()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_sin_cos_positional_embeddings()</span></code> function to get the graphs
-with positional encoding for all the slides in a slide collection.
+<dd><p>Get graphs for all the slides in a dataset.
+This function wraps the get_graphs_one_slide function to get the graphs for all the slides in the dataset.
 After computing the graph dicts for each slide it concatenates them into a single dictionary which is then used to compute
-the positional embeddings all the graphs.</p>
-<p>For details see <code class="docutils literal notranslate"><span class="pre">get_graphs_one_slide()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_sin_cos_positional_embeddings()</span></code> functions.</p>
+the positional embeddings for each graph.</p>
+<p>For details see get_graphs_one_slide and get_sin_cos_positional_embeddings functions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object used to build the graphs.</p></li>
 <li><p><strong>n_hops</strong> (<em>int</em>) – The number of hops to compute each graph.</p></li>
-<li><p><strong>layer</strong> (<em>str</em>) – The layer of the graph to predict. Will be added as the <code class="docutils literal notranslate"><span class="pre">y</span></code> attribute to the graph.</p></li>
-<li><p><strong>hex_geometry</strong> (<em>bool</em>) – Whether the graph is hexagonal or not. Only <code class="docutils literal notranslate"><span class="pre">True</span></code> for Visium datasets. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>layer</strong> (<em>str</em>) – The layer of the graph to predict. Will be added as y to the graph.</p></li>
+<li><p><strong>hex_geometry</strong> (<em>bool</em>) – Whether the graph is hexagonal or not. Only true for visium datasets. Defaults to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>A dictionary for the slide collection where the spots’ names are the keys and pytorch geometric graphs are values. The available attributes for each graph are:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code>: The layer of the graph to predict.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">edge_index</span></code>: The edge index of the graph indicating the graph connections.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pos</span></code>: The positions of the nodes with respect to the columns and rows of the slide.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">d_pos</span></code>: The delta positions of the nodes in the graph relative to the center node.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">embeddings</span></code>: The embeddings of the nodes in the graph.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">predictions</span></code>: The predictions of the nodes in the graph.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">used_mean</span></code>: The mean of the layer used to compute the deltas. Only present if the <code class="docutils literal notranslate"><span class="pre">layer</span></code> parameter contains the <code class="docutils literal notranslate"><span class="pre">'deltas'</span></code> substring.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">num_nodes</span></code>: The number of nodes in the graph.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">mask</span></code>: Mask indicating which of the values of <code class="docutils literal notranslate"><span class="pre">y</span></code> is real (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or imputed (<code class="docutils literal notranslate"><span class="pre">False</span></code>).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">positional_embeddings</span></code>: The positional encodings of the nodes in the graph.</p></li>
-</ul>
-</div></blockquote>
-</p>
+<dd class="field-even"><p>A dictionary where the spots’ names are the keys and pytorch geometric graphs are values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>

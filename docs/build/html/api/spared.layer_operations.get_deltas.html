@@ -57,7 +57,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.tpm_normalization.html">spared.layer_operations.tpm_normalization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.log1p_transformation.html">spared.layer_operations.log1p_transformation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.combat_transformation.html">spared.layer_operations.combat_transformation</a></li>
@@ -70,7 +70,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
@@ -117,7 +117,7 @@ are computed for all observations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to update. Must have expression values in <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code> and <code class="docutils literal notranslate"><span class="pre">'train'</span></code> values in the <code class="docutils literal notranslate"><span class="pre">adata.obs['split']</span></code> column.</p></li>
+<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to update. Must have expression values in <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code>. Must also have the <code class="docutils literal notranslate"><span class="pre">adata.obs['split']</span></code> column with <code class="docutils literal notranslate"><span class="pre">'train'</span></code> values.</p></li>
 <li><p><strong>from_layer</strong> (<em>str</em>) – The layer to take the data from.</p></li>
 <li><p><strong>to_layer</strong> (<em>str</em>) – The layer to store the results of the transformation.</p></li>
 </ul>

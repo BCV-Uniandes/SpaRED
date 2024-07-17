@@ -78,7 +78,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/spared.spot_features.get_spatial_neighbors.html">spared.spot_features.get_spatial_neighbors</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#layer-operations">Layer Operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.layer_operations">Layer Operations</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.tpm_normalization.html">spared.layer_operations.tpm_normalization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.log1p_transformation.html">spared.layer_operations.log1p_transformation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.combat_transformation.html">spared.layer_operations.combat_transformation</a></li>
@@ -87,8 +87,12 @@
 <li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.process_dataset.html">spared.layer_operations.process_dataset</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#graph-operations">Graph Operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.denoising">Denoising</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.denoising.median_cleaner.html">spared.denoising.median_cleaner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.denoising.spackle_cleaner.html">spared.denoising.spackle_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.graph_operations">Graph Operations</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/spared.graph_operations.get_graphs_one_slide.html">spared.graph_operations.get_graphs_one_slide</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/spared.graph_operations.get_sin_cos_positional_embeddings.html">spared.graph_operations.get_sin_cos_positional_embeddings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/spared.graph_operations.get_graphs.html">spared.graph_operations.get_graphs</a></li>
@@ -161,8 +165,8 @@
 <span id="datasets"></span><h2>Datasets<a class="headerlink" href="#module-spared.datasets" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.datasets.get_dataset.html#spared.datasets.get_dataset" title="spared.datasets.get_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets.get_dataset</span></code></a>(dataset_name, visualize)</p></td>
-<td><p>This function receives the name of a dataset and retrieves a SpatialDataset object according to the arguments.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.datasets.get_dataset.html#spared.datasets.get_dataset" title="spared.datasets.get_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets.get_dataset</span></code></a>(dataset_name[, visualize])</p></td>
+<td><p>Get a dataset from name.</p></td>
 </tr>
 </tbody>
 </table>
@@ -221,8 +225,8 @@
 </tbody>
 </table>
 </section>
-<section id="layer-operations">
-<h2>Layer Operations<a class="headerlink" href="#layer-operations" title="Link to this heading"></a></h2>
+<section id="module-spared.layer_operations">
+<span id="layer-operations"></span><h2>Layer Operations<a class="headerlink" href="#module-spared.layer_operations" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/spared.layer_operations.tpm_normalization.html#spared.layer_operations.tpm_normalization" title="spared.layer_operations.tpm_normalization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_operations.tpm_normalization</span></code></a>(organism, ...)</p></td>
@@ -250,11 +254,17 @@
 <span id="denoising"></span><h2>Denoising<a class="headerlink" href="#module-spared.denoising" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.denoising.median_cleaner.html#spared.denoising.median_cleaner" title="spared.denoising.median_cleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denoising.median_cleaner</span></code></a>(collection, ...)</p></td>
+<td><p>Remove noise with median filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.denoising.spackle_cleaner.html#spared.denoising.spackle_cleaner" title="spared.denoising.spackle_cleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denoising.spackle_cleaner</span></code></a>(adata, dataset, ...)</p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </section>
-<section id="graph-operations">
-<h2>Graph Operations<a class="headerlink" href="#graph-operations" title="Link to this heading"></a></h2>
+<section id="module-spared.graph_operations">
+<span id="graph-operations"></span><h2>Graph Operations<a class="headerlink" href="#module-spared.graph_operations" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/spared.graph_operations.get_graphs_one_slide.html#spared.graph_operations.get_graphs_one_slide" title="spared.graph_operations.get_graphs_one_slide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_operations.get_graphs_one_slide</span></code></a>(adata, ...)</p></td>

@@ -65,9 +65,9 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
@@ -115,7 +115,7 @@ slides and saves it in <code class="docutils literal notranslate"><span class="p
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to update. Must have expression values in <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code>.</p></li>
 <li><p><strong>from_layer</strong> (<em>str</em>) – The key in <code class="docutils literal notranslate"><span class="pre">adata.layers</span></code> with the values used to compute Moran’s I.</p></li>
-<li><p><strong>hex_geometry</strong> (<em>bool</em>) – Whether the geometry is hexagonal or not. This is used to compute the spatial neighbors before computing Moran’s I. Only <code class="docutils literal notranslate"><span class="pre">True</span></code> for Visium datasets.</p></li>
+<li><p><strong>hex_geometry</strong> (<em>bool</em>) – Whether the geometry is hexagonal or not. This is used to compute the spatial neighbors before computing Moran’s I. Only <code class="docutils literal notranslate"><span class="pre">True</span></code> for visium datasets.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

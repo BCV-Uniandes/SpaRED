@@ -22,6 +22,7 @@
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -57,7 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.tpm_normalization.html">spared.layer_operations.tpm_normalization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.log1p_transformation.html">spared.layer_operations.log1p_transformation</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">spared.layer_operations.combat_transformation</a><ul>
@@ -70,7 +71,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
@@ -112,11 +113,12 @@
 <dd><p>Perform batch correction with ComBat</p>
 <p>Compute batch correction using the <a class="reference external" href="https://github.com/epigenelabs/pyComBat?tab=readme-ov-file">pycombat</a> package. The batches are defined by <code class="docutils literal notranslate"><span class="pre">adata.obs[batch_key]</span></code> so
 the user can define which variable to use as batch identifier. The input data for the batch correction is <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code> and the output is stored in
-<code class="docutils literal notranslate"><span class="pre">adata.layers[to_layer]</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">adata.layers[to_layer]</span></code>. Importantly, as the <a class="reference external" href="https://doi.org/10.1093/biostatistics/kxj037">original ComBat paper</a> notes the data should be approximately normally distributed. Therefore, it is recommended to use
+this function over <span class="math notranslate nohighlight">\(\log_2(TPM+1)\)</span> data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to transform. Must have logarithmically transformed data in <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code> (ComBat assumes approximately normal distribution of gene expression).</p></li>
+<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to transform. Must have logarithmically transformed data in <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code>.</p></li>
 <li><p><strong>batch_key</strong> (<em>str</em>) – The column in <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> that defines the batches.</p></li>
 <li><p><strong>from_layer</strong> (<em>str</em>) – The layer to take the data from.</p></li>
 <li><p><strong>to_layer</strong> (<em>str</em>) – The layer to store the results of the transformation.</p></li>

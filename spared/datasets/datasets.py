@@ -41,7 +41,6 @@ from readers.ParigiReader import ParigiReader
 from readers.VicariReader import VicariReader
 from readers.VillacampaReader import VillacampaReader
 from readers.VisiumReader import VisiumReader
-from readers.HudsonReader import HudsonReader
 #Remover el directorio padre al sys.path 
 sys.path.append(str(SPARED_PATH))
 
@@ -210,15 +209,7 @@ class SpatialDataset():
                 patch_scale=self.patch_scale,
                 patch_size=self.patch_size,
                 force_compute=self.force_compute
-            )
-        elif 'hudson' in self.dataset:
-            reader_class = HudsonReader(
-                dataset=self.dataset,
-                param_dict=self.param_dict,
-                patch_scale=self.patch_scale,
-                patch_size=self.patch_size,
-                force_compute=self.force_compute
-            )    
+            )   
         else:
             reader_class = VisiumReader(
                 dataset=self.dataset,
@@ -358,12 +349,46 @@ class HisToGeneDataset(Dataset):
 
 
 def get_dataset(dataset_name: str, visualize: bool = True) -> SpatialDataset:
-    """
-    This function receives the name of a dataset and retrieves a SpatialDataset object according to the arguments.
+    """Get a dataset from name.
+
+    This function receives the name of a dataset and retrieves a the correspondent ``SpatialDataset``. This function will retrieve configuration files predefined for
+    each dataset in SpaRED. The name of the dataset should be one of the following:
+
+        - ``10xgenomic_human_brain``
+        - ``10xgenomic_human_breast_cancer``
+        - ``10xgenomic_mouse_brain_coronal``
+        - ``10xgenomic_mouse_brain_sagittal_anterior``
+        - ``10xgenomic_mouse_brain_sagittal_posterior``
+        - ``abalo_human_squamous_cell_carcinoma``
+        - ``erickson_human_prostate_cancer_p1``
+        - ``erickson_human_prostate_cancer_p2``
+        - ``fan_mouse_brain_coronal``
+        - ``fan_mouse_olfatory_bulb``
+        - ``mirzazadeh_human_colon_p1``
+        - ``mirzazadeh_human_colon_p2``
+        - ``mirzazadeh_human_pediatric_brain_tumor_p1``
+        - ``mirzazadeh_human_pediatric_brain_tumor_p2``
+        - ``mirzazadeh_human_prostate_cancer``
+        - ``mirzazadeh_human_small_intestine``
+        - ``mirzazadeh_mouse_bone``
+        - ``mirzazadeh_mouse_brain_p1``
+        - ``mirzazadeh_mouse_brain_p2``
+        - ``mirzazadeh_mouse_brain``
+        - ``parigi_mouse_intestine``
+        - ``vicari_human_striatium``
+        - ``vicari_mouse_brain``
+        - ``villacampa_kidney_organoid``
+        - ``villacampa_lung_organoid``
+        - ``villacampa_mouse_brain``
+    
+    After the first load of each dataset, the data will be stored and the next time the function is called it will load the data from the stored file much faster.
+
+
     Args:
         dataset_name (str): The name of the dataset.
+        visualize (bool, optional): Whether to visualize the dataset or not. Can significantly increase run time of the command. Defaults to ``True``.
     Returns:
-        dataset: The specified dataset in a SpatialDataset object.
+        SpatialDataset: The specified dataset in a ``SpatialDataset`` object.
     """
     
     # Get the name of the config based on the dataset

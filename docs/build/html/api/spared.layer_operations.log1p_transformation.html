@@ -58,7 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="spared.layer_operations.tpm_normalization.html">spared.layer_operations.tpm_normalization</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">spared.layer_operations.log1p_transformation</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spared.layer_operations.log1p_transformation"><code class="docutils literal notranslate"><span class="pre">log1p_transformation()</span></code></a></li>
@@ -71,7 +71,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.dataloaders">Dataloaders</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.models">Models</a></li>
@@ -111,7 +111,7 @@
 <dt class="sig sig-object py" id="spared.layer_operations.log1p_transformation">
 <span class="sig-prename descclassname"><span class="pre">spared.layer_operations.</span></span><span class="sig-name descname"><span class="pre">log1p_transformation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AnnData</span></span></span><a class="reference internal" href="../_modules/spared/layer_operations/layer_operations.html#log1p_transformation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.layer_operations.log1p_transformation" title="Link to this definition"></a></dt>
 <dd><p>Perform <span class="math notranslate nohighlight">\(\log_2(x+1)\)</span> transformation</p>
-<p>Performs logarithmic transformation over the <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code> matrix. Simple wrapper of scanpy’s <code class="docutils literal notranslate"><span class="pre">sc.pp.log1p()</span></code>
+<p>Performs logarithmic transformation over <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code>. Simple wrapper of scanpy’s <code class="docutils literal notranslate"><span class="pre">sc.pp.log1p()</span></code>
 (base 2) to transform data from <code class="docutils literal notranslate"><span class="pre">adata.layers[from_layer]</span></code> and save it into <code class="docutils literal notranslate"><span class="pre">adata.layers[to_layer]</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

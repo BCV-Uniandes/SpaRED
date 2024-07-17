@@ -17,12 +17,12 @@ sys.path.remove(str(SPARED_PATH))
 def get_exp_frac(adata: ad.AnnData) -> ad.AnnData:
     """ Compute the expression fraction for all genes.
 
-    The expression fraction of a gene in a slide is defined as the proportion of spots where that gene is expressed. It is a number between ``0``
-    and ``1`` where ``0`` means that the gene is not expressed in any spot and ``1`` means that the gene is expressed in all the spots.
+    The expression fraction of a gene in a slide is defined as the proportion of spots where that gene is expressed. It is a number between ``0.0``
+    and ``1.0`` where ``0.0`` means that the gene is not expressed in any spot and ``1.0`` means that the gene is expressed in all the spots.
 
     To compute an aggregation of expression fractions in a complete dataset, this function gets the
     expression fraction for each slide and then takes the minimum across all the slides. Hence the final number is a lower bound that ensures
-    that the gene is expressed in at least that fraction of the spots in each of the slides.
+    that the gene is expressed in at least that fraction of the spots in each one of the slides.
 
     Args:
         adata (ad.AnnData): A slide collection where non-expressed genes have a value of ``0`` in the ``adata.X`` matrix.
@@ -54,13 +54,14 @@ def get_exp_frac(adata: ad.AnnData) -> ad.AnnData:
     # Return the adata
     return adata
 
+# TODO: Add reference for get_exp_frac function when mentioning the differences
 def get_glob_exp_frac(adata: ad.AnnData) -> ad.AnnData:
     """ Compute the global expression fraction for all genes.
     
     This function computes the global expression fraction for each gene in a dataset.
 
-    The global expression fraction of a gene in a dataset is defined as the proportion of spots where that gene is expressed. It is a number between ``0``
-    and ``1`` where ``0`` means that the gene is not expressed in any spot and ``1`` means that the gene is expressed in all the spots. Its difference
+    The global expression fraction of a gene in a dataset is defined as the proportion of spots where that gene is expressed. It is a number between ``0.0``
+    and ``1.0`` where ``0.0`` means that the gene is not expressed in any spot and ``1.0`` means that the gene is expressed in all the spots. Its difference
     with the expression fraction is that the global expression fraction is computed for the whole dataset and not for each slide.
 
     Args:
@@ -78,8 +79,8 @@ def get_glob_exp_frac(adata: ad.AnnData) -> ad.AnnData:
     # Return the adata
     return adata
 
+# TODO: Add link to what the moran's I statistic is in wikipedia or something
 def compute_moran(adata: ad.AnnData, from_layer: str, hex_geometry: bool) -> ad.AnnData:
-    
     """Compute Moran's I statistic for each gene.
 
     Compute average Moran's I statistic for a collection of slides. Internally cycles over each slide in the ``adata`` collection

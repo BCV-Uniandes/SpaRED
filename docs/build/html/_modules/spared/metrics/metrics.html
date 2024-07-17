@@ -534,14 +534,14 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:5.7f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
 
 
-    <span class="c1"># # Compute metrics with the slow way (inefficient implementation but secure)</span>
-    <span class="c1"># print(&#39;Slow metrics&#39;+&#39;-&#39;*40) </span>
-    <span class="c1"># start = time()</span>
-    <span class="c1"># slow_test_metrics = slow_get_metrics(gt, pred, mask=mask)</span>
-    <span class="c1"># print(&quot;Time taken: {:5.2f}s&quot;.format(time()-start))</span>
+    <span class="c1"># Compute metrics with the slow way (inefficient implementation but secure)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Slow metrics&#39;</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span> 
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">slow_test_metrics</span> <span class="o">=</span> <span class="n">slow_get_metrics</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time taken: </span><span class="si">{:5.2f}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">))</span>
 
-    <span class="c1"># for key, val in slow_test_metrics.items():</span>
-    <span class="c1">#     print(&quot;{} = {:5.7f}&quot;.format(key, val))</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">slow_test_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:5.7f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
 </pre></div>
 
            </div>

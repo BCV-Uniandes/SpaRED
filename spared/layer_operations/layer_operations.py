@@ -26,6 +26,7 @@ sys.path.remove(str(SPARED_PATH))
 
 
 ### Expression data processing functions:
+# TODO: CHange here and elsewhere the order of the organism and adata parameters
 def tpm_normalization(organism: str, adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
     """Normalize expression using TPM normalization.
 
@@ -33,11 +34,11 @@ def tpm_normalization(organism: str, adata: ad.AnnData, from_layer: str, to_laye
     The counts are taken from ``adata.layers[from_layer]`` and the results are stored in ``adata.layers[to_layer]``. It can perform the normalization
     for `human <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.basic.annotation.gtf.gz>`_ and `mouse
     <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M33/gencode.vM33.basic.annotation.gtf.gz>`_ reference genomes.
-    To specify which GTF annotation file should be used, the string parameter ``'organism'`` must be ``'mouse'`` or ``'human'``.
+    To specify which GTF annotation file should be used, the ``'organism'`` parameter must be ``'mouse'`` or ``'human'``.
 
     Args:
-        organism (str): Organism of the dataset. Must be 'mouse' or 'human'.
         adata (ad.Anndata): The Anndata object to normalize.
+        organism (str): Organism of the dataset. Must be ``'mouse'`` or ``'human'``.
         from_layer (str): The layer to take the counts from. The data in this layer should be in raw counts.
         to_layer (str): The layer to store the results of the normalization.
     Returns:
@@ -164,12 +165,14 @@ def log1p_transformation(adata: ad.AnnData, from_layer: str, to_layer: str) -> a
     # Return the transformed AnnData object
     return adata
 
+# FIXME: Update to the new hosting of the pycombat package
 def combat_transformation(adata: ad.AnnData, batch_key: str, from_layer: str, to_layer: str) -> ad.AnnData:
     """ Perform batch correction with ComBat
 
     Compute batch correction using the `pycombat <https://github.com/epigenelabs/pyComBat?tab=readme-ov-file>`_ package. The batches are defined by ``adata.obs[batch_key]`` so
     the user can define which variable to use as batch identifier. The input data for the batch correction is ``adata.layers[from_layer]`` and the output is stored in
-    ``adata.layers[to_layer]``.
+    ``adata.layers[to_layer]``. Importantly, as the `original ComBat paper <https://doi.org/10.1093/biostatistics/kxj037>`_ notes the data should be approximately normally distributed. Therefore, it is recommended to use
+    this function over :math:`\log_2(TPM+1)` data.
 
     Args:
         adata (ad.AnnData): The AnnData object to transform. Must have logarithmically transformed data in ``adata.layers[from_layer]``.
@@ -192,6 +195,7 @@ def combat_transformation(adata: ad.AnnData, batch_key: str, from_layer: str, to
 
     return adata
 
+# TODO: Put reference to SEPAL as the first method trying this
 def get_deltas(adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
     """ Get expression deltas from the mean.
 
@@ -232,22 +236,25 @@ def get_deltas(adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
     return adata
 
 # TODO: When cheking this function on its own, try using a prediction layer "delta"
-# TODO: modify function to add noisy layer to important layers 
+# TODO: modify function to add noisy layer to important layers
+# FIXME: Double check the inside of the function. It looks weird
 def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
     """ Add an artificial noisy layer.
-    This function should only be used for experimentation/ablation purposes. It adds a noisy layer to the adata object by the name of 'noisy_d'
-    or 'noisy' depending on the prediction layer. The noisy layer is created by returning the missing values to an already denoised layer of the adata.
-    In the case the source layer is on logarithmic scale, the noisy layer is created by assigning zero values to the missing values. In the case the source
-    layer is on delta scale, the noisy layer is created by assigning the negative mean of the gene to the missing values. missing values are specified by
-    the binary ada.layers['mask'] layer.
+
+    This function should only be used for experimentation/ablation purposes. The noisy layer is created by returning the missing values to an already denoised
+    layer of the ``adata``. In the case the ``'prediction_layer'`` is on :math:`\log_2(TPM+1)` logarithmic scale, the noisy layer is created by assigning zero values
+    to the missing values (adds ``'noisy'`` layer to the adata). In the case the ``'prediction_layer'`` is on delta scale, the noisy layer is created by assigning the
+    negative mean of the gene to the missing values (adds ``'noisy_d'`` layer to the adata). Missing values are specified by the binary ``adata.layers['mask']``
+    layer that must be already present and has ``True`` values for all real data and ``False`` values for imputed data.
 
     Args:
-        adata (ad.AnnData): The AnnData object to update. Must have the prediction layer, the gene means if its a delta layer, and the mask layer.
+        adata (ad.AnnData): The AnnData object to update. Must have the ``adata.layers[prediction_layer]``, the gene means if its a delta layer, and ``adata.layers['mask']``.
         prediction_layer (str): The layer that will be corrupted to create the noisy layer.
 
     Returns:
-        ad.AnnData: The updated AnnData object with the noisy layer added.
+        ad.AnnData: The updated AnnData object with the ``adata.layers['noisy']`` or ``adata.layers['noisy_d']`` layer added depending on ``prediction_layer``.
     """
+    # FIXME: This condition looks weird
     if 'delta' in prediction_layer or 'noisy_d' in prediction_layer:
         # Get vector with gene means
         gene_means = adata.var[f"{prediction_layer}_avg_exp"].values 

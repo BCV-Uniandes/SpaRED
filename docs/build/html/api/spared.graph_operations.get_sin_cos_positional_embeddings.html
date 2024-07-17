@@ -57,9 +57,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.filtering">Filtering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.gene_features">Gene Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.spot_features">Spot Features</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../api.html#layer-operations">Layer Operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.layer_operations">Layer Operations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api.html#module-spared.denoising">Denoising</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../api.html#graph-operations">Graph Operations</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#module-spared.graph_operations">Graph Operations</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="spared.graph_operations.get_graphs_one_slide.html">spared.graph_operations.get_graphs_one_slide</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">spared.graph_operations.get_sin_cos_positional_embeddings</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#spared.graph_operations.get_sin_cos_positional_embeddings"><code class="docutils literal notranslate"><span class="pre">get_sin_cos_positional_embeddings()</span></code></a></li>
@@ -106,14 +106,14 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spared.graph_operations.get_sin_cos_positional_embeddings">
 <span class="sig-prename descclassname"><span class="pre">spared.graph_operations.</span></span><span class="sig-name descname"><span class="pre">get_sin_cos_positional_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_d_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/spared/graph_operations/graph_operations.html#get_sin_cos_positional_embeddings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.graph_operations.get_sin_cos_positional_embeddings" title="Link to this definition"></a></dt>
-<dd><p>Get positional encodings for a neighbors graph.</p>
-<p>This function adds a transformer-like positional encodings to each graph in a graph dictionary. It adds the positional
-encodings under the attribute <code class="docutils literal notranslate"><span class="pre">graph.positional_embeddings</span></code> for each graph and returns the modified dictionary.</p>
+<dd><p>Get positional encodings for a neighbor graph.
+This function adds a transformer-like positional encodings to each graph in a graph dict. It adds the positional
+encodings under the attribute ‘positional_embeddings’ for each graph.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>graph_dict</strong> (<em>dict</em>) – A dictionary where the patch names are the keys and a pytorch geometric graphs for each one are values.</p></li>
-<li><p><strong>max_d_pos</strong> (<em>int</em>) – Max absolute column or row difference between the center and the neighbors.</p></li>
+<li><p><strong>max_d_pos</strong> (<em>int</em>) – Max absolute value in the relative position matrix.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

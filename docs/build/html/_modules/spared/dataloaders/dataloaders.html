@@ -134,6 +134,7 @@
     <span class="c1"># Handle noisy training</span>
     <span class="c1"># Add this function in procces_data function and automaticaaly generate noisy layers for this layers:</span>
     <span class="c1"># c_d_log1p, c_t_log1p, c_d_deltas, c_t_deltas</span>
+    <span class="c1"># FIXME: This is generating the unwanted message &quot;Using noisy_delta layer for training. This will probably yield bad results.&quot; in quickstart tutorial</span>
     <span class="n">adata</span> <span class="o">=</span> <span class="n">layer_operations</span><span class="o">.</span><span class="n">add_noisy_layer</span><span class="p">(</span><span class="n">adata</span><span class="o">=</span><span class="n">adata</span><span class="p">,</span> <span class="n">prediction_layer</span><span class="o">=</span><span class="n">layer</span><span class="p">)</span>
 
     <span class="c1"># Set the X of the adata to the layer casted to float32</span>
