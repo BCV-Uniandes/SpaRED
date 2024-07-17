@@ -289,42 +289,47 @@ def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
 
     return adata
 
+# TODO: Put reference to the filter_dataset() function
+# FIXME: Here we should have the transformer cleaner too
+# TODO: Add combat link
 def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
     """ Perform complete processing pipeline.
-    This function performs the complete processing pipeline for a dataset. It only computes over the expression values of the dataset
-    (adata.X). The processing pipeline is the following:
 
-        1. Normalize the data with tpm normalization (tpm layer)
-        2. Transform the data with log1p (log1p layer)
-        3. Denoise the data with the adaptive median filter (d_log1p layer)
-        4. Compute moran I for each gene in each slide and average moranI across slides (add results to .var['d_log1p_moran'])
-        5. Filter dataset to keep the top param_dict['top_moran_genes'] genes with highest moran I.
-        6. Perform ComBat batch correction if specified by the 'combat_key' parameter (c_d_log1p layer)
-        7. Compute the deltas from the mean for each gene (computed from log1p, d_log1p and c_log1p, c_d_log1p layer if batch correction was performed)
-        8. Add a binary mask layer specifying valid observations for metric computation (mask layer, True for valid observations, False for missing values).
+    This function performs the complete processing pipeline. It only computes over the expression and filters genes to get the final prediction
+    variables. However, it doesn't perform spot (sample) filtering for which the ``filter_dataset()`` function is recommended. The input data
+    ``adata.X`` is expected to be in raw counts. The processing pipeline is the following:
+
+        1. Normalize the data with TPM normalization (adds ``adata.layers['tpm']``)
+        2. Transform the data with logarithmically using :math:`\log_2(TPM+1)` (adds ``adata.layers['log1p']``)
+        3. Denoise the data with the adaptive median filter (adds ``adata.layers['d_log1p']``)
+        4. Compute Moran's I for each gene in each slide and average Moran's I across slides (adds ``adata.var['d_log1p_moran']``)
+        5. Filter dataset to keep the top ``param_dict['top_moran_genes']`` genes with highest Moran's I.
+        6. Perform ComBat batch correction if specified by the ``param_dict['combat_key']`` parameter (adds ``adata.layers['c_d_log1p']``)
+        7. Compute the deltas from the mean for each gene. Computed from ``log1p``, ``d_log1p`` and ``c_log1p``, ``c_d_log1p`` layer if batch correction was performed (adds ``deltas``, ``d_deltas``, ``c_deltas``, ``c_d_deltas`` layers) 
+        8. Add a binary mask layer specifying valid observations for metric computation (adds ``adata.layers['mask']``, ``True`` for valid observations, ``False`` for missing values).
 
     Args:
-        adata (ad.AnnData): The AnnData object to process. Should be already filtered with the filter_dataset() function.
+        adata (ad.AnnData): The AnnData object to process. Should be already spot/sample filtered..
         param_dict (dict): Dictionary that contains filtering and processing parameters. Keys that must be present are:
 
-                            - 'top_moran_genes': (int) The number of genes to keep after filtering by Moran's I. If set to 0, then the number of genes is internally computed.
-                            - 'combat_key': (str) The column in adata.obs that defines the batches for ComBat batch correction. If set to 'None', then no batch correction is performed.
-                            - "hex_geometry" (bool): Whether the graph is hexagonal or not. If True, then the graph is hexagonal. If False, then the graph is a grid. Only true for visium datasets.
+                            - ``'top_moran_genes'`` (*int*): The number of genes to keep after filtering by Moran's I. If set to ``0``, then the number of genes is internally computed.
+                            - ``'combat_key'`` (*str*):  The column in ``adata.obs`` that defines the batches for ComBat batch correction. If set to ``'None'``, then no batch correction is performed.
+                            - ``'hex_geometry'`` (*bool*): Whether the graph is hexagonal or not. If ``True``, then the graph is hexagonal. If ``False``, then the graph is a grid. Only ``True`` for Visium datasets.
 
     Returns:
-        ad.Anndata: The processed AnnData object with all the layers and results added. A list of includded layers in adata.layers is:
+        ad.Anndata: The processed AnnData object with all the layers and results added. A list of included keys in ``adata.layers`` is:
 
-                    - 'counts': Raw counts of the dataset.
-                    - 'tpm': TPM normalized data.
-                    - 'log1p': Log1p transformed data (base 2.0).
-                    - 'd_log1p': Denoised data with adaptive median filter.
-                    - 'c_log1p': Batch corrected data with ComBat (only if combat_key is not 'None').
-                    - 'c_d_log1p': Batch corrected and denoised data with adaptive median filter (only if combat_key is not 'None').
-                    - 'deltas': Deltas from the mean expression for log1p.
-                    - 'd_deltas': Deltas from the mean expression for d_log1p.
-                    - 'c_deltas': Deltas from the mean expression for c_log1p (only if combat_key is not 'None').
-                    - 'c_d_deltas': Deltas from the mean expression for c_d_log1p (only if combat_key is not 'None').
-                    - 'mask': Binary mask layer. True for valid observations, False for imputed missing values.
+                    - ``'counts'``: Raw counts of the dataset.
+                    - ``'tpm'``: TPM normalized data.
+                    - ``'log1p'``: :math:`\log_2(TPM+1)` transformed data.
+                    - ``'d_log1p'``: Denoised data with adaptive median filter.
+                    - ``'c_log1p'``: Batch corrected data with ComBat (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'c_d_log1p'``: Batch corrected and denoised data with adaptive median filter (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'deltas'``: Deltas from the mean expression for ``log1p``.
+                    - ``'d_deltas'``: Deltas from the mean expression for ``d_log1p``.
+                    - ``'c_deltas'``: Deltas from the mean expression for ``c_log1p`` (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'c_d_deltas'``: Deltas from the mean expression for ``c_d_log1p`` (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'mask'``: Binary mask layer. ``True`` for valid observations, ``False`` for imputed missing values.
     """
 
     ### Compute all the processing steps

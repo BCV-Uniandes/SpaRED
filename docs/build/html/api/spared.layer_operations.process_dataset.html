@@ -22,6 +22,7 @@
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
         <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
         <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -109,49 +110,50 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="spared.layer_operations.process_dataset">
 <span class="sig-prename descclassname"><span class="pre">spared.layer_operations.</span></span><span class="sig-name descname"><span class="pre">process_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AnnData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">AnnData</span></span></span><a class="reference internal" href="../_modules/spared/layer_operations/layer_operations.html#process_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#spared.layer_operations.process_dataset" title="Link to this definition"></a></dt>
-<dd><p>Perform complete processing pipeline.
-This function performs the complete processing pipeline for a dataset. It only computes over the expression values of the dataset
-(adata.X). The processing pipeline is the following:</p>
+<dd><p>Perform complete processing pipeline.</p>
+<p>This function performs the complete processing pipeline. It only computes over the expression and filters genes to get the final prediction
+variables. However, it doesn’t perform spot (sample) filtering for which the <code class="docutils literal notranslate"><span class="pre">filter_dataset()</span></code> function is recommended. The input data
+<code class="docutils literal notranslate"><span class="pre">adata.X</span></code> is expected to be in raw counts. The processing pipeline is the following:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li><p>Normalize the data with tpm normalization (tpm layer)</p></li>
-<li><p>Transform the data with log1p (log1p layer)</p></li>
-<li><p>Denoise the data with the adaptive median filter (d_log1p layer)</p></li>
-<li><p>Compute moran I for each gene in each slide and average moranI across slides (add results to .var[‘d_log1p_moran’])</p></li>
-<li><p>Filter dataset to keep the top param_dict[‘top_moran_genes’] genes with highest moran I.</p></li>
-<li><p>Perform ComBat batch correction if specified by the ‘combat_key’ parameter (c_d_log1p layer)</p></li>
-<li><p>Compute the deltas from the mean for each gene (computed from log1p, d_log1p and c_log1p, c_d_log1p layer if batch correction was performed)</p></li>
-<li><p>Add a binary mask layer specifying valid observations for metric computation (mask layer, True for valid observations, False for missing values).</p></li>
+<li><p>Normalize the data with TPM normalization (adds <code class="docutils literal notranslate"><span class="pre">adata.layers['tpm']</span></code>)</p></li>
+<li><p>Transform the data with logarithmically using <span class="math notranslate nohighlight">\(\log_2(TPM+1)\)</span> (adds <code class="docutils literal notranslate"><span class="pre">adata.layers['log1p']</span></code>)</p></li>
+<li><p>Denoise the data with the adaptive median filter (adds <code class="docutils literal notranslate"><span class="pre">adata.layers['d_log1p']</span></code>)</p></li>
+<li><p>Compute Moran’s I for each gene in each slide and average Moran’s I across slides (adds <code class="docutils literal notranslate"><span class="pre">adata.var['d_log1p_moran']</span></code>)</p></li>
+<li><p>Filter dataset to keep the top <code class="docutils literal notranslate"><span class="pre">param_dict['top_moran_genes']</span></code> genes with highest Moran’s I.</p></li>
+<li><p>Perform ComBat batch correction if specified by the <code class="docutils literal notranslate"><span class="pre">param_dict['combat_key']</span></code> parameter (adds <code class="docutils literal notranslate"><span class="pre">adata.layers['c_d_log1p']</span></code>)</p></li>
+<li><p>Compute the deltas from the mean for each gene. Computed from <code class="docutils literal notranslate"><span class="pre">log1p</span></code>, <code class="docutils literal notranslate"><span class="pre">d_log1p</span></code> and <code class="docutils literal notranslate"><span class="pre">c_log1p</span></code>, <code class="docutils literal notranslate"><span class="pre">c_d_log1p</span></code> layer if batch correction was performed (adds <code class="docutils literal notranslate"><span class="pre">deltas</span></code>, <code class="docutils literal notranslate"><span class="pre">d_deltas</span></code>, <code class="docutils literal notranslate"><span class="pre">c_deltas</span></code>, <code class="docutils literal notranslate"><span class="pre">c_d_deltas</span></code> layers)</p></li>
+<li><p>Add a binary mask layer specifying valid observations for metric computation (adds <code class="docutils literal notranslate"><span class="pre">adata.layers['mask']</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code> for valid observations, <code class="docutils literal notranslate"><span class="pre">False</span></code> for missing values).</p></li>
 </ol>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to process. Should be already filtered with the filter_dataset() function.</p></li>
+<li><p><strong>adata</strong> (<em>ad.AnnData</em>) – The AnnData object to process. Should be already spot/sample filtered with the <code class="docutils literal notranslate"><span class="pre">filter_dataset()</span></code> function.</p></li>
 <li><p><strong>param_dict</strong> (<em>dict</em>) – <p>Dictionary that contains filtering and processing parameters. Keys that must be present are:</p>
 <ul>
-<li><p>’top_moran_genes’: (int) The number of genes to keep after filtering by Moran’s I. If set to 0, then the number of genes is internally computed.</p></li>
-<li><p>’combat_key’: (str) The column in adata.obs that defines the batches for ComBat batch correction. If set to ‘None’, then no batch correction is performed.</p></li>
-<li><p>”hex_geometry” (bool): Whether the graph is hexagonal or not. If True, then the graph is hexagonal. If False, then the graph is a grid. Only true for visium datasets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'top_moran_genes'</span></code> (<em>int</em>): The number of genes to keep after filtering by Moran’s I. If set to <code class="docutils literal notranslate"><span class="pre">0</span></code>, then the number of genes is internally computed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'combat_key'</span></code> (<em>str</em>):  The column in <code class="docutils literal notranslate"><span class="pre">adata.obs</span></code> that defines the batches for ComBat batch correction. If set to <code class="docutils literal notranslate"><span class="pre">'None'</span></code>, then no batch correction is performed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'hex_geometry'</span></code> (<em>bool</em>): Whether the graph is hexagonal or not. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, then the graph is hexagonal. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, then the graph is a grid. Only <code class="docutils literal notranslate"><span class="pre">True</span></code> for Visium datasets.</p></li>
 </ul>
 </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>The processed AnnData object with all the layers and results added. A list of includded layers in adata.layers is:</p>
+<dd class="field-even"><p><p>The processed AnnData object with all the layers and results added. A list of included keys in <code class="docutils literal notranslate"><span class="pre">adata.layers</span></code> is:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>’counts’: Raw counts of the dataset.</p></li>
-<li><p>’tpm’: TPM normalized data.</p></li>
-<li><p>’log1p’: Log1p transformed data (base 2.0).</p></li>
-<li><p>’d_log1p’: Denoised data with adaptive median filter.</p></li>
-<li><p>’c_log1p’: Batch corrected data with ComBat (only if combat_key is not ‘None’).</p></li>
-<li><p>’c_d_log1p’: Batch corrected and denoised data with adaptive median filter (only if combat_key is not ‘None’).</p></li>
-<li><p>’deltas’: Deltas from the mean expression for log1p.</p></li>
-<li><p>’d_deltas’: Deltas from the mean expression for d_log1p.</p></li>
-<li><p>’c_deltas’: Deltas from the mean expression for c_log1p (only if combat_key is not ‘None’).</p></li>
-<li><p>’c_d_deltas’: Deltas from the mean expression for c_d_log1p (only if combat_key is not ‘None’).</p></li>
-<li><p>’mask’: Binary mask layer. True for valid observations, False for imputed missing values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'counts'</span></code>: Raw counts of the dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'tpm'</span></code>: TPM normalized data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'log1p'</span></code>: <span class="math notranslate nohighlight">\(\log_2(TPM+1)\)</span> transformed data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'d_log1p'</span></code>: Denoised data with adaptive median filter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_log1p'</span></code>: Batch corrected data with ComBat (only if <code class="docutils literal notranslate"><span class="pre">param_dict['combat_key']</span> <span class="pre">!=</span> <span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_d_log1p'</span></code>: Batch corrected and denoised data with adaptive median filter (only if <code class="docutils literal notranslate"><span class="pre">param_dict['combat_key']</span> <span class="pre">!=</span> <span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">log1p</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'d_deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">d_log1p</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">c_log1p</span></code> (only if <code class="docutils literal notranslate"><span class="pre">param_dict['combat_key']</span> <span class="pre">!=</span> <span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'c_d_deltas'</span></code>: Deltas from the mean expression for <code class="docutils literal notranslate"><span class="pre">c_d_log1p</span></code> (only if <code class="docutils literal notranslate"><span class="pre">param_dict['combat_key']</span> <span class="pre">!=</span> <span class="pre">'None'</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'mask'</span></code>: Binary mask layer. <code class="docutils literal notranslate"><span class="pre">True</span></code> for valid observations, <code class="docutils literal notranslate"><span class="pre">False</span></code> for imputed missing values.</p></li>
 </ul>
 </div></blockquote>
 </p>
