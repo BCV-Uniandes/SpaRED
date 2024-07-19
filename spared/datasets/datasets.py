@@ -348,7 +348,7 @@ class HisToGeneDataset(Dataset):
         return patch, coor, exp, mask
 
 
-def get_dataset(dataset_name: str, visualize: bool = True) -> SpatialDataset:
+def get_dataset(dataset_name: str, visualize: bool = False) -> SpatialDataset:
     """Get a dataset from name.
 
     This function receives the name of a dataset and retrieves a the correspondent ``SpatialDataset``. This function will retrieve configuration files predefined for
@@ -386,7 +386,7 @@ def get_dataset(dataset_name: str, visualize: bool = True) -> SpatialDataset:
 
     Args:
         dataset_name (str): The name of the dataset.
-        visualize (bool, optional): Whether to visualize the dataset or not. Can significantly increase run time of the command. Defaults to ``True``.
+        visualize (bool, optional): Whether to visualize the dataset or not. Can significantly increase run time of the command. Defaults to ``False``.
     Returns:
         SpatialDataset: The specified dataset in a ``SpatialDataset`` object.
     """

@@ -429,7 +429,7 @@
 
 <div class="viewcode-block" id="get_dataset">
 <a class="viewcode-back" href="../../../api/spared.datasets.get_dataset.html#spared.datasets.get_dataset">[docs]</a>
-<span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">visualize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpatialDataset</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_dataset</span><span class="p">(</span><span class="n">dataset_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">visualize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpatialDataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a dataset from name.</span>
 
 <span class="sd">    This function receives the name of a dataset and retrieves a the correspondent ``SpatialDataset``. This function will retrieve configuration files predefined for</span>
@@ -467,7 +467,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataset_name (str): The name of the dataset.</span>
-<span class="sd">        visualize (bool, optional): Whether to visualize the dataset or not. Can significantly increase run time of the command. Defaults to ``True``.</span>
+<span class="sd">        visualize (bool, optional): Whether to visualize the dataset or not. Can significantly increase run time of the command. Defaults to ``False``.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        SpatialDataset: The specified dataset in a ``SpatialDataset`` object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
