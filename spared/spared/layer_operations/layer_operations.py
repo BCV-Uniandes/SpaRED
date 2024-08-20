@@ -27,14 +27,15 @@ sys.path.remove(str(SPARED_PATH))
 
 
 ### Expression data processing functions:
-def tpm_normalization(adata: ad.AnnData, organism: str, from_layer: str, to_layer: str) -> ad.AnnData:
+# TODO: CHange here and elsewhere the order of the organism and adata parameters
+def tpm_normalization(organism: str, adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
     """Normalize expression using TPM normalization.
 
     This function applies TPM normalization to an AnnData object with raw counts. It also removes genes that are not fount in the ``.gtf`` annotation file.
     The counts are taken from ``adata.layers[from_layer]`` and the results are stored in ``adata.layers[to_layer]``. It can perform the normalization
     for `human <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_43/gencode.v43.basic.annotation.gtf.gz>`_ and `mouse
     <https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M33/gencode.vM33.basic.annotation.gtf.gz>`_ reference genomes.
-    To specify which GTF annotation file should be used, the string parameter ``'organism'`` must be ``'mouse'`` or ``'human'``.
+    To specify which GTF annotation file should be used, the ``'organism'`` parameter must be ``'mouse'`` or ``'human'``.
 
     Args:
         adata (ad.Anndata): The Anndata object to normalize.
@@ -165,12 +166,14 @@ def log1p_transformation(adata: ad.AnnData, from_layer: str, to_layer: str) -> a
     # Return the transformed AnnData object
     return adata
 
+# FIXME: Update to the new hosting of the pycombat package
 def combat_transformation(adata: ad.AnnData, batch_key: str, from_layer: str, to_layer: str) -> ad.AnnData:
     """ Perform batch correction with ComBat
 
     Compute batch correction using the `pycombat <https://github.com/epigenelabs/pyComBat?tab=readme-ov-file>`_ package. The batches are defined by ``adata.obs[batch_key]`` so
     the user can define which variable to use as batch identifier. The input data for the batch correction is ``adata.layers[from_layer]`` and the output is stored in
-    ``adata.layers[to_layer]``.
+    ``adata.layers[to_layer]``. Importantly, as the `original ComBat paper <https://doi.org/10.1093/biostatistics/kxj037>`_ notes the data should be approximately normally distributed. Therefore, it is recommended to use
+    this function over :math:`\log_2(TPM+1)` data.
 
     Args:
         adata (ad.AnnData): The AnnData object to transform. Must have logarithmically transformed data in ``adata.layers[from_layer]``.
@@ -193,6 +196,7 @@ def combat_transformation(adata: ad.AnnData, batch_key: str, from_layer: str, to
 
     return adata
 
+# TODO: Put reference to SEPAL as the first method trying this
 def get_deltas(adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
     """ Get expression deltas from the mean.
 
@@ -233,22 +237,25 @@ def get_deltas(adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
     return adata
 
 # TODO: When cheking this function on its own, try using a prediction layer "delta"
-# TODO: modify function to add noisy layer to important layers 
+# TODO: modify function to add noisy layer to important layers
+# FIXME: Double check the inside of the function. It looks weird
 def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
     """ Add an artificial noisy layer.
-    This function should only be used for experimentation/ablation purposes. It adds a noisy layer to the adata object by the name of 'noisy_d'
-    or 'noisy' depending on the prediction layer. The noisy layer is created by returning the missing values to an already denoised layer of the adata.
-    In the case the source layer is on logarithmic scale, the noisy layer is created by assigning zero values to the missing values. In the case the source
-    layer is on delta scale, the noisy layer is created by assigning the negative mean of the gene to the missing values. missing values are specified by
-    the binary ada.layers['mask'] layer.
+
+    This function should only be used for experimentation/ablation purposes. The noisy layer is created by returning the missing values to an already denoised
+    layer of the ``adata``. In the case the ``'prediction_layer'`` is on :math:`\log_2(TPM+1)` logarithmic scale, the noisy layer is created by assigning zero values
+    to the missing values (adds ``'noisy'`` layer to the adata). In the case the ``'prediction_layer'`` is on delta scale, the noisy layer is created by assigning the
+    negative mean of the gene to the missing values (adds ``'noisy_d'`` layer to the adata). Missing values are specified by the binary ``adata.layers['mask']``
+    layer that must be already present and has ``True`` values for all real data and ``False`` values for imputed data.
 
     Args:
-        adata (ad.AnnData): The AnnData object to update. Must have the prediction layer, the gene means if its a delta layer, and the mask layer.
+        adata (ad.AnnData): The AnnData object to update. Must have the ``adata.layers[prediction_layer]``, the gene means if its a delta layer, and ``adata.layers['mask']``.
         prediction_layer (str): The layer that will be corrupted to create the noisy layer.
 
     Returns:
-        ad.AnnData: The updated AnnData object with the noisy layer added.
+        ad.AnnData: The updated AnnData object with the ``adata.layers['noisy']`` or ``adata.layers['noisy_d']`` layer added depending on ``prediction_layer``.
     """
+    # FIXME: This condition looks weird
     if 'delta' in prediction_layer or 'noisy_d' in prediction_layer:
         # Get vector with gene means
         gene_means = adata.var[f"{prediction_layer}_avg_exp"].values 
@@ -280,22 +287,27 @@ def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
 
     return adata
 
-def process_dataset(adata: ad.AnnData, param_dict: dict, dataset: str) -> ad.AnnData:
+# TODO: Put reference to the filter_dataset() function
+# FIXME: Here we should have the transformer cleaner too
+# TODO: Add combat link
+def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
     """ Perform complete processing pipeline.
-    This function performs the complete processing pipeline for a dataset. It only computes over the expression values of the dataset
-    (adata.X). The processing pipeline is the following:
 
-        1. Normalize the data with tpm normalization (tpm layer)
-        2. Transform the data with log1p (log1p layer)
-        3. Denoise the data with the adaptive median filter (d_log1p layer)
-        4. Compute moran I for each gene in each slide and average moranI across slides (add results to .var['d_log1p_moran'])
-        5. Filter dataset to keep the top param_dict['top_moran_genes'] genes with highest moran I.
-        6. Perform ComBat batch correction if specified by the 'combat_key' parameter (c_d_log1p layer)
-        7. Compute the deltas from the mean for each gene (computed from log1p, d_log1p and c_log1p, c_d_log1p layer if batch correction was performed)
-        8. Add a binary mask layer specifying valid observations for metric computation (mask layer, True for valid observations, False for missing values).
+    This function performs the complete processing pipeline. It only computes over the expression and filters genes to get the final prediction
+    variables. However, it doesn't perform spot (sample) filtering for which the ``filter_dataset()`` function is recommended. The input data
+    ``adata.X`` is expected to be in raw counts. The processing pipeline is the following:
+
+        1. Normalize the data with TPM normalization (adds ``adata.layers['tpm']``)
+        2. Transform the data with logarithmically using :math:`\log_2(TPM+1)` (adds ``adata.layers['log1p']``)
+        3. Denoise the data with the adaptive median filter (adds ``adata.layers['d_log1p']``)
+        4. Compute Moran's I for each gene in each slide and average Moran's I across slides (adds ``adata.var['d_log1p_moran']``)
+        5. Filter dataset to keep the top ``param_dict['top_moran_genes']`` genes with highest Moran's I.
+        6. Perform ComBat batch correction if specified by the ``param_dict['combat_key']`` parameter (adds ``adata.layers['c_d_log1p']``)
+        7. Compute the deltas from the mean for each gene. Computed from ``log1p``, ``d_log1p`` and ``c_log1p``, ``c_d_log1p`` layer if batch correction was performed (adds ``deltas``, ``d_deltas``, ``c_deltas``, ``c_d_deltas`` layers) 
+        8. Add a binary mask layer specifying valid observations for metric computation (adds ``adata.layers['mask']``, ``True`` for valid observations, ``False`` for missing values).
 
     Args:
-        adata (ad.AnnData): The AnnData object to process. Should be already filtered with the filter_dataset() function.
+        adata (ad.AnnData): The AnnData object to process. Should be already spot/sample filtered..
         param_dict (dict): Dictionary that contains filtering and processing parameters. Keys that must be present are:
                             - 'top_moran_genes': (int) The number of genes to keep after filtering by Moran's I. If set to 0, then the number of genes is internally computed.
                             - 'combat_key': (str) The column in adata.obs that defines the batches for ComBat batch correction. If set to 'None', then no batch correction is performed.
@@ -303,19 +315,19 @@ def process_dataset(adata: ad.AnnData, param_dict: dict, dataset: str) -> ad.Ann
         dataset_name (str): The name of the dataset.
         
     Returns:
-        ad.Anndata: The processed AnnData object with all the layers and results added. A list of includded layers in adata.layers is:
+        ad.Anndata: The processed AnnData object with all the layers and results added. A list of included keys in ``adata.layers`` is:
 
-                    - 'counts': Raw counts of the dataset.
-                    - 'tpm': TPM normalized data.
-                    - 'log1p': Log1p transformed data (base 2.0).
-                    - 'd_log1p': Denoised data with adaptive median filter.
-                    - 'c_log1p': Batch corrected data with ComBat (only if combat_key is not 'None').
-                    - 'c_d_log1p': Batch corrected and denoised data with adaptive median filter (only if combat_key is not 'None').
-                    - 'deltas': Deltas from the mean expression for log1p.
-                    - 'd_deltas': Deltas from the mean expression for d_log1p.
-                    - 'c_deltas': Deltas from the mean expression for c_log1p (only if combat_key is not 'None').
-                    - 'c_d_deltas': Deltas from the mean expression for c_d_log1p (only if combat_key is not 'None').
-                    - 'mask': Binary mask layer. True for valid observations, False for imputed missing values.
+                    - ``'counts'``: Raw counts of the dataset.
+                    - ``'tpm'``: TPM normalized data.
+                    - ``'log1p'``: :math:`\log_2(TPM+1)` transformed data.
+                    - ``'d_log1p'``: Denoised data with adaptive median filter.
+                    - ``'c_log1p'``: Batch corrected data with ComBat (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'c_d_log1p'``: Batch corrected and denoised data with adaptive median filter (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'deltas'``: Deltas from the mean expression for ``log1p``.
+                    - ``'d_deltas'``: Deltas from the mean expression for ``d_log1p``.
+                    - ``'c_deltas'``: Deltas from the mean expression for ``c_log1p`` (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'c_d_deltas'``: Deltas from the mean expression for ``c_d_log1p`` (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'mask'``: Binary mask layer. ``True`` for valid observations, ``False`` for imputed missing values.
     """
 
     ### Compute all the processing steps

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.metrics.metrics &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.metrics.metrics</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.metrics.metrics</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">pearsonr</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">r2_score</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">pearsonr_cols</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function receives 2 matrices of shapes (n_observations, n_variables) and computes the average Pearson correlation.</span>
+<span class="sd">    To do that, it takes the i-th column of each matrix and computes the Pearson correlation between them.</span>
+<span class="sd">    It finally returns the average of all the Pearson correlations computed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_observations, n_variables).</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_pcc (float): Mean Pearson correlation computed by averaging the Pearson correlation for each patch.</span>
+<span class="sd">        detalied_pcc (list): List of pcc for each one of the columns</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">masked_gt_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">masked_gt_mean</span> <span class="o">=</span> <span class="n">masked_gt_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">masked_pred_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">masked_pred_mean</span> <span class="o">=</span> <span class="n">masked_pred_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Construct matrices with only masked means</span>
+    <span class="n">masked_gt_mean</span> <span class="o">=</span> <span class="n">masked_gt_mean</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">gt_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">masked_pred_mean</span> <span class="o">=</span> <span class="n">masked_pred_mean</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pred_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Find if there are any columns completely masked</span>
+    <span class="n">nan_columns</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">masked_gt_mean</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Modify mask==False entries of gt_mat and pred_mat to the masked mean. </span>
+    <span class="c1"># NOTE: This replace will make the computation of the metric efficient without taking into account the discarded values of the mask</span>
+    <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="o">==</span><span class="kc">True</span><span class="p">,</span> <span class="n">gt_mat</span><span class="p">,</span> <span class="n">masked_gt_mean</span><span class="p">)</span>
+    <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="o">==</span><span class="kc">True</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">,</span> <span class="n">masked_pred_mean</span><span class="p">)</span>
+
+    <span class="c1"># Center both matrices by subtracting the mean of each column</span>
+    <span class="n">centered_gt_mat</span> <span class="o">=</span> <span class="n">gt_mat</span> <span class="o">-</span> <span class="n">masked_gt_mean</span>
+    <span class="n">centered_pred_mat</span> <span class="o">=</span> <span class="n">pred_mat</span> <span class="o">-</span> <span class="n">masked_pred_mean</span>
+
+    <span class="c1"># Remove columns that are completely masked</span>
+    <span class="n">centered_gt_mat</span> <span class="o">=</span> <span class="n">centered_gt_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">nan_columns</span><span class="p">]</span>
+    <span class="n">centered_pred_mat</span> <span class="o">=</span> <span class="n">centered_pred_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">nan_columns</span><span class="p">]</span>
+
+    <span class="c1"># Compute pearson correlation with cosine similarity</span>
+    <span class="n">pcc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">cosine_similarity</span><span class="p">(</span><span class="n">centered_gt_mat</span><span class="p">,</span> <span class="n">centered_pred_mat</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Compute mean pearson correlation (the nan mean is to ensure metric computation even when a complete patch is masked)</span>
+    <span class="n">mean_pcc</span> <span class="o">=</span> <span class="n">pcc</span><span class="o">.</span><span class="n">nanmean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="c1"># Get the list of pccs</span>
+    <span class="n">detailed_pcc</span> <span class="o">=</span> <span class="n">pcc</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">mean_pcc</span><span class="p">,</span> <span class="n">detailed_pcc</span>
+
+<span class="k">def</span> <span class="nf">pearsonr_gene</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function uses pearsonr_cols to compute the Pearson correlation between the ground truth and predicted matrices along</span>
+<span class="sd">    the gene dimension. It is computing the correlation between the true and predicted values for each gene and returning the average of all.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_samples, n_genes).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_pcc (float): Mean Pearson correlation computed by averaging the Pearson correlation for each gene.</span>
+<span class="sd">        detalied_pcc (list): List of pcc for each one of the genes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mean_pcc</span><span class="p">,</span> <span class="n">detalied_pcc</span> <span class="o">=</span> <span class="n">pearsonr_cols</span><span class="p">(</span><span class="n">gt_mat</span><span class="o">=</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">pred_mat</span><span class="o">=</span><span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mean_pcc</span><span class="p">,</span> <span class="n">detalied_pcc</span>
+
+<span class="k">def</span> <span class="nf">pearsonr_patch</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function uses pearsonr_cols to compute the Pearson correlation between the ground truth and predicted matrices along</span>
+<span class="sd">    the patch dimension. It is computing the correlation the between true and predicted values for each patch and returning the average of all.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_samples, n_genes).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_pcc (float): Mean Pearson correlation computed by averaging the Pearson correlation for each patch.</span>
+<span class="sd">        detalied_pcc (list): List of pcc for each one of the patches</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Transpose matrices and apply pearsonr_torch_cols </span>
+    <span class="n">mean_pcc</span><span class="p">,</span> <span class="n">detalied_pcc</span> <span class="o">=</span> <span class="n">pearsonr_cols</span><span class="p">(</span><span class="n">gt_mat</span><span class="o">=</span><span class="n">gt_mat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">pred_mat</span><span class="o">=</span><span class="n">pred_mat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mean_pcc</span><span class="p">,</span> <span class="n">detalied_pcc</span>
+
+<span class="k">def</span> <span class="nf">r2_score_cols</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function receives 2 matrices of shapes (n_observations, n_variables) and computes the average R2 score.</span>
+<span class="sd">    To do that, it takes the i-th column of each matrix and computes the R2 score between them.</span>
+<span class="sd">    It finally returns the average of all the R2 scores computed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_observations, n_variables).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_r2_score (float): Mean R2 score computed by averaging the R2 score for each column in the matrices.</span>
+<span class="sd">        detalied_r2_score (list): List of r2 scores for each one of the columns</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Pass input matrices to masked tensors</span>
+    <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="c1"># Remove columns with a single value without masking (these columns make R2 go to infinity)</span>
+    <span class="n">single_value_columns</span> <span class="o">=</span>  <span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span>
+    <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">gt_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">single_value_columns</span><span class="p">]</span>
+    <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">pred_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">single_value_columns</span><span class="p">]</span>
+
+    <span class="c1"># Compute the column means of the ground truth</span>
+    <span class="n">gt_col_means</span> <span class="o">=</span> <span class="n">gt_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Find if there are any columns completely masked</span>
+    <span class="n">nan_columns</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">gt_col_means</span><span class="p">)</span>
+    
+    <span class="c1"># Compute the total sum of squares</span>
+    <span class="n">total_sum_squares</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">gt_mat</span> <span class="o">-</span> <span class="n">gt_col_means</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Compute the residual sum of squares</span>
+    <span class="n">residual_sum_squares</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">gt_mat</span> <span class="o">-</span> <span class="n">pred_mat</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Remove columns that are completely masked</span>
+    <span class="n">total_sum_squares</span> <span class="o">=</span> <span class="n">total_sum_squares</span><span class="p">[</span><span class="o">~</span><span class="n">nan_columns</span><span class="p">]</span>
+    <span class="n">residual_sum_squares</span> <span class="o">=</span> <span class="n">residual_sum_squares</span><span class="p">[</span><span class="o">~</span><span class="n">nan_columns</span><span class="p">]</span>
+
+    <span class="c1"># Compute the R2 score for each column</span>
+    <span class="n">r2_scores</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">residual_sum_squares</span> <span class="o">/</span> <span class="n">total_sum_squares</span><span class="p">)</span>
+
+    <span class="c1"># Compute the mean R2 score</span>
+    <span class="n">mean_r2_score</span> <span class="o">=</span> <span class="n">r2_scores</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">detalied_r2_score</span> <span class="o">=</span> <span class="n">r2_scores</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">mean_r2_score</span><span class="p">,</span> <span class="n">detalied_r2_score</span>
+
+<span class="k">def</span> <span class="nf">r2_score_gene</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function uses r2_score_cols to compute the R2 score between the ground truth and predicted matrices along</span>
+<span class="sd">    the gene dimension. It is computing the R2 score between the true and predicted values for each gene and returning the average of all.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_samples, n_genes).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_r2_score (float): Mean R2 score computed by averaging the R2 score for each gene.</span>
+<span class="sd">        detalied_r2_score (list): List of r2 scores for each one of the genes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mean_r2_score</span><span class="p">,</span> <span class="n">detalied_r2_score</span> <span class="o">=</span> <span class="n">r2_score_cols</span><span class="p">(</span><span class="n">gt_mat</span><span class="o">=</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">pred_mat</span><span class="o">=</span><span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mean_r2_score</span><span class="p">,</span> <span class="n">detalied_r2_score</span>
+
+<span class="k">def</span> <span class="nf">r2_score_patch</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function uses r2_score_cols to compute the R2 score between the ground truth and predicted matrices along</span>
+<span class="sd">    the patch dimension. It is computing the R2 score between the true and predicted values for each patch and returning the average of all.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_samples, n_genes).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_r2_score (float): Mean R2 score computed by averaging the R2 score for each patch.</span>
+<span class="sd">        detalied_r2_score (list): List of r2 scores for each one of the patches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Transpose matrices and apply r2_score_torch_cols</span>
+    <span class="n">mean_r2_score</span><span class="p">,</span> <span class="n">detalied_r2_score</span> <span class="o">=</span> <span class="n">r2_score_cols</span><span class="p">(</span><span class="n">gt_mat</span><span class="o">=</span><span class="n">gt_mat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">pred_mat</span><span class="o">=</span><span class="n">pred_mat</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">mean_r2_score</span><span class="p">,</span> <span class="n">detalied_r2_score</span>
+
+<div class="viewcode-block" id="get_pearsonr">
+<a class="viewcode-back" href="../../../api/spared.metrics.get_pearsonr.html#spared.metrics.get_pearsonr">[docs]</a>
+<span class="k">def</span> <span class="nf">get_pearsonr</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function receives 2 matrices of shapes (n_observations, n_variables) and computes the average Pearson correlation.</span>
+<span class="sd">    To do that, it takes the i-th column of each matrix and computes the Pearson correlation between them.</span>
+<span class="sd">    It finally returns the average of all the Pearson correlations computed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_observations, n_variables).</span>
+<span class="sd">        axis (int): wether to compute the pcc by columns (axis=0) ir by rows (axis=1)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_pcc (float): Mean Pearson correlation computed by averaging the Pearson correlation for each patch.</span>
+<span class="sd">        detalied_pcc (list): List of pcc for each one of the columns</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">masked_gt_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">masked_gt_mean</span> <span class="o">=</span> <span class="n">masked_gt_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">masked_pred_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">masked_pred_mean</span> <span class="o">=</span> <span class="n">masked_pred_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Construct matrices with only masked means</span>
+    <span class="c1"># By columns</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">masked_gt_mean</span> <span class="o">=</span> <span class="n">masked_gt_mean</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">gt_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">masked_pred_mean</span> <span class="o">=</span> <span class="n">masked_pred_mean</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">pred_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># By rows</span>
+    <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">masked_gt_mean</span> <span class="o">=</span> <span class="n">masked_gt_mean</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">gt_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">masked_pred_mean</span> <span class="o">=</span> <span class="n">masked_pred_mean</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">pred_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>      
+    
+    <span class="c1"># Find if there are any columns completely masked</span>
+    <span class="n">nan_axis</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">masked_gt_mean</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+
+    <span class="c1"># Modify mask==False entries of gt_mat and pred_mat to the masked mean. </span>
+    <span class="c1"># NOTE: This replace will make the computation of the metric efficient without taking into account the discarded values of the mask</span>
+    <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="o">==</span><span class="kc">True</span><span class="p">,</span> <span class="n">gt_mat</span><span class="p">,</span> <span class="n">masked_gt_mean</span><span class="p">)</span>
+    <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="o">==</span><span class="kc">True</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">,</span> <span class="n">masked_pred_mean</span><span class="p">)</span>
+
+    <span class="c1"># Center both matrices by subtracting the mean of each column</span>
+    <span class="n">centered_gt_mat</span> <span class="o">=</span> <span class="n">gt_mat</span> <span class="o">-</span> <span class="n">masked_gt_mean</span>
+    <span class="n">centered_pred_mat</span> <span class="o">=</span> <span class="n">pred_mat</span> <span class="o">-</span> <span class="n">masked_pred_mean</span>
+
+    <span class="c1"># Remove columns that are completely masked</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  
+        <span class="n">centered_gt_mat</span> <span class="o">=</span> <span class="n">centered_gt_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">nan_axis</span><span class="p">]</span>
+        <span class="n">centered_pred_mat</span> <span class="o">=</span> <span class="n">centered_pred_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">nan_axis</span><span class="p">]</span>
+    <span class="c1"># Remove rows that are completely masked</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  
+        <span class="n">centered_gt_mat</span> <span class="o">=</span> <span class="n">centered_gt_mat</span><span class="p">[</span><span class="o">~</span><span class="n">nan_axis</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">centered_pred_mat</span> <span class="o">=</span> <span class="n">centered_pred_mat</span><span class="p">[</span><span class="o">~</span><span class="n">nan_axis</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="c1"># Compute pearson correlation with cosine similarity</span>
+    <span class="n">pcc</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">cosine_similarity</span><span class="p">(</span><span class="n">centered_gt_mat</span><span class="p">,</span> <span class="n">centered_pred_mat</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+
+    <span class="c1"># Compute mean pearson correlation (the nan mean is to ensure metric computation even when a complete patch is masked)</span>
+    <span class="n">mean_pcc</span> <span class="o">=</span> <span class="n">pcc</span><span class="o">.</span><span class="n">nanmean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="c1"># Get the list of pccs</span>
+    <span class="n">detailed_pcc</span> <span class="o">=</span> <span class="n">pcc</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    
+    <span class="k">return</span> <span class="n">mean_pcc</span><span class="p">,</span> <span class="n">detailed_pcc</span></div>
+
+
+<div class="viewcode-block" id="get_r2_score">
+<a class="viewcode-back" href="../../../api/spared.metrics.get_r2_score.html#spared.metrics.get_r2_score">[docs]</a>
+<span class="k">def</span> <span class="nf">get_r2_score</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">list</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function receives 2 matrices of shapes (n_observations, n_variables) and computes the average R2 score.</span>
+<span class="sd">    To do that, it takes the i-th column of each matrix and computes the R2 score between them.</span>
+<span class="sd">    It finally returns the average of all the R2 scores computed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (torch.Tensor): Ground truth matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        pred_mat (torch.Tensor): Predicted matrix of shape (n_observations, n_variables).</span>
+<span class="sd">        mask (torch.Tensor): Boolean mask with False in positions that must be ignored in metric computation (n_observations, n_variables).</span>
+<span class="sd">        axis (int): wether to compute the pcc by columns (axis=0) ir by rows (axis=1)</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        mean_r2_score (float): Mean R2 score computed by averaging the R2 score for each column in the matrices.</span>
+<span class="sd">        detalied_r2_score (list): List of r2 scores for each one of the columns</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Pass input matrices to masked tensors</span>
+    <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">masked</span><span class="o">.</span><span class="n">masked_tensor</span><span class="p">(</span><span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="n">single_value_axis</span> <span class="o">=</span>  <span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span>
+    <span class="c1"># Remove columns with a single value without masking (these columns make R2 go to infinity)</span>
+    <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">gt_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">single_value_axis</span><span class="p">]</span>
+        <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">pred_mat</span><span class="p">[:,</span> <span class="o">~</span><span class="n">single_value_axis</span><span class="p">]</span>
+    <span class="c1"># Remove rows with a single value without masking (these columns make R2 go to infinity)</span>
+    <span class="k">elif</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">gt_mat</span><span class="p">[</span><span class="o">~</span><span class="n">single_value_axis</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">pred_mat</span><span class="p">[</span><span class="o">~</span><span class="n">single_value_axis</span><span class="p">,</span> <span class="p">:]</span>
+    
+    <span class="c1"># Compute the axis means of the ground truth</span>
+    <span class="n">gt_axis_means</span> <span class="o">=</span> <span class="n">gt_mat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Find if there are any columns or rows completely masked</span>
+    <span class="n">nan_axis</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">gt_axis_means</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+    
+    <span class="c1"># Compute the total sum of squares</span>
+    <span class="n">total_sum_squares</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">gt_mat</span> <span class="o">-</span> <span class="n">gt_axis_means</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Compute the residual sum of squares</span>
+    <span class="n">residual_sum_squares</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">gt_mat</span> <span class="o">-</span> <span class="n">pred_mat</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span><span class="o">.</span><span class="n">to_tensor</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;nan&#39;</span><span class="p">))</span>
+
+    <span class="c1"># Remove rows or columns that are completely masked</span>
+    <span class="n">total_sum_squares</span> <span class="o">=</span> <span class="n">total_sum_squares</span><span class="p">[</span><span class="o">~</span><span class="n">nan_axis</span><span class="p">]</span>
+    <span class="n">residual_sum_squares</span> <span class="o">=</span> <span class="n">residual_sum_squares</span><span class="p">[</span><span class="o">~</span><span class="n">nan_axis</span><span class="p">]</span>
+
+    <span class="c1"># Compute the R2 score for each row or column</span>
+    <span class="n">r2_scores</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">residual_sum_squares</span> <span class="o">/</span> <span class="n">total_sum_squares</span><span class="p">)</span>
+
+    <span class="c1"># Compute the mean R2 score</span>
+    <span class="n">mean_r2_score</span> <span class="o">=</span> <span class="n">r2_scores</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">detalied_r2_score</span> <span class="o">=</span> <span class="n">r2_scores</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">mean_r2_score</span><span class="p">,</span> <span class="n">detalied_r2_score</span></div>
+
+
+<div class="viewcode-block" id="get_metrics">
+<a class="viewcode-back" href="../../../api/spared.metrics.get_metrics.html#spared.metrics.get_metrics">[docs]</a>
+<span class="k">def</span> <span class="nf">get_metrics</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">pred_mat</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">mask</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">detailed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Get general regression metrics</span>
+
+<span class="sd">    This function receives 2 matrices of shapes (n_samples, n_genes) and computes the following metrics:</span>
+<span class="sd">    </span>
+<span class="sd">        - Pearson correlation (gene-wise) [PCC-Gene]</span>
+<span class="sd">        - Pearson correlation (patch-wise) [PCC-Patch]</span>
+<span class="sd">        - r2 score (gene-wise) [R2-Gene]</span>
+<span class="sd">        - r2 score (patch-wise) [R2-Patch]</span>
+<span class="sd">        - Mean squared error [MSE]</span>
+<span class="sd">        - Mean absolute error [MAE]</span>
+<span class="sd">        - Global metric [Global] (Global = PCC-Gene + R2-Gene + PCC-Patch + R2-Patch - MAE - MSE)</span>
+<span class="sd">    </span>
+<span class="sd">    If detailed == True. Then the function returns these aditional keys (all of them are numpy arrays):</span>
+<span class="sd">        </span>
+<span class="sd">        - Individual pearson correlation for every gene [PPC-Gene-detailed]</span>
+<span class="sd">        - Individual pearson correlation for every patch [PPC-Patch-detailed]</span>
+<span class="sd">        - Individual r2 score for every gene [R2-Gene-detailed]</span>
+<span class="sd">        - Individual r2 score for every patch [R2-Gene-detailed]</span>
+<span class="sd">        - Individual MSE for every gene [detailed_mse_gene]</span>
+<span class="sd">        - Individual MAE for every gene [detailed_mae_gene]</span>
+<span class="sd">        - Individual average error for every gene [detailed_error_gene]</span>
+<span class="sd">        - Flat concatenation of all errors in valid positions [detailed_errors]</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gt_mat (Union[np.array, torch.Tensor]): Ground truth matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        pred_mat (Union[np.array, torch.Tensor]): Predicted matrix of shape (n_samples, n_genes).</span>
+<span class="sd">        mask (Union[np.array, torch.Tensor]): Boolean mask with False in positions that must be ignored in metric computation (n_samples, n_genes).</span>
+<span class="sd">        detailed (bool): If True, the dictionary also includes the detailed metrics.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary containing the metrics computed. The keys are: [&#39;PCC-Gene&#39;, &#39;PCC-Patch&#39;, &#39;R2-Gene&#39;, &#39;R2-Patch&#39;, &#39;MSE&#39;, &#39;MAE&#39;, &#39;Global&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Assert that all matrices have the same shape</span>
+    <span class="k">assert</span> <span class="n">gt_mat</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">pred_mat</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;gt_mat and pred_mat matrices must have the same shape.&quot;</span>
+    <span class="k">assert</span> <span class="n">gt_mat</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">mask</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="s2">&quot;gt_mat and mask matrices must have the same shape.&quot;</span>
+
+    <span class="c1"># If input are numpy arrays, convert them to torch tensors</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">gt_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pred_mat</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">pred_mat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">pred_mat</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="c1"># Get boolean indicating constant columns in predicted matrix </span>
+    <span class="c1"># NOTE: A constant gene prediction will mess with the pearson correlation</span>
+    <span class="n">constant_cols</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">pred_mat</span> <span class="o">==</span> <span class="n">pred_mat</span><span class="p">[[</span><span class="mi">0</span><span class="p">],:],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># Get boolean indicating if there are any constant columns</span>
+    <span class="n">any_constant_cols</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">constant_cols</span><span class="p">)</span>
+
+    <span class="c1"># Get boolean indicating constant rows in predicted matrix</span>
+    <span class="c1"># NOTE: A constant patch prediction will mess with the pearson correlation</span>
+    <span class="n">constant_rows</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">pred_mat</span> <span class="o">==</span> <span class="n">pred_mat</span><span class="p">[:,[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Get boolean indicating if there are any constant rows</span>
+    <span class="n">any_constant_rows</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">constant_rows</span><span class="p">)</span>
+    <span class="c1"># If there are any constant columns, set the pcc_g and r2_g to None</span>
+    <span class="k">if</span> <span class="n">any_constant_cols</span><span class="p">:</span>
+        <span class="n">pcc_g</span><span class="p">,</span> <span class="n">detailed_pcc_g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="n">constant_cols</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2"> constant columns in the predicted matrix. This means a gene is being predicted as constant. The Pearson correlation (gene-wise) will be set to NaN.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Compute Pearson correlation (gene-wise)</span>
+        <span class="n">pcc_g</span><span class="p">,</span> <span class="n">detailed_pcc_g</span> <span class="o">=</span> <span class="n">pearsonr_gene</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    
+    <span class="c1"># If there are any constant rows, set the pcc_p and r2_p to None</span>
+    <span class="k">if</span> <span class="n">any_constant_rows</span><span class="p">:</span>
+        <span class="n">pcc_p</span><span class="p">,</span> <span class="n">detailed_pcc_p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="n">constant_rows</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2"> constant rows in the predicted matrix. This means a patch is being predicted as constant. The Pearson correlation (patch-wise) will be set to NaN.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Compute Pearson correlation (patch-wise)</span>
+        <span class="n">pcc_p</span><span class="p">,</span> <span class="n">detailed_pcc_p</span> <span class="o">=</span> <span class="n">pearsonr_patch</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+        
+
+    <span class="c1"># Compute r2 score (gene-wise)</span>
+    <span class="n">r2_g</span><span class="p">,</span> <span class="n">detailed_r2_g</span> <span class="o">=</span> <span class="n">r2_score_gene</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="c1"># Compute r2 score (patch-wise)</span>
+    <span class="n">r2_p</span><span class="p">,</span> <span class="n">detailed_r2_p</span> <span class="o">=</span> <span class="n">r2_score_patch</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">,</span> <span class="n">pred_mat</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="c1"># Compute mean squared error</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">mse_loss</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">pred_mat</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">reduction</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="c1"># Compute mean absolute error</span>
+    <span class="n">mae</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">l1_loss</span><span class="p">(</span><span class="n">gt_mat</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">pred_mat</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">reduction</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="c1"># Compute detailed error metrics (only at gene level because patch level usualy gives empty patches)</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">pred_mat</span> <span class="o">-</span> <span class="n">gt_mat</span>
+    <span class="n">errors</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">sq_errors</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span>
+    <span class="n">detailed_mse_gene</span> <span class="o">=</span> <span class="n">sq_errors</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">detailed_mae_gene</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">detailed_error_gene</span> <span class="o">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">detailed_errors</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    
+    <span class="c1"># Create dictionary with the metrics computed</span>
+    <span class="n">metrics_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;PCC-Gene&#39;</span><span class="p">:</span> <span class="n">pcc_g</span><span class="p">,</span>
+        <span class="s1">&#39;PCC-Patch&#39;</span><span class="p">:</span> <span class="n">pcc_p</span><span class="p">,</span>
+        <span class="s1">&#39;R2-Gene&#39;</span><span class="p">:</span> <span class="n">r2_g</span><span class="p">,</span>
+        <span class="s1">&#39;R2-Patch&#39;</span><span class="p">:</span> <span class="n">r2_p</span><span class="p">,</span>
+        <span class="s1">&#39;MSE&#39;</span><span class="p">:</span> <span class="n">mse</span><span class="p">,</span>
+        <span class="s1">&#39;MAE&#39;</span><span class="p">:</span> <span class="n">mae</span><span class="p">,</span>
+        <span class="s1">&#39;Global&#39;</span><span class="p">:</span> <span class="n">pcc_g</span> <span class="o">+</span> <span class="n">pcc_p</span> <span class="o">+</span> <span class="n">r2_g</span> <span class="o">+</span> <span class="n">r2_p</span> <span class="o">-</span> <span class="n">mse</span> <span class="o">-</span> <span class="n">mae</span> 
+    <span class="p">}</span>
+    
+    <span class="c1"># If detailed metrics are desired then add to the metric dict the PCCs and R2s for every gene and patch</span>
+    <span class="k">if</span> <span class="n">detailed</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+        <span class="n">detailed_metrics_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;detailed_PCC-Gene&#39;</span><span class="p">:</span> <span class="n">detailed_pcc_g</span><span class="p">,</span>
+            <span class="s1">&#39;detailed_PCC-Patch&#39;</span><span class="p">:</span> <span class="n">detailed_pcc_p</span><span class="p">,</span>
+            <span class="s1">&#39;detailed_R2-Gene&#39;</span><span class="p">:</span> <span class="n">detailed_r2_g</span><span class="p">,</span>
+            <span class="s1">&#39;detailed_R2-Patch&#39;</span><span class="p">:</span> <span class="n">detailed_r2_p</span><span class="p">,</span>
+            <span class="s1">&#39;detailed_mse_gene&#39;</span><span class="p">:</span> <span class="n">detailed_mse_gene</span><span class="p">,</span>
+            <span class="s1">&#39;detailed_mae_gene&#39;</span><span class="p">:</span> <span class="n">detailed_mae_gene</span><span class="p">,</span>
+            <span class="s1">&#39;detailed_error_gene&#39;</span><span class="p">:</span> <span class="n">detailed_error_gene</span><span class="p">,</span> 
+            <span class="s1">&#39;detailed_errors&#39;</span><span class="p">:</span> <span class="n">detailed_errors</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="c1"># Update metric dict</span>
+        <span class="n">metrics_dict</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">metrics_dict</span><span class="p">,</span> <span class="o">**</span><span class="n">detailed_metrics_dict</span><span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">metrics_dict</span></div>
+
+
+<span class="c1"># Here we have some testing code</span>
+<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    
+    <span class="c1"># Set number of observations and genes (hypothetical)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="mi">7777</span>
+    <span class="n">genes</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">imputed_fraction</span> <span class="o">=</span> <span class="mf">0.26</span> <span class="c1"># This is the percentage of zeros in the mask</span>
+
+    <span class="c1"># Henerate random matrices</span>
+    <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="n">obs</span><span class="p">,</span><span class="n">genes</span><span class="p">))</span>
+    <span class="n">gt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">((</span><span class="n">obs</span><span class="p">,</span><span class="n">genes</span><span class="p">))</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">((</span><span class="n">obs</span><span class="p">,</span><span class="n">genes</span><span class="p">))</span><span class="o">&gt;</span><span class="n">imputed_fraction</span>
+
+    <span class="c1"># Compute metrics with the fast way (efficient implementation)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Fast metrics&#39;</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">test_metrics</span> <span class="o">=</span> <span class="n">get_metrics</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time taken: </span><span class="si">{:5.2f}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">test_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:5.7f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+
+
+    <span class="c1"># Compute metrics with the slow way (inefficient implementation but secure)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Slow metrics&#39;</span><span class="o">+</span><span class="s1">&#39;-&#39;</span><span class="o">*</span><span class="mi">40</span><span class="p">)</span> 
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="p">()</span>
+    <span class="n">slow_test_metrics</span> <span class="o">=</span> <span class="n">slow_get_metrics</span><span class="p">(</span><span class="n">gt</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time taken: </span><span class="si">{:5.2f}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">slow_test_metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:5.7f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -20,14 +20,14 @@ def filter_by_moran(adata: ad.AnnData, n_keep: int, from_layer: str) -> ad.AnnDa
 
     This function filters the genes in ``adata.var`` by the Moran's I statistic. It keeps the ``n_keep`` genes with the highest Moran's I.
     The Moran's I values will be selected from ``adata.var[f'{from_layer}_moran']`` which must be already present in the ``adata``.
-    If ``n_keep <= 0``, it means the number of genes is no specified and wee proceed to automatically compute it in the following way:
+    If ``n_keep <= 0``, it means the number of genes is no specified and we proceed to automatically compute it in the following way:
     
         a. If ``adata.n_vars > 320`` then ``n_keep = 128``.
         b. else, ``n_keep = 32``. 
 
     Args:
         adata (ad.AnnData): The AnnData object to update. Must have ``adata.var[f'{from_layer}_moran']`` column.
-        n_keep (int): The number of genes to keep. I less than ``0`` the number of genes to keep is computed automatically.
+        n_keep (int): The number of genes to keep. If less than ``0`` the number of genes to keep is computed automatically.
         from_layer (str): Layer for which the Moran's I was already computed (``adata.var[f'{from_layer}_moran']``).
 
     Returns:
@@ -59,6 +59,7 @@ def filter_by_moran(adata: ad.AnnData, n_keep: int, from_layer: str) -> ad.AnnDa
     # Return the updated AnnData object
     return adata
 
+# TODO: Add reference to get_exp_frac, get_glob_exp_frac, sc.pp.calculate_qc_metrics
 def filter_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
     """ Perform complete filtering pipeline of a slide collection.
 
@@ -180,18 +181,19 @@ def filter_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
 
     return adata
 
+# FIXME: get_slide_from_collection and get_slides_adata are redundant 
 def get_slide_from_collection(collection: ad.AnnData,  slide: str) -> ad.AnnData:
     """ Retrieve a slide from a collection of slides.
 
     This function receives a slide name and returns an AnnData object of the specified slide based on the collection of slides
-    in the collection parameter.
+    in the ``collection`` parameter.
 
     Args: 
         collection (ad.AnnData): AnnData object with all the slides concatenated.
         slide (str): Name of the slide to get from the collection. Must be in the ``slide_id`` column of the ``collection.obs`` dataframe.
 
     Returns:
-        ad.AnnData: An AnnData object with the specified slide.
+        ad.AnnData: An AnnData object with the specified slide. The object is a copy and not a view from the original collection.
     """
 
     # Get the slide from the collection
@@ -202,18 +204,19 @@ def get_slide_from_collection(collection: ad.AnnData,  slide: str) -> ad.AnnData
     # Return the slide
     return slide_adata
 
+# FIXME: get_slide_from_collection and get_slides_adata are redundant
 def get_slides_adata(collection: ad.AnnData, slide_list: str) -> list:
-    """ Get list of adatas to plot
+    """ Get list of slides from collection
 
-    This function receives a string with a list of slides separated by commas and returns a list of anndata objects with
-    the specified slides taken from the collection parameter. 
+    This function receives a string with a list of slides separated by commas and returns a list of AnnData objects with
+    the specified slides taken from the ``collection`` parameter. 
 
     Args:
-        collection (ad.AnnData): Processed and filtered data ready to use by the model.
-        slide_list (str): String with a list of slides separated by commas.
+        collection (ad.AnnData): AnnData object with all the slides concatenated.
+        slide_list (str): String with a list of slides separated by commas. E.g. ``'slide1,slide2,slide3'``.  All slides must be in the ``slide_id`` column of the ``collection.obs`` dataframe.
 
     Returns:
-        list: List of anndata objects with the specified slides.
+        list: List of AnnData objects with the specified slides. Each is a copy and not a view from the original collection.
     """
 
     # Get the slides from the collection

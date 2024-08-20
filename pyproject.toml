@@ -26,4 +26,11 @@ classifiers = [
 where = ["spared"]
 
 [tool.setuptools.package-data]
-"*" = ["*.json", "*.gz", "*.md", "*.txt"]
+"*" = ["*.json", "*.gz", "*.md", "*.txt"][build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "SpaRED"
+authors = [{name = "Placeholder", email = "Placeholder@Placeholder"}]
+dynamic = ["version", "description"]

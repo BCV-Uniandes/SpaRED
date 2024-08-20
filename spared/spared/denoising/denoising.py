@@ -28,23 +28,26 @@ from spackle.main import train_spackle
 sys.path.remove(str(SPARED_PATH))
 
 
-#clean noise limpia con medianas
+#clean noise with medians
+# TODO: Think in making this function also add the binary mask layer
 def median_cleaner(collection: ad.AnnData, from_layer: str, to_layer: str, n_hops: int, hex_geometry: bool) -> ad.AnnData:
-    """Remove noise with median filter.
+    """Remove noise with adaptive median filter.
 
-    Function that cleans noise (missing data) with a modified adaptive median filter for each slide in an AnnData collection.
-    Details of the adaptive median filter can be found in the ``adaptive_median_filter_pepper()`` function inside the source code.
-    The data will be taken from ``adata.layers[from_layer]`` and the results will be stored in ``adata.layers[to_layer]``.
+    Function that cleans noise (missing data) with the modified adaptive median initially proposed by `SEPAL <https://doi.org/10.48550/arXiv.2309.01036>`_
+    filter for each slide in an AnnData collection. Windows to compute the medians are defined by topological distances (hops) in the neighbors graph defined
+    by the ``hex_geometry`` parameter with a maximum window size of ``n_hops``. The adaptive median filter denoises each gene independently. In other words
+    gene A has no influence on the denoising of gene B. The data will be taken from ``adata.layers[from_layer]`` and the results will be stored in
+    ``adata.layers[to_layer]``.
 
     Args:
         collection (ad.AnnData): The AnnData collection to process.
         from_layer (str): The layer to compute the adaptive median filter from. Where to clean the noise from.
         to_layer (str): The layer to store the results of the adaptive median filter. Where to store the cleaned data.
         n_hops (int): The maximum number of concentric rings in the neighbors graph to take into account to compute the median. Analogous to the maximum window size.
-        hex_geometry (bool): ``True``, if the graph has hexagonal spatial geometry (Visium technology). If False, then the graph is a grid.
+        hex_geometry (bool): ``True`` if the graph has hexagonal spatial geometry (Visium technology). If ``False``, then the graph is a grid.
 
     Returns:
-        ad.AnnData: New AnnData collection with the results of the adaptive median filter stored in the layer ``adata.layers[to_layer]``.
+        ad.AnnData: New AnnData collection with the results of the adaptive median filter stored in ``adata.layers[to_layer]``.
     """
 
     ### Define cleaning function for single slide:

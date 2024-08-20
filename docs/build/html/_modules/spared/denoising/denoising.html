@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.denoising.denoising &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.denoising.denoising</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.denoising.denoising</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">anndata</span> <span class="k">as</span> <span class="nn">ad</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">pathlib</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;USE_PYGEOS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span> <span class="c1"># To supress a warning from geopandas</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">lightning.pytorch</span> <span class="kn">import</span> <span class="n">seed_everything</span>
+<span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="c1"># Get the path of the spared database</span>
+<span class="n">SPARED_PATH</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+
+<span class="c1"># Agregar el directorio padre al sys.path para los imports</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+<span class="c1"># Import im_encoder.py file</span>
+<span class="kn">from</span> <span class="nn">spot_features</span> <span class="kn">import</span> <span class="n">spot_features</span>
+<span class="kn">from</span> <span class="nn">layer_operations</span> <span class="kn">import</span> <span class="n">layer_operations</span>
+<span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">datasets</span>
+<span class="kn">from</span> <span class="nn">spackle.utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">spackle.model</span> <span class="kn">import</span> <span class="n">GeneImputationModel</span>
+<span class="kn">from</span> <span class="nn">spackle.dataset</span> <span class="kn">import</span> <span class="n">ImputationDataset</span>
+<span class="kn">from</span> <span class="nn">spackle.main</span> <span class="kn">import</span> <span class="n">train_spackle</span>
+<span class="c1"># Remove the path from sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">SPARED_PATH</span><span class="p">))</span>
+
+
+<span class="c1">#clean noise with medians</span>
+<span class="c1"># TODO: Think in making this function also add the binary mask layer</span>
+<div class="viewcode-block" id="median_cleaner">
+<a class="viewcode-back" href="../../../api/spared.denoising.median_cleaner.html#spared.denoising.median_cleaner">[docs]</a>
+<span class="k">def</span> <span class="nf">median_cleaner</span><span class="p">(</span><span class="n">collection</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove noise with adaptive median filter.</span>
+
+<span class="sd">    Function that cleans noise (missing data) with the modified adaptive median initially proposed by `SEPAL &lt;https://doi.org/10.48550/arXiv.2309.01036&gt;`_</span>
+<span class="sd">    filter for each slide in an AnnData collection. Windows to compute the medians are defined by topological distances (hops) in the neighbors graph defined</span>
+<span class="sd">    by the ``hex_geometry`` parameter with a maximum window size of ``n_hops``. The adaptive median filter denoises each gene independently. In other words</span>
+<span class="sd">    gene A has no influence on the denoising of gene B. The data will be taken from ``adata.layers[from_layer]`` and the results will be stored in</span>
+<span class="sd">    ``adata.layers[to_layer]``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        collection (ad.AnnData): The AnnData collection to process.</span>
+<span class="sd">        from_layer (str): The layer to compute the adaptive median filter from. Where to clean the noise from.</span>
+<span class="sd">        to_layer (str): The layer to store the results of the adaptive median filter. Where to store the cleaned data.</span>
+<span class="sd">        n_hops (int): The maximum number of concentric rings in the neighbors graph to take into account to compute the median. Analogous to the maximum window size.</span>
+<span class="sd">        hex_geometry (bool): ``True`` if the graph has hexagonal spatial geometry (Visium technology). If ``False``, then the graph is a grid.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ad.AnnData: New AnnData collection with the results of the adaptive median filter stored in ``adata.layers[to_layer]``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">### Define cleaning function for single slide:</span>
+    <span class="k">def</span> <span class="nf">adaptive_median_filter_pepper</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function computes a modified adaptive median filter for pairs (obs, gene) with a zero value (peper noise) in the layer &#39;from_layer&#39; and</span>
+<span class="sd">        stores the result in the layer &#39;to_layer&#39;. The max window size is a neighborhood of n_hops defined by the conectivity (hexagonal or grid).</span>
+<span class="sd">        This means the number of concentric rings in a graph to take into account to compute the median.</span>
+
+<span class="sd">        The adaptive median filter denoises each gene independently. In other words gene A has no influence on the denoising of gene B.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            adata (ad.AnnData): The AnnData object to process. Importantly it is only from a single slide. Can not be a collection of slides.</span>
+<span class="sd">            from_layer (str): The layer to compute the adaptive median filter from.</span>
+<span class="sd">            to_layer (str): The layer to store the results of the adaptive median filter.</span>
+<span class="sd">            n_hops (int): The maximum number of concentric rings in the graph to take into account to compute the median. Analogous to the max window size.</span>
+<span class="sd">            hex_geometry (bool): Whether the graph is hexagonal or not. If True, then the graph is hexagonal. If False, then the graph is a grid. Only</span>
+<span class="sd">                                 true for visium datasets.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ad.AnnData: The AnnData object with the results of the adaptive median filter stored in the layer &#39;to_layer&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Define original expression matrix</span>
+        <span class="n">original_exp</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">from_layer</span><span class="p">]</span>    
+
+        <span class="n">medians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">,</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="p">))</span>
+
+        <span class="c1"># Iterate over the hops</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_hops</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            
+            <span class="c1"># Get dictionary of neighbors for a given number of hops</span>
+            <span class="n">curr_neighbors_dict</span> <span class="o">=</span> <span class="n">spot_features</span><span class="o">.</span><span class="n">get_spatial_neighbors</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">)</span>
+
+            <span class="c1"># Iterate over observations</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">):</span>
+                <span class="c1"># Get the list of indexes of the neighbors of the j&#39;th observation</span>
+                <span class="n">neighbors_idx</span> <span class="o">=</span> <span class="n">curr_neighbors_dict</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                <span class="c1"># Get the expression matrix of the neighbors</span>
+                <span class="n">neighbor_exp</span> <span class="o">=</span> <span class="n">original_exp</span><span class="p">[</span><span class="n">neighbors_idx</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="c1"># Get the median of the expression matrix</span>
+                <span class="n">median</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">neighbor_exp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="c1"># Store the median in the medians matrix</span>
+                <span class="n">medians</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">median</span>
+        
+        <span class="c1"># Also robustly compute the median of the non-zero values for each gene</span>
+        <span class="n">general_medians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">v</span><span class="p">)]),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">original_exp</span><span class="p">)</span>
+        <span class="n">general_medians</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">general_medians</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="c1"># Correct for possible nans</span>
+
+        <span class="c1"># Define corrected expression matrix</span>
+        <span class="n">corrected_exp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">original_exp</span><span class="p">)</span>
+
+        <span class="c1">### Now that all the possible medians are computed. We code for each observation:</span>
+        
+        <span class="c1"># Note: i indexes over observations, j indexes over genes</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_obs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="p">):</span>
+                
+                <span class="c1"># Get real expression value</span>
+                <span class="n">z_xy</span> <span class="o">=</span> <span class="n">original_exp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+                <span class="c1"># Only apply adaptive median filter if real expression is zero</span>
+                <span class="k">if</span> <span class="n">z_xy</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">corrected_exp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_xy</span>
+                    <span class="k">continue</span>
+                
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="c1"># Definie initial stage and window size</span>
+                    <span class="n">current_stage</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+                    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>
+
+                    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+
+                        <span class="c1"># Stage A:</span>
+                        <span class="k">if</span> <span class="n">current_stage</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span><span class="p">:</span>
+                            
+                            <span class="c1"># Get median value</span>
+                            <span class="n">z_med</span> <span class="o">=</span> <span class="n">medians</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+                            <span class="c1"># If median is not zero then go to stage B</span>
+                            <span class="k">if</span> <span class="n">z_med</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">current_stage</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+                                <span class="k">continue</span>
+                            <span class="c1"># If median is zero, then increase window and repeat stage A</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+                                <span class="k">if</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">n_hops</span><span class="p">:</span>
+                                    <span class="n">current_stage</span> <span class="o">=</span> <span class="s1">&#39;A&#39;</span>
+                                    <span class="k">continue</span>
+                                <span class="c1"># If we have the biggest window size, then return the median</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="c1"># NOTE: Big modification to the median filter here. Be careful</span>
+                                    <span class="n">corrected_exp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">general_medians</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                                    <span class="k">break</span>
+
+
+                        <span class="c1"># Stage B:</span>
+                        <span class="k">elif</span> <span class="n">current_stage</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span>
+                            
+                            <span class="c1"># Get window median</span>
+                            <span class="n">z_med</span> <span class="o">=</span> <span class="n">medians</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+                            <span class="c1"># If real expression is not peper then return it</span>
+                            <span class="k">if</span> <span class="n">z_xy</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">corrected_exp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_xy</span>
+                                <span class="k">break</span>
+                            <span class="c1"># If real expression is peper, then return the median</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">corrected_exp</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">z_med</span>
+                                <span class="k">break</span>
+
+        <span class="c1"># Add corrected expression to adata</span>
+        <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">corrected_exp</span>
+
+        <span class="k">return</span> <span class="n">adata</span>
+
+    <span class="c1"># Print message</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Applying adaptive median filter to collection...&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Get the unique slides</span>
+    <span class="n">slides</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Define the corrected adata list</span>
+    <span class="n">corrected_adata_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Iterate over the slides</span>
+    <span class="k">for</span> <span class="n">slide</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">slides</span><span class="p">):</span>
+        <span class="c1"># Get the adata of the slide</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">collection</span><span class="p">[</span><span class="n">collection</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;slide_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">slide</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Apply adaptive median filter</span>
+        <span class="n">adata</span> <span class="o">=</span> <span class="n">adaptive_median_filter_pepper</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">,</span> <span class="n">n_hops</span><span class="p">,</span> <span class="n">hex_geometry</span><span class="p">)</span>
+        <span class="c1"># Append to the corrected adata list</span>
+        <span class="n">corrected_adata_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adata</span><span class="p">)</span>
+    
+    <span class="c1"># Concatenate the corrected adata list</span>
+    <span class="n">corrected_collection</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">corrected_adata_list</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">,</span> <span class="n">merge</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">)</span>
+    <span class="c1"># Restore the uns attribute</span>
+    <span class="n">corrected_collection</span><span class="o">.</span><span class="n">uns</span> <span class="o">=</span> <span class="n">collection</span><span class="o">.</span><span class="n">uns</span>
+
+    <span class="k">return</span> <span class="n">corrected_collection</span></div>
+
+
+<span class="c1">#Replicate SpaCKLE&#39;s results</span>
+<span class="k">def</span> <span class="nf">spackle_cleaner_experiment</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">train</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">load_ckpt_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="s2">&quot;Adam&quot;</span><span class="p">,</span> <span class="n">max_steps</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+    <span class="c1"># TODO: [PC] add in the documentation that the adata must have data splits in adata.obs[&#39;split&#39;] and the values should be &#39;train&#39;, &#39;val&#39;, and (optional) &#39;test&#39;</span>
+    <span class="c1"># TODO: [PC] For documentation: </span>
+            <span class="c1"># &quot;This function&#39;s purpose is solely to reproduce the results presented in SpaCKLE&#39;s paper&quot;</span>
+            <span class="c1"># load_ckpt_path example: /home/pcardenasg/spared_imputation/imput_results/vicari_mouse_brain/2024-02-28-07-02-31/epoch=101-step=9370.ckpt {should end with the ckpt file and the ckpts file must be inside a directory that also contains script_params.json}</span>
+
+    <span class="c1"># Get parser and parse arguments</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_main_parser</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">args_dict</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># Get datetime</span>
+    <span class="n">run_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">-%H-%M-%S&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set manual seeds and get cuda</span>
+    <span class="n">seed_everything</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    
+    <span class="c1"># TODO: [PC] allow the use of an already-trained model?</span>
+    <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+        <span class="c1"># Create directory where the newly trained model will be saved #save_path = os.path.join(&#39;imput_results&#39;, dataset, &quot;best_model&quot;) # TODO: [PC] group opinion: ¿should we set data naming with date like in our works?</span>
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;imput_results&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">run_date</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Save script arguments in json file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;script_params.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">args_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training a new SpaCKLE model. The script arguments and best checkpoints will be saved in </span><span class="si">{</span><span class="n">save_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">load_ckpt_path</span><span class="p">),</span> <span class="s2">&quot;load_ckpts_path not found. Please use train = True if you do not have the checkpoints of a trained SpaCKLE model and its corresponding script_params.json file.&quot;</span>
+        
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">load_ckpt_path</span><span class="p">)</span>
+        <span class="c1"># FIXME: [PC] decidir qué elementos comparar y recordar que al subir los pesos (i.e Drive) subirlos con su json de params correspondiente</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;script_params.json&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">saved_script_params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="c1"># Check that the parameters of the loaded model agree with the current inference process</span>
+            <span class="c1">#if (saved_script_params[&#39;prediction_layer&#39;] != args_dict[&#39;prediction_layer&#39;]) or (saved_script_params[&#39;prediction_layer&#39;] != args_dict[&#39;prediction_layer&#39;]):</span>
+            <span class="c1">#    warnings.warn(&quot;Saved model&#39;s parameters differ from those of the current argparse.&quot;)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model from </span><span class="si">{</span><span class="n">load_ckpt_path</span><span class="si">}</span><span class="s2"> will be loaded and tested. No new training will be undergone.&quot;</span><span class="p">)</span>
+        
+    <span class="c1"># Train new SpaCKLE model</span>
+    <span class="n">train_spackle</span><span class="p">(</span>
+        <span class="n">adata</span><span class="o">=</span><span class="n">adata</span><span class="p">,</span> 
+        <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> 
+        <span class="n">save_path</span><span class="o">=</span><span class="n">save_path</span><span class="p">,</span> 
+        <span class="n">prediction_layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">,</span> 
+        <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> 
+        <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> 
+        <span class="n">get_performance</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">load_ckpt_path</span><span class="o">=</span><span class="n">load_ckpt_path</span><span class="p">,</span> 
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> 
+        <span class="n">max_steps</span><span class="o">=</span><span class="n">max_steps</span><span class="p">,</span> 
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+
+<span class="c1">#clean noise con spackle</span>
+<div class="viewcode-block" id="spackle_cleaner">
+<a class="viewcode-back" href="../../../api/spared.denoising.spackle_cleaner.html#spared.denoising.spackle_cleaner">[docs]</a>
+<span class="k">def</span> <span class="nf">spackle_cleaner</span><span class="p">(</span><span class="n">adata</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">to_layer</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">lr</span> <span class="o">=</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="n">train</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">get_performance_metrics</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">load_ckpt_path</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="s2">&quot;Adam&quot;</span><span class="p">,</span> <span class="n">max_steps</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ad</span><span class="o">.</span><span class="n">AnnData</span><span class="p">:</span>
+    <span class="c1"># TODO: [PC] add in the documentation that the adata must have data splits in adata.obs[&#39;split&#39;] and the values should be &#39;train&#39;, &#39;val&#39;, and (optional) &#39;test&#39;</span>
+    <span class="c1"># TODO: [PC] For documentation: </span>
+            <span class="c1"># &quot;This function&#39;s purpose is solely to reproduce the results presented in SpaCKLE&#39;s paper&quot;</span>
+            <span class="c1"># load_ckpt_path example: /home/pcardenasg/spared_imputation/imput_results/vicari_mouse_brain/2024-02-28-07-02-31/epoch=101-step=9370.ckpt {should end with the ckpt file and the ckpts file must be inside a directory that also contains script_params.json}</span>
+
+    <span class="c1"># Get parser and parse arguments</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">get_main_parser</span><span class="p">()</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">args_dict</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="c1"># Get datetime</span>
+    <span class="n">run_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">-%H-%M-%S&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set manual seeds and get cuda</span>
+    <span class="n">seed_everything</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+    
+    <span class="c1"># TODO: [PC] allow the use of an already-trained model?</span>
+    <span class="k">if</span> <span class="n">train</span><span class="p">:</span>
+        <span class="c1"># Código para entrenar modelo (train_splackle()) y retornar ruta a mejores pesos del entrenamiento</span>
+        <span class="c1"># Create directory where the newly trained model will be saved #save_path = os.path.join(&#39;imput_results&#39;, dataset, &quot;best_model&quot;) # TODO: [PC] group opinion: ¿should we set data naming with date like in our works?</span>
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;imput_results&#39;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">run_date</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Save script arguments in json file</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;script_params.json&#39;</span><span class="p">),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">args_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        
+        <span class="c1"># Train new SpaCKLE model</span>
+        <span class="n">train_spackle</span><span class="p">(</span>
+            <span class="n">adata</span><span class="o">=</span><span class="n">adata</span><span class="p">,</span> 
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span> 
+            <span class="n">save_path</span><span class="o">=</span><span class="n">save_path</span><span class="p">,</span> 
+            <span class="n">prediction_layer</span><span class="o">=</span><span class="n">from_layer</span><span class="p">,</span> 
+            <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span> 
+            <span class="n">train</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> 
+            <span class="n">get_performance</span><span class="o">=</span><span class="n">get_performance_metrics</span><span class="p">,</span>
+            <span class="n">load_ckpt_path</span><span class="o">=</span><span class="n">load_ckpt_path</span><span class="p">,</span> 
+            <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span> 
+            <span class="n">max_steps</span><span class="o">=</span><span class="n">max_steps</span><span class="p">,</span> 
+            <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+        
+        <span class="n">load_ckpt_path</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;*.ckpt&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">load_ckpt_path</span><span class="p">),</span> <span class="s2">&quot;load_ckpts_path not found. Please use train = True if you do not have the checkpoints of a trained SpaCKLE model and its corresponding script_params.json file.&quot;</span>
+        
+        <span class="n">save_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">load_ckpt_path</span><span class="p">)</span>
+        <span class="c1"># FIXME: [PC] decidir qué elementos comparar y recordar que al subir los pesos (i.e Drive) subirlos con su json de params correspondiente</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="s1">&#39;script_params.json&#39;</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">saved_script_params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="c1"># Check that the parameters of the loaded model agree with the current inference process</span>
+            <span class="c1">#if (saved_script_params[&#39;prediction_layer&#39;] != args_dict[&#39;prediction_layer&#39;]) or (saved_script_params[&#39;prediction_layer&#39;] != args_dict[&#39;prediction_layer&#39;]):</span>
+            <span class="c1">#    warnings.warn(&quot;Saved model&#39;s parameters differ from those of the current argparse.&quot;)</span>
+
+            <span class="k">if</span> <span class="n">saved_script_params</span><span class="p">[</span><span class="s1">&#39;transformer_dim&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The architecture of the model you want to load may not be compatible with the shape of the data.&quot;</span><span class="p">)</span>
+
+
+    <span class="c1"># Declare model</span>
+    <span class="n">vis_features_dim</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">GeneImputationModel</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">,</span> 
+        <span class="n">data_input_size</span><span class="o">=</span><span class="n">adata</span><span class="o">.</span><span class="n">n_vars</span><span class="p">,</span>
+        <span class="n">lr</span><span class="o">=</span><span class="n">lr</span><span class="p">,</span>
+        <span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">,</span>
+        <span class="n">vis_features_dim</span><span class="o">=</span><span class="n">vis_features_dim</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>  
+
+    <span class="c1"># Load best checkpoints</span>
+    <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">load_ckpt_path</span><span class="p">)</span>
+    <span class="n">state_dict</span> <span class="o">=</span> <span class="n">state_dict</span><span class="p">[</span><span class="s1">&#39;state_dict&#39;</span><span class="p">]</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Finished loading model with weights from </span><span class="si">{</span><span class="n">load_ckpt_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Prepare data and dataloader</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">ImputationDataset</span><span class="p">(</span><span class="n">adata</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="s1">&#39;complete&#39;</span><span class="p">,</span> <span class="n">from_layer</span><span class="p">)</span>
+    <span class="n">dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> 
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">batch_size</span><span class="p">,</span> 
+        <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+        <span class="n">pin_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+        <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+        <span class="n">num_workers</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">num_workers</span><span class="p">)</span>
+    
+    <span class="c1"># Get gene imputations for missing values of randomly masked elements trhoughout the entire dataset</span>
+    <span class="n">all_exps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_masks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">exp_with_imputation</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----&quot;</span><span class="o">*</span><span class="mi">30</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Completing missing values in adata with the SpaCKLE model from </span><span class="si">{</span><span class="n">load_ckpt_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">dataloader</span><span class="p">):</span>
+            <span class="k">del</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;split_name&#39;</span><span class="p">]</span>
+            <span class="c1"># Extract batch variables</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">expression_gt</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;exp_matrix_gt&#39;</span><span class="p">]</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;real_missing&#39;</span><span class="p">]</span>
+            <span class="c1"># Remove median imputations from gene expression matrix</span>
+            <span class="n">input_genes</span> <span class="o">=</span> <span class="n">expression_gt</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+            <span class="n">input_genes</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Get predictions</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">input_genes</span><span class="p">)</span>
+
+            <span class="c1"># Imput predicted gene expression only in missing data for &#39;main spot&#39; in the neighborhood</span>
+            <span class="n">imputed_exp</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">expression_gt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:],</span> <span class="n">prediction</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:])</span>
+
+            <span class="n">all_exps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expression_gt</span><span class="p">[:,</span><span class="mi">0</span><span class="p">,:])</span>
+            <span class="n">all_masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s1">&#39;real_missing&#39;</span><span class="p">][:,</span><span class="mi">0</span><span class="p">,:])</span>
+            <span class="n">exp_with_imputation</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">imputed_exp</span><span class="p">)</span>
+
+    <span class="c1"># Concatenate output tensors into complete data expression matrix</span>
+    <span class="n">all_exps</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">all_exps</span><span class="p">)</span>
+    <span class="n">all_masks</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">all_masks</span><span class="p">)</span>
+    <span class="n">exp_with_imputation</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">exp_with_imputation</span><span class="p">)</span> 
+
+    <span class="c1"># Add imputed data to adata</span>
+    <span class="n">adata</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">to_layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">exp_with_imputation</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">double</span><span class="p">())</span>
+    
+    <span class="c1"># Return the adata with cleaned layer and the path to the ckpts used to complete the missing values.</span>
+    <span class="k">return</span> <span class="n">adata</span><span class="p">,</span> <span class="n">load_ckpt_path</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

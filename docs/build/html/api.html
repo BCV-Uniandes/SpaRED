@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=2709fde1"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="_static/copybutton.js?v=f281be69"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="spared.datasets.get_dataset" href="api/spared.datasets.get_dataset.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SpaRED
+              <img src="_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.datasets">Datasets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.datasets.get_dataset.html">spared.datasets.get_dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.filtering">Filtering</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.filtering.filter_by_moran.html">spared.filtering.filter_by_moran</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.filtering.filter_dataset.html">spared.filtering.filter_dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.filtering.get_slide_from_collection.html">spared.filtering.get_slide_from_collection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.filtering.get_slides_adata.html">spared.filtering.get_slides_adata</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.gene_features">Gene Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.gene_features.get_exp_frac.html">spared.gene_features.get_exp_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.gene_features.get_glob_exp_frac.html">spared.gene_features.get_glob_exp_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.gene_features.compute_moran.html">spared.gene_features.compute_moran</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.spot_features">Spot Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.spot_features.compute_patches_embeddings.html">spared.spot_features.compute_patches_embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.spot_features.compute_patches_predictions.html">spared.spot_features.compute_patches_predictions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.spot_features.compute_dim_red.html">spared.spot_features.compute_dim_red</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.spot_features.get_spatial_neighbors.html">spared.spot_features.get_spatial_neighbors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.layer_operations">Layer Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.tpm_normalization.html">spared.layer_operations.tpm_normalization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.log1p_transformation.html">spared.layer_operations.log1p_transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.combat_transformation.html">spared.layer_operations.combat_transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.get_deltas.html">spared.layer_operations.get_deltas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.add_noisy_layer.html">spared.layer_operations.add_noisy_layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.layer_operations.process_dataset.html">spared.layer_operations.process_dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.denoising">Denoising</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.denoising.median_cleaner.html">spared.denoising.median_cleaner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.denoising.spackle_cleaner.html">spared.denoising.spackle_cleaner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.graph_operations">Graph Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.graph_operations.get_graphs_one_slide.html">spared.graph_operations.get_graphs_one_slide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.graph_operations.get_sin_cos_positional_embeddings.html">spared.graph_operations.get_sin_cos_positional_embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.graph_operations.get_graphs.html">spared.graph_operations.get_graphs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.plotting">Plotting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_all_slides.html">spared.plotting.plot_all_slides</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_exp_frac.html">spared.plotting.plot_exp_frac</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_histograms.html">spared.plotting.plot_histograms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_random_patches.html">spared.plotting.plot_random_patches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.visualize_moran_filtering.html">spared.plotting.visualize_moran_filtering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.visualize_gene_expression.html">spared.plotting.visualize_gene_expression</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_clusters.html">spared.plotting.plot_clusters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_mean_std.html">spared.plotting.plot_mean_std</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_data_distribution_stats.html">spared.plotting.plot_data_distribution_stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_mean_std_partitions.html">spared.plotting.plot_mean_std_partitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.plotting.plot_tests.html">spared.plotting.plot_tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.dataloaders">Dataloaders</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.dataloaders.get_pretrain_dataloaders.html">spared.dataloaders.get_pretrain_dataloaders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.dataloaders.get_graph_dataloaders.html">spared.dataloaders.get_graph_dataloaders</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.models">Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.models.ImageEncoder.html">spared.models.ImageEncoder</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-spared.metrics">Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.metrics.get_pearsonr.html">spared.metrics.get_pearsonr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.metrics.get_r2_score.html">spared.metrics.get_r2_score</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/spared.metrics.get_metrics.html">spared.metrics.get_metrics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api">
+<h1>API<a class="headerlink" href="#api" title="Link to this heading"></a></h1>
+<p>Import SpaRED:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">spared</span>
+</pre></div>
+</div>
+<section id="module-spared.datasets">
+<span id="datasets"></span><h2>Datasets<a class="headerlink" href="#module-spared.datasets" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.datasets.get_dataset.html#spared.datasets.get_dataset" title="spared.datasets.get_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datasets.get_dataset</span></code></a>(dataset_name[, visualize])</p></td>
+<td><p>Get a dataset from name.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.filtering">
+<span id="filtering"></span><h2>Filtering<a class="headerlink" href="#module-spared.filtering" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.filtering.filter_by_moran.html#spared.filtering.filter_by_moran" title="spared.filtering.filter_by_moran"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filtering.filter_by_moran</span></code></a>(adata, n_keep, ...)</p></td>
+<td><p>Filter prediction genes by Moran's I.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.filtering.filter_dataset.html#spared.filtering.filter_dataset" title="spared.filtering.filter_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filtering.filter_dataset</span></code></a>(adata, param_dict)</p></td>
+<td><p>Perform complete filtering pipeline of a slide collection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.filtering.get_slide_from_collection.html#spared.filtering.get_slide_from_collection" title="spared.filtering.get_slide_from_collection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filtering.get_slide_from_collection</span></code></a>(...)</p></td>
+<td><p>Retrieve a slide from a collection of slides.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.filtering.get_slides_adata.html#spared.filtering.get_slides_adata" title="spared.filtering.get_slides_adata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filtering.get_slides_adata</span></code></a>(collection, ...)</p></td>
+<td><p>Get list of adatas to plot</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.gene_features">
+<span id="gene-features"></span><h2>Gene Features<a class="headerlink" href="#module-spared.gene_features" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.gene_features.get_exp_frac.html#spared.gene_features.get_exp_frac" title="spared.gene_features.get_exp_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gene_features.get_exp_frac</span></code></a>(adata)</p></td>
+<td><p>Compute the expression fraction for all genes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.gene_features.get_glob_exp_frac.html#spared.gene_features.get_glob_exp_frac" title="spared.gene_features.get_glob_exp_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gene_features.get_glob_exp_frac</span></code></a>(adata)</p></td>
+<td><p>Compute the global expression fraction for all genes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.gene_features.compute_moran.html#spared.gene_features.compute_moran" title="spared.gene_features.compute_moran"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gene_features.compute_moran</span></code></a>(adata, ...)</p></td>
+<td><p>Compute Moran's I statistic for each gene.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.spot_features">
+<span id="spot-features"></span><h2>Spot Features<a class="headerlink" href="#module-spared.spot_features" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.spot_features.compute_patches_embeddings.html#spared.spot_features.compute_patches_embeddings" title="spared.spot_features.compute_patches_embeddings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spot_features.compute_patches_embeddings</span></code></a>(adata)</p></td>
+<td><p>Compute embeddings or predictions for patches.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.spot_features.compute_patches_predictions.html#spared.spot_features.compute_patches_predictions" title="spared.spot_features.compute_patches_predictions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spot_features.compute_patches_predictions</span></code></a>(adata)</p></td>
+<td><p>Compute predictions for patches.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.spot_features.compute_dim_red.html#spared.spot_features.compute_dim_red" title="spared.spot_features.compute_dim_red"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spot_features.compute_dim_red</span></code></a>(adata, from_layer)</p></td>
+<td><p>Compute embeddings and clusters</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.spot_features.get_spatial_neighbors.html#spared.spot_features.get_spatial_neighbors" title="spared.spot_features.get_spatial_neighbors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spot_features.get_spatial_neighbors</span></code></a>(adata, ...)</p></td>
+<td><p>Compute neighbors dictionary for an AnnData object.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.layer_operations">
+<span id="layer-operations"></span><h2>Layer Operations<a class="headerlink" href="#module-spared.layer_operations" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.layer_operations.tpm_normalization.html#spared.layer_operations.tpm_normalization" title="spared.layer_operations.tpm_normalization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_operations.tpm_normalization</span></code></a>(organism, ...)</p></td>
+<td><p>Normalize expression using TPM normalization.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.layer_operations.log1p_transformation.html#spared.layer_operations.log1p_transformation" title="spared.layer_operations.log1p_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_operations.log1p_transformation</span></code></a>(adata, ...)</p></td>
+<td><p>Perform <span class="math notranslate nohighlight">\(\log_2(x+1)\)</span> transformation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.layer_operations.combat_transformation.html#spared.layer_operations.combat_transformation" title="spared.layer_operations.combat_transformation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_operations.combat_transformation</span></code></a>(...)</p></td>
+<td><p>Perform batch correction with ComBat</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.layer_operations.get_deltas.html#spared.layer_operations.get_deltas" title="spared.layer_operations.get_deltas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_operations.get_deltas</span></code></a>(adata, ...)</p></td>
+<td><p>Get expression deltas from the mean.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.layer_operations.add_noisy_layer.html#spared.layer_operations.add_noisy_layer" title="spared.layer_operations.add_noisy_layer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_operations.add_noisy_layer</span></code></a>(adata, ...)</p></td>
+<td><p>Add an artificial noisy layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.layer_operations.process_dataset.html#spared.layer_operations.process_dataset" title="spared.layer_operations.process_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_operations.process_dataset</span></code></a>(adata, ...)</p></td>
+<td><p>Perform complete processing pipeline.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.denoising">
+<span id="denoising"></span><h2>Denoising<a class="headerlink" href="#module-spared.denoising" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.denoising.median_cleaner.html#spared.denoising.median_cleaner" title="spared.denoising.median_cleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denoising.median_cleaner</span></code></a>(collection, ...)</p></td>
+<td><p>Remove noise with median filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.denoising.spackle_cleaner.html#spared.denoising.spackle_cleaner" title="spared.denoising.spackle_cleaner"><code class="xref py py-obj docutils literal notranslate"><span class="pre">denoising.spackle_cleaner</span></code></a>(adata, dataset, ...)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.graph_operations">
+<span id="graph-operations"></span><h2>Graph Operations<a class="headerlink" href="#module-spared.graph_operations" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.graph_operations.get_graphs_one_slide.html#spared.graph_operations.get_graphs_one_slide" title="spared.graph_operations.get_graphs_one_slide"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_operations.get_graphs_one_slide</span></code></a>(adata, ...)</p></td>
+<td><p>Get neighbor graphs for a single slide.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.graph_operations.get_sin_cos_positional_embeddings.html#spared.graph_operations.get_sin_cos_positional_embeddings" title="spared.graph_operations.get_sin_cos_positional_embeddings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_operations.get_sin_cos_positional_embeddings</span></code></a>(...)</p></td>
+<td><p>Get positional encodings for a neighbor graph.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.graph_operations.get_graphs.html#spared.graph_operations.get_graphs" title="spared.graph_operations.get_graphs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graph_operations.get_graphs</span></code></a>(adata, n_hops, layer)</p></td>
+<td><p>Get graphs for all the slides in a dataset.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.plotting">
+<span id="plotting"></span><h2>Plotting<a class="headerlink" href="#module-spared.plotting" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.plotting.plot_all_slides.html#spared.plotting.plot_all_slides" title="spared.plotting.plot_all_slides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_all_slides</span></code></a>(dataset, ...)</p></td>
+<td><p>Plot all the whole slide images</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.plotting.plot_exp_frac.html#spared.plotting.plot_exp_frac" title="spared.plotting.plot_exp_frac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_exp_frac</span></code></a>(param_dict, dataset, ...)</p></td>
+<td><p>Plot heatmap of expression fraction</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.plotting.plot_histograms.html#spared.plotting.plot_histograms" title="spared.plotting.plot_histograms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_histograms</span></code></a>(processed_adata, ...)</p></td>
+<td><p>Plot filtering histograms</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.plotting.plot_random_patches.html#spared.plotting.plot_random_patches" title="spared.plotting.plot_random_patches"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_random_patches</span></code></a>(dataset, ...[, ...])</p></td>
+<td><p>Plot random set of patches</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.plotting.visualize_moran_filtering.html#spared.plotting.visualize_moran_filtering" title="spared.plotting.visualize_moran_filtering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.visualize_moran_filtering</span></code></a>(...[, top])</p></td>
+<td><p>Plot the most or least auto-correlated genes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.plotting.visualize_gene_expression.html#spared.plotting.visualize_gene_expression" title="spared.plotting.visualize_gene_expression"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.visualize_gene_expression</span></code></a>(...)</p></td>
+<td><p>Plot specific gene expression</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.plotting.plot_clusters.html#spared.plotting.plot_clusters" title="spared.plotting.plot_clusters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_clusters</span></code></a>(dataset, param_dict, ...)</p></td>
+<td><p>Plot clusters spatially</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.plotting.plot_mean_std.html#spared.plotting.plot_mean_std" title="spared.plotting.plot_mean_std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_mean_std</span></code></a>(dataset, ...)</p></td>
+<td><p>Plot mean and std of all genes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.plotting.plot_data_distribution_stats.html#spared.plotting.plot_data_distribution_stats" title="spared.plotting.plot_data_distribution_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_data_distribution_stats</span></code></a>(...)</p></td>
+<td><p>Plot dataset's general stats</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.plotting.plot_mean_std_partitions.html#spared.plotting.plot_mean_std_partitions" title="spared.plotting.plot_mean_std_partitions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_mean_std_partitions</span></code></a>(dataset, ...)</p></td>
+<td><p>Plot mean and std of genes by data split</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.plotting.plot_tests.html#spared.plotting.plot_tests" title="spared.plotting.plot_tests"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plotting.plot_tests</span></code></a>(patch_size, dataset, ...)</p></td>
+<td><p>Plot all quality control plots</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.dataloaders">
+<span id="dataloaders"></span><h2>Dataloaders<a class="headerlink" href="#module-spared.dataloaders" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.dataloaders.get_pretrain_dataloaders.html#spared.dataloaders.get_pretrain_dataloaders" title="spared.dataloaders.get_pretrain_dataloaders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataloaders.get_pretrain_dataloaders</span></code></a>(adata)</p></td>
+<td><p>Get dataloaders for pretraining an image encoder.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.dataloaders.get_graph_dataloaders.html#spared.dataloaders.get_graph_dataloaders" title="spared.dataloaders.get_graph_dataloaders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dataloaders.get_graph_dataloaders</span></code></a>(adata[, ...])</p></td>
+<td><p>Get dataloaders for the graphs of a dataset.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.models">
+<span id="models"></span><h2>Models<a class="headerlink" href="#module-spared.models" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.models.ImageEncoder.html#spared.models.ImageEncoder" title="spared.models.ImageEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">models.ImageEncoder</span></code></a>(backbone, ...)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-spared.metrics">
+<span id="metrics"></span><h2>Metrics<a class="headerlink" href="#module-spared.metrics" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.metrics.get_pearsonr.html#spared.metrics.get_pearsonr" title="spared.metrics.get_pearsonr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.get_pearsonr</span></code></a>(gt_mat, pred_mat, mask, ...)</p></td>
+<td><p>This function receives 2 matrices of shapes (n_observations, n_variables) and computes the average Pearson correlation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/spared.metrics.get_r2_score.html#spared.metrics.get_r2_score" title="spared.metrics.get_r2_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.get_r2_score</span></code></a>(gt_mat, pred_mat, mask)</p></td>
+<td><p>This function receives 2 matrices of shapes (n_observations, n_variables) and computes the average R2 score.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/spared.metrics.get_metrics.html#spared.metrics.get_metrics" title="spared.metrics.get_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">metrics.get_metrics</span></code></a>(gt_mat, pred_mat, mask)</p></td>
+<td><p>Get general regression metrics</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/spared.datasets.get_dataset.html" class="btn btn-neutral float-right" title="spared.datasets.get_dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

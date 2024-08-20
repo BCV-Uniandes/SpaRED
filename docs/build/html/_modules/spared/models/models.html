@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>spared.models.models &mdash; SpaRED 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=f3fccb13" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=2709fde1"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SpaRED
+              <img src="../../../_static/spared_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">General</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SpaRED</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">spared.models.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for spared.models.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">from</span> <span class="nn">torchvision</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">lightning</span> <span class="k">as</span> <span class="nn">L</span>
+<span class="kn">from</span> <span class="nn">torchvision.transforms</span> <span class="kn">import</span> <span class="n">Compose</span><span class="p">,</span> <span class="n">RandomApply</span><span class="p">,</span> <span class="n">RandomHorizontalFlip</span><span class="p">,</span> <span class="n">RandomRotation</span><span class="p">,</span> <span class="n">RandomVerticalFlip</span><span class="p">,</span> <span class="n">Normalize</span>
+<span class="kn">from</span> <span class="nn">metrics</span> <span class="kn">import</span> <span class="n">get_metrics</span>
+
+
+<div class="viewcode-block" id="ImageEncoder">
+<a class="viewcode-back" href="../../../api/spared.models.ImageEncoder.html#spared.models.ImageEncoder">[docs]</a>
+<span class="k">class</span> <span class="nc">ImageEncoder</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="ImageEncoder.__init__">
+<a class="viewcode-back" href="../../../api/spared.models.ImageEncoder.html#spared.models.ImageEncoder.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backbone</span><span class="p">,</span> <span class="n">use_pretrained</span><span class="p">,</span>  <span class="n">latent_dim</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ImageEncoder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="n">backbone</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_pretrained</span> <span class="o">=</span> <span class="n">use_pretrained</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span> <span class="o">=</span> <span class="n">latent_dim</span>
+
+        <span class="c1"># Initialize the model using various options </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_model</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">initialize_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Initialize these variables which will be set in this if statement. Each of these</span>
+        <span class="c1">#   variables is model specific.</span>
+        <span class="n">model_ft</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">model_weights</span> <span class="o">=</span> <span class="s1">&#39;IMAGENET1K_V1&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_pretrained</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">input_size</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;resnet&quot;</span><span class="p">:</span> <span class="c1">##</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Resnet18 acc@1 (on ImageNet-1K): 69.758</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet18</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>   <span class="c1">#Get model</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>                  <span class="c1">#Get in features of the fc layer (final layer)</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>  <span class="c1">#Keep in features, but modify out features for self.latent_dim</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>                                    <span class="c1">#Set input size of each image</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;resnet50&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Resnet50 acc@1 (on ImageNet-1K): 76.13</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet50</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>   
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>                  
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>  
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>                                    
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ConvNeXt&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; ConvNeXt tiny acc@1 (on ImageNet-1K): 82.52</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">convnext_tiny</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;EfficientNetV2&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; EfficientNetV2 small acc@1 (on ImageNet-1K): 84.228</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">efficientnet_v2_s</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">384</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;InceptionV3&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; InceptionV3 acc@1 (on ImageNet-1K): 77.294</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">inception_v3</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">299</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MaxVit&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; MaxVit acc@1 (on ImageNet-1K): 83.7</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">maxvit_t</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MobileNetV3&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; MobileNet V3 acc@1 (on ImageNet-1K): 67.668</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">mobilenet_v3_small</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ResNetXt&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; ResNeXt-50 32x4d acc@1 (on ImageNet-1K): 77.618</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnext50_32x4d</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ShuffleNetV2&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; ShuffleNetV2 acc@1 (on ImageNet-1K): 60.552</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">shufflenet_v2_x0_5</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ViT&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Vision Transformer acc@1 (on ImageNet-1K): 81.072</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">vit_b_16</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">heads</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">heads</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;WideResNet&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Wide ResNet acc@1 (on ImageNet-1K): 78.468</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">wide_resnet50_2</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;densenet&quot;</span><span class="p">:</span> 
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Densenet acc@1 (on ImageNet-1K): 74.434</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">densenet121</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;swin&quot;</span><span class="p">:</span> 
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Swin Transformer tiny acc@1 (on ImageNet-1K): 81.474</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">swin_t</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid model name, exiting...&quot;</span><span class="p">)</span>
+            <span class="n">exit</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">model_ft</span><span class="p">,</span> <span class="n">input_size</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tissue_tiles</span><span class="p">):</span>
+
+        <span class="n">latent_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">latent_space</span></div>
+
+    
+
+
+<span class="k">class</span> <span class="nc">ImageBackbone</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span>  <span class="n">latent_dim</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">ImageBackbone</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        
+        <span class="c1"># Define normal hyperparameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_hyperparameters</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">img_backbone</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_pretrained</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">img_use_pretrained</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span> <span class="o">=</span> <span class="n">latent_dim</span>
+
+        <span class="c1"># Define image transformations        </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_transforms</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>   
+                                        <span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+                                        <span class="n">RandomVerticalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+                                        <span class="n">RandomApply</span><span class="p">([</span><span class="n">RandomRotation</span><span class="p">((</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">))],</span> <span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">average_test</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_transforms</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span> <span class="n">EightSymmetry</span><span class="p">()])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_transforms</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">([</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">])</span>
+
+        <span class="c1"># Define loss criterion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+
+        <span class="c1"># Initialize the model using various options </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_model</span><span class="p">()</span>
+
+        <span class="c1"># Define outputs of the validation, test and train step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_step_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_step_outputs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Auxiliary variables to log best metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_metrics</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">min_max_metric_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;PCC-Gene&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;PCC-Patch&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;MSE&#39;</span><span class="p">:</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;MAE&#39;</span><span class="p">:</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;R2-Gene&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;R2-Patch&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;Global&#39;</span><span class="p">:</span> <span class="s1">&#39;max&#39;</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric_objective</span> <span class="o">=</span> <span class="n">min_max_metric_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optim_metric</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">initialize_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Initialize these variables which will be set in this if statement. Each of these</span>
+        <span class="c1">#   variables is model specific.</span>
+        <span class="n">model_ft</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">model_weights</span> <span class="o">=</span> <span class="s1">&#39;IMAGENET1K_V1&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_pretrained</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">input_size</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;resnet&quot;</span><span class="p">:</span> <span class="c1">##</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Resnet18 acc@1 (on ImageNet-1K): 69.758</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnet18</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>   <span class="c1">#Get model</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>                  <span class="c1">#Get in features of the fc layer (final layer)</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>  <span class="c1">#Keep in features, but modify out features for self.latent_dim</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>                                    <span class="c1">#Set input size of each image</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ConvNeXt&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; ConvNeXt tiny acc@1 (on ImageNet-1K): 82.52</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">convnext_tiny</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;EfficientNetV2&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; EfficientNetV2 small acc@1 (on ImageNet-1K): 84.228</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">efficientnet_v2_s</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">384</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;InceptionV3&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; InceptionV3 acc@1 (on ImageNet-1K): 77.294</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">inception_v3</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">299</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MaxVit&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; MaxVit acc@1 (on ImageNet-1K): 83.7</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">maxvit_t</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;MobileNetV3&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; MobileNet V3 acc@1 (on ImageNet-1K): 67.668</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">mobilenet_v3_small</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ResNetXt&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; ResNeXt-50 32x4d acc@1 (on ImageNet-1K): 77.618</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">resnext50_32x4d</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ShuffleNetV2&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; ShuffleNetV2 acc@1 (on ImageNet-1K): 60.552</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">shufflenet_v2_x0_5</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;ViT&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Vision Transformer acc@1 (on ImageNet-1K): 81.072</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">vit_b_16</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">heads</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">heads</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;WideResNet&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Wide ResNet acc@1 (on ImageNet-1K): 78.468</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">wide_resnet50_2</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;densenet&quot;</span><span class="p">:</span> 
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Densenet acc@1 (on ImageNet-1K): 74.434</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">densenet121</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+        
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">backbone</span> <span class="o">==</span> <span class="s2">&quot;swin&quot;</span><span class="p">:</span> 
+<span class="w">            </span><span class="sd">&quot;&quot;&quot; Swin Transformer tiny acc@1 (on ImageNet-1K): 81.474</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">model_ft</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">swin_t</span><span class="p">(</span><span class="n">weights</span><span class="o">=</span><span class="n">model_weights</span><span class="p">)</span>
+            <span class="n">num_ftrs</span> <span class="o">=</span> <span class="n">model_ft</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">in_features</span>
+            <span class="n">model_ft</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">num_ftrs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">latent_dim</span><span class="p">)</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="mi">224</span>
+
+        <span class="c1"># elif self.backbone == &quot;densenet121-kather100k&quot;:</span>
+        <span class="c1">#     &quot;&quot;&quot; Densenet F1 (Kather-100k): 0.993</span>
+        <span class="c1">#     &quot;&quot;&quot;</span>
+        <span class="c1">#     histo_model = PatchPredictor(pretrained_model=&quot;densenet121-kather100k&quot;, batch_size=self.args.batch_size).model</span>
+        <span class="c1">#     num_ftrs = histo_model.classifier.in_features</span>
+        <span class="c1">#     histo_model.classifier = nn.Linear(num_ftrs, self.latent_dim)</span>
+        <span class="c1">#     histo_state_dict = histo_model.state_dict()</span>
+            
+        <span class="c1">#     # Replace some keys that are modified by the TIA toolbox</span>
+        <span class="c1">#     histo_state_dict = {k.replace(&#39;feat_extract&#39;, &#39;features&#39;): v for k, v in histo_state_dict.items()}</span>
+            
+        <span class="c1">#     model_ft = models.densenet121()</span>
+        <span class="c1">#     model_ft.classifier = nn.Linear(num_ftrs, self.latent_dim)</span>
+        <span class="c1">#     model_ft.load_state_dict(histo_state_dict)</span>
+            
+        <span class="c1">#     # NOTE This is for linear probing</span>
+        <span class="c1">#     # # Freeze all layers except the last one</span>
+        <span class="c1">#     # for param in model_ft.parameters():</span>
+        <span class="c1">#     #     param.requires_grad = False</span>
+            
+        <span class="c1">#     # for param in model_ft.classifier.parameters():</span>
+        <span class="c1">#     #     param.requires_grad = True</span>
+
+        <span class="c1">#     input_size = 224</span>
+        <span class="c1"># else:</span>
+        <span class="c1">#     print(&quot;Invalid model name, exiting...&quot;)</span>
+        <span class="c1">#     exit()</span>
+
+        <span class="k">return</span> <span class="n">model_ft</span><span class="p">,</span> <span class="n">input_size</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tissue_tiles</span><span class="p">):</span>
+
+        <span class="n">latent_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">latent_space</span>
+    
+    <span class="k">def</span> <span class="nf">find_batch_patch_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="c1"># Find the key of dataset.obsm that contains the patches</span>
+        <span class="n">patch_key</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">obsm</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;patches&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+        <span class="c1"># Assert that there is only one key</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">patch_key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;There should be only one key with patches in data.obsm&#39;</span>
+        <span class="n">patch_key</span> <span class="o">=</span> <span class="n">patch_key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">patch_key</span>
+
+    <span class="k">def</span> <span class="nf">pred_outputs_from_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+
+        <span class="c1"># Get the patch key in the batch</span>
+        <span class="n">patch_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_batch_patch_key</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        
+        <span class="c1"># Get (and reshape) images from batch</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="n">patch_key</span><span class="p">]</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">tissue_tiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1"># Permute dimensions to be in correct order for normalization</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="c1"># Make transformations in tissue tiles</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">/</span><span class="mf">255.</span>
+        <span class="c1"># Transform tiles</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_transforms</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+        
+        <span class="c1"># Get groundtruth of expression</span>
+        <span class="n">expression_gt</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">X</span>
+
+        <span class="c1"># Get output of the model</span>
+        <span class="c1"># If tissue tiles is tuple then we will compute outputs of the 8 symmetries and then average them for prediction</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">pred_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">tissue_rot</span><span class="p">)</span> <span class="k">for</span> <span class="n">tissue_rot</span> <span class="ow">in</span> <span class="n">tissue_tiles</span><span class="p">]</span>
+            <span class="n">pred_stack</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">pred_list</span><span class="p">)</span>
+            <span class="n">expression_pred</span> <span class="o">=</span> <span class="n">pred_stack</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># If tissue tiles is not tuple then a single prediction is done with the original image</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">expression_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+        
+        <span class="c1"># Handle delta vs absolute prediction with means</span>
+        <span class="c1"># If the adata object has a used mean attribute then we will use it to unnormalize the data</span>
+        <span class="n">general_adata</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">adatas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;used_mean&#39;</span> <span class="ow">in</span> <span class="n">general_adata</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">means</span> <span class="o">=</span> <span class="n">general_adata</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="s1">&#39;used_mean&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="c1"># Pass means to torch tensor in the same device as the model</span>
+            <span class="n">means</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">means</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">expression_gt</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="c1"># Unnormalize data and predictions</span>
+            <span class="n">expression_gt</span> <span class="o">=</span> <span class="n">expression_gt</span><span class="o">+</span><span class="n">means</span>
+            <span class="n">expression_pred</span> <span class="o">=</span> <span class="n">expression_pred</span><span class="o">+</span><span class="n">means</span>
+
+        <span class="c1"># Get boolean mask</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">expression_gt</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">bool</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span>
+
+    <span class="k">def</span> <span class="nf">training_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+
+        <span class="c1"># Get the patch key in the batch</span>
+        <span class="c1"># FIXME: Automate this with if self.glob_step == 0: or something simmilar</span>
+        <span class="n">patch_key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_batch_patch_key</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        
+        <span class="c1"># Get (and reshape) images from batch</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">obsm</span><span class="p">[</span><span class="n">patch_key</span><span class="p">]</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">tissue_tiles</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">w</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        
+        <span class="c1"># Permute dimensions to be in correct order for normalization</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+        <span class="c1"># Make transformations in tissue tiles</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="n">tissue_tiles</span><span class="o">/</span><span class="mf">255.</span>
+        <span class="c1"># Transform tiles</span>
+        <span class="n">tissue_tiles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_transforms</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+        
+        <span class="c1"># Get groundtruth of expression</span>
+        <span class="n">expression_gt</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">X</span>
+        <span class="c1"># Get boolean mask</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s1">&#39;mask&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">expression_gt</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">bool</span><span class="p">()</span>
+
+        <span class="c1"># Get output of the model</span>
+        <span class="n">expression_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">tissue_tiles</span><span class="p">)</span>
+
+        <span class="c1"># Compute expression MSE loss (handle case to ignore zeros)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">robust_loss</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">real_gt</span><span class="p">,</span> <span class="n">real_pred</span> <span class="o">=</span> <span class="n">expression_gt</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">expression_pred</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="p">(</span><span class="n">real_gt</span><span class="p">,</span> <span class="n">real_pred</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>    
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="p">(</span><span class="n">expression_gt</span><span class="p">,</span> <span class="n">expression_pred</span><span class="p">)</span>
+        
+        <span class="n">train_log_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;train_loss&#39;</span><span class="p">:</span> <span class="n">loss</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span><span class="n">train_log_dict</span><span class="p">,</span> <span class="n">on_step</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        
+
+        <span class="c1"># Append train step outputs </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">loss</span>
+
+    <span class="k">def</span> <span class="nf">on_train_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c1"># Unpack the list of tuples</span>
+        <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_mask</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span><span class="p">)</span>
+        <span class="c1"># Concatenate outputs along the sample dimension</span>
+        <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_expression_pred</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_expression_gt</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_mask</span><span class="p">)</span>
+
+        <span class="c1"># Get metrics and log</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">get_metrics</span><span class="p">(</span><span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_mask</span><span class="p">)</span>
+        <span class="c1"># Put train prefix in metric dict</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s1">&#39;train_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">on_epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Free memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">training_step_outputs</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">validation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        
+        <span class="c1"># Get the outputs from the batch with generalistic function</span>
+        <span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_outputs_from_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="c1"># Append validation step outputs </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_step_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span>
+    
+    <span class="k">def</span> <span class="nf">on_validation_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">sanity_checking</span><span class="p">:</span>
+            <span class="c1"># Free memory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validation_step_outputs</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span> 
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Unpack the list of tuples</span>
+            <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_mask</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_step_outputs</span><span class="p">)</span>
+            <span class="c1"># Concatenate outputs along the sample dimension</span>
+            <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_expression_pred</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_expression_gt</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_mask</span><span class="p">)</span>
+
+            <span class="c1"># Get metrics and log</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="n">get_metrics</span><span class="p">(</span><span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_mask</span><span class="p">)</span>
+            <span class="c1"># Put val prefix in metric dict</span>
+            <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s1">&#39;val_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+            <span class="c1"># Auxiliar metric dict with a changed name to facilitate things. aux_metrics is not necesarily representing best metrics.</span>
+            <span class="n">aux_metrics</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s1">&#39;best_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="c1"># Log best metrics</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_metrics</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">best_metrics</span> <span class="o">=</span> <span class="n">aux_metrics</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Define metric name</span>
+                <span class="n">metric_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;best_val_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optim_metric</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="c1"># Determine if we got a new best model (robust to minimization or maximization of any metric)</span>
+                <span class="n">got_best_min</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_objective</span> <span class="o">==</span> <span class="s1">&#39;min&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">aux_metrics</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_metrics</span><span class="p">[</span><span class="n">metric_name</span><span class="p">])</span>
+                <span class="n">got_best_max</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_objective</span> <span class="o">==</span> <span class="s1">&#39;max&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">aux_metrics</span><span class="p">[</span><span class="n">metric_name</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_metrics</span><span class="p">[</span><span class="n">metric_name</span><span class="p">])</span>
+                <span class="c1"># If we got a new best model, save it and log the metrics in wandb</span>
+                <span class="k">if</span> <span class="n">got_best_min</span> <span class="ow">or</span> <span class="n">got_best_max</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">best_metrics</span> <span class="o">=</span> <span class="n">aux_metrics</span>
+            
+            <span class="c1"># Log metrics and best metrics in each validation step</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">({</span><span class="o">**</span><span class="n">metrics</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">best_metrics</span><span class="p">})</span>
+            
+            <span class="c1"># Free memory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validation_step_outputs</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  
+
+    <span class="k">def</span> <span class="nf">test_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        
+        <span class="c1"># Get the outputs from the batch with generalistic function</span>
+        <span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pred_outputs_from_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="c1"># Append validation step outputs </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_step_outputs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span><span class="p">))</span>
+        
+        <span class="k">return</span> <span class="n">expression_pred</span><span class="p">,</span> <span class="n">expression_gt</span><span class="p">,</span> <span class="n">mask</span>
+
+    <span class="k">def</span> <span class="nf">on_test_epoch_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c1"># Unpack the list of tuples</span>
+        <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_mask</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">test_step_outputs</span><span class="p">)</span>
+        <span class="c1"># Concatenate outputs along the sample dimension</span>
+        <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_expression_pred</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_expression_gt</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">glob_mask</span><span class="p">)</span>
+
+        <span class="c1"># Get metrics and log</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">get_metrics</span><span class="p">(</span><span class="n">glob_expression_gt</span><span class="p">,</span> <span class="n">glob_expression_pred</span><span class="p">,</span> <span class="n">glob_mask</span><span class="p">)</span>
+        <span class="c1"># Put test prefix in metric dict</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="sa">f</span><span class="s1">&#39;test_</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">on_epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Free memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">test_step_outputs</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">lr</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">momentum</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">optimizer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">lr</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">optimizer</span>
+
+
+<span class="k">class</span> <span class="nc">EightSymmetry</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a tuple of the eight symmetries resulting from rotation and reflection.</span>
+<span class="sd">    </span>
+<span class="sd">    This behaves similarly to TenCrop.</span>
+<span class="sd">    This transform returns a tuple of images and there may be a mismatch in the number of inputs and targets your Dataset returns. See below for an example of how to deal with this.</span>
+<span class="sd">    Example:</span>
+<span class="sd">     transform = Compose([</span>
+<span class="sd">         EightSymmetry(), # this is a tuple of PIL Images</span>
+<span class="sd">         Lambda(lambda crops: torch.stack([ToTensor()(crop) for crop in crops])) # returns a 4D tensor</span>
+<span class="sd">     ])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This class function was taken fron the original ST-Net repository at:</span>
+    <span class="c1"># https://github.com/bryanhe/ST-Net/blob/43022c1cb7de1540d5a74ea2338a12c82491c5ad/stnet/transforms/eight_symmetry.py#L3</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="n">identity</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="n">identity</span><span class="p">,</span> <span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="mi">1</span><span class="p">)]:</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">[</span><span class="n">identity</span><span class="p">,</span> <span class="n">RandomVerticalFlip</span><span class="p">(</span><span class="mi">1</span><span class="p">)]:</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="n">identity</span><span class="p">,</span> <span class="n">RandomRotation</span><span class="p">((</span><span class="mi">90</span><span class="p">,</span> <span class="mi">90</span><span class="p">))]:</span>
+                    <span class="n">ans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">(</span><span class="n">j</span><span class="p">(</span><span class="n">k</span><span class="p">(</span><span class="n">img</span><span class="p">))))</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ans</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">+</span> <span class="s2">&quot;()&quot;</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gabriel Mejia, Daniela Ruiz, Paula Cardenas, Leonardo Manrique, Daniela Vega &amp; Pablo Arbelaez.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
