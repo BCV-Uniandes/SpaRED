@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spared"
+version = "1.0.10"
+description = "SpaRED and Spackle library"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+requires-python = ">=3.7"
+authors = [
+  {name = "Daniela Vega", email = "d.vegaa@uniandes.edu.co"}
+]
+maintainers = [
+  {name = "Gabriel Mejia", email = "gm.mejia@uniandes.edu.co"}
+]
+keywords = ["SPaRED", "Spackle", "bioinformatics", "spatial transcriptomics"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+]
+
+[tool.setuptools.packages.find]
+where = ["spared"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.gz", "*.md", "*.txt"]

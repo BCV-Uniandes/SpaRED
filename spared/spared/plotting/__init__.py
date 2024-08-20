@@ -30,3 +30,6 @@ from .plotting import plot_mean_std_partitions
 
 from .plotting import plot_tests
 #spared.plotting.plot_tests
+
+from .plotting import log_pred_image
+#spared.plotting.log_pred_image

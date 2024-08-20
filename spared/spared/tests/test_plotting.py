@@ -7,8 +7,9 @@ SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
 sys.path.append(str(SPARED_PATH))
 import datasets
 import plotting
+import spot_features
 
-data = datasets.get_dataset("villacampa_lung_organoid", visualize=False)
+data = datasets.get_dataset("vicari_mouse_brain", visualize=False)
 adata = data.adata
 param_dict = data.param_dict
 
@@ -17,7 +18,6 @@ raw_adata = ad.read_h5ad(os.path.join(dataset_path, f'adata_raw.h5ad'))
 
 inv_folder_path="/home/dvegaa/spared/spared/processed_data/villacampa_data/villacampa_lung_organoid/inv_plots"
 os.makedirs(inv_folder_path, exist_ok=True)
-breakpoint()
 
 #def plot_all_slides(dataset: str, processed_adata: ad.AnnData, path: str) -> None:
 plotting.plot_all_slides(dataset=data.dataset, processed_adata=adata, path=os.path.join(inv_folder_path, 'all_slides.png'))

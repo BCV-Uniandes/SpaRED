@@ -12,71 +12,15 @@ import sys
 #from metrics import get_metrics
 from sklearn.preprocessing import StandardScaler
 
-# El path a spared es ahora diferente
+# Path to SpaRED
 SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
 
-# Agregar el directorio padre al sys.path para los imports
+# Add spared path for imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from metrics.metrics import get_metrics
 # Remove the path from sys.path
 sys.path.remove(str(SPARED_PATH))
-
-# Auxiliary function to use booleans in parser
-str2bool = lambda x: (str(x).lower() == 'true')
-str2intlist = lambda x: [int(i) for i in x.split(',')]
-str2floatlist = lambda x: [float(i) for i in x.split(',')]
-str2h_list = lambda x: [str2intlist(i) for i in x.split('//')[1:]]
-
-# Function to get global parser
-def get_main_parser():
-    parser = argparse.ArgumentParser(description='Code for gene expression imputation.')
-    # Dataset parameters #####################################################################################################################################################################
-    parser.add_argument('--hex_geometry',                   type=bool,          default=True,                       help='Whether the geometry of the spots in the dataset is hexagonal or not.')
-    # Data masking parameters ################################################################################################################################################################
-    parser.add_argument('--masking_method',                 type=str,           default='mask_prob',              help='The masking method to use.', choices=['prob_median', 'mask_prob', 'scale_factor'])
-    parser.add_argument('--mask_prob',                      type=float,         default=0.3,                        help='The probability of masking a gene for imputation when mas_prob masking methos is selected.')
-    parser.add_argument('--scale_factor',                   type=float,         default=0.8,                        help='The scale factor to use for masking when scale_factor masking method is selected.')
-    parser.add_argument('--neighborhood_type',              type=str,           default='nn_distance',              help='The method used to select the neighboring spots.', choices=['circular_hops', 'nn_distance'])
-    parser.add_argument('--num_neighs',                     type=int,           default=18,                          help='Amount of neighbors to consider for context during imputation.')
-    parser.add_argument('--num_hops',                       type=int,           default=1,                          help='Amount of graph hops to consider for context during imputation if neighborhoods are built based on proximity rings.')
-    # Imputation model parameters ############################################################################################################################################################
-    parser.add_argument('--base_arch',                      type=str,           default='transformer_encoder',      help='Base architecture chosen for the imputation model.', choices=['transformer_encoder', 'MLP'])
-    parser.add_argument('--transformer_dim',                type=int,           default=128,                        help='The number of expected features in the encoder/decoder inputs of the transformer.')
-    parser.add_argument('--transformer_heads',              type=int,           default=1,                          help='The number of heads in the multiheadattention models of the transformer.')
-    parser.add_argument('--transformer_encoder_layers',     type=int,           default=2,                          help='The number of sub-encoder-layers in the encoder of the transformer.')
-    parser.add_argument('--transformer_decoder_layers',     type=int,           default=1,                          help='The number of sub-decoder-layers in the decoder of the transformer.')
-    parser.add_argument('--include_genes',                  type=str2bool,      default=True,                       help='Whether or not to to include the gene expression matrix in the data inputed to the transformer encoder when using visual features.')
-    parser.add_argument('--use_visual_features',            type=str2bool,      default=False,                      help='Whether or not to use visual features to guide the imputation process.')
-    parser.add_argument('--use_double_branch_archit',       type=str2bool,      default=False,                      help='Whether or not to use the double branch transformer architecture when using visual features to guide the imputation process.')
-    # Model parameters #######################################################################################################################################################################
-    parser.add_argument('--sota',                           type=str,           default='pretrain',                 help='The name of the sota model to use. "None" calls main.py, "nn_baselines" calls nn_baselines.py, "pretrain" calls pretrain_backbone.py, and any other calls main_sota.py', choices=['None', 'pretrain', 'stnet', 'nn_baselines', "histogene"])
-    parser.add_argument('--img_backbone',                   type=str,           default='ViT',                      help='Backbone to use for image encoding.', choices=['resnet', 'ConvNeXt', 'MobileNetV3', 'ResNetXt', 'ShuffleNetV2', 'ViT', 'WideResNet', 'densenet', 'swin'])
-    parser.add_argument('--use_pretrained_ie',              type=str,           default=True,                       help='Whether or not to use a pretrained image encoder model to get the patches embeddings.')
-    parser.add_argument('--freeze_img_encoder',             type=str2bool,      default=False,                      help='Whether to freeze the image encoder. Only works when using pretrained model.')
-    parser.add_argument('--matrix_union_method',            type=str,           default='concatenate',              help='Method used to combine the output of the gene processing transformer and the visual features processing transformer.', choices=['concatenate', 'sum'])
-    parser.add_argument('--num_mlp_layers',                 type=int,           default=5,                          help='Number of layers stacked in the MLP architecture.')
-    parser.add_argument('--ae_layer_dims',                  type=str2intlist,   default='512,384,256,128,64,128,256,384,512',                          help='Layer dimensions for ae in MLP base architecture.')
-    parser.add_argument('--mlp_act',                        type=str,           default='ReLU',                     help='Activation function to use in the MLP architecture. Case sensitive, options available at: https://pytorch.org/docs/stable/nn.html#non-linear-activations-weighted-sum-nonlinearity')
-    parser.add_argument('--mlp_dim',                        type=int,           default=512,                        help='Dimension of the MLP layers.')
-    parser.add_argument('--graph_operator',                 type=str,           default='None',                     help='The convolutional graph operator to use. Case sensitive, options available at: https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#convolutional-layers', choices=['GCNConv','SAGEConv','GraphConv','GATConv','GATv2Conv','TransformerConv', 'None'])
-    parser.add_argument('--pos_emb_sum',                    type=str2bool,      default=False,                      help='Whether or not to sum the nodes-feature with the positional embeddings. In case False, the positional embeddings are only concatenated.')
-    parser.add_argument('--h_global',                       type=str2h_list,    default='//-1//-1//-1',             help='List of dimensions of the hidden layers of the graph convolutional network.')
-    parser.add_argument('--pooling',                        type=str,           default='None',                     help='Global graph pooling to use at the end of the graph convolutional network. Case sensitive, options available at but must be a global pooling: https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#pooling-layers')
-    parser.add_argument('--dropout',                        type=float,         default=0.0,                        help='Dropout to use in the model to avoid overfitting.')
-    # Train parameters #######################################################################################################################################################################
-    parser.add_argument('--num_workers',                    type=int,           default=0,                          help='DataLoader num_workers parameter - amount of subprocesses to use for data loading.')
-    parser.add_argument('--num_assays',                     type=int,           default=1,                         help='Number of experiments used to test the model.')
-    parser.add_argument('--optim_metric',                   type=str,           default='MSE',                      help='Metric that should be optimized during training.', choices=['PCC-Gene', 'MSE', 'MAE', 'Global'])
-    parser.add_argument('--val_check_interval',             type=int,           default=10,                         help='Number of steps to do valid checks.')
-    parser.add_argument('--batch_size',                     type=int,           default=256,                        help='The batch size to train model.')
-    parser.add_argument('--shuffle',                        type=str2bool,      default=True,                       help='Whether or not to shuffle the data in dataloaders.')
-    parser.add_argument('--momentum',                       type=float,         default=0.9,                        help='Momentum to use in the optimizer if it receives this parameter. If not, it is not used. It will just modify main optimizers and not sota (they have fixed optimizers).')
-    parser.add_argument('--average_test',                   type=str2bool,      default=False,                      help='If True it will compute the 8 symmetries of an image during test and the prediction will be the average of the 8 outputs of the model.')
-    parser.add_argument('--cuda',                           type=str,           default='0',                        help='CUDA device to run the model.')
-    ##########################################################################################################################################################################################
-
-    return parser
 
 def seed_everything(seed: int):
     import random, os
@@ -90,6 +34,56 @@ def seed_everything(seed: int):
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
+
+### Function to build or complete dictionary of basic arguments for spackle to work
+def get_args_dict(args_dict: dict = None):
+    """
+    This function prepares the dictionary that contains the arguments necessary for using SpaCKLE. If the user inputs the arguments dictionary,
+    this function will check that the dictionary has all the mandatory keys. The values in the default dictionary correspond to those used as default
+    when training SpaCKLE in the SpaRED research paper, and the source code contains the description of each key and help to determine new values if needed.
+
+    Args:
+        args_dict (dict): A dictionary with the values needed for processing the data and building the model's architecture. 
+
+    Return:
+        args_dict (dict): The dictionary with the default arguments values that were missing in the initial args_dict.
+    """
+    default_args = {
+            # Imputation model training and test parameters
+            "momentum": 0.9,                         # help = Momentum to use in the optimizer
+            "optim_metric": "MSE",                   # help = Metric that should be optimized during training., choices=['PCC-Gene', 'MSE', 'MAE', 'Global']
+            "val_check_interval": 10,                # help = Number of steps before doing valid checks.
+            "hex_geometry": True,                    # help = Whether the geometry of the spots in the dataset is hexagonal or not.
+
+            # Data loading and handling parameters
+            "batch_size": 256,                       # help = The batch size to train model.
+            "num_workers": 0,                        # help = DataLoader num_workers parameter - amount of subprocesses to use for data loading.
+            "shuffle": True,                         # help = Whether or not to shuffle the data in dataloaders.
+            "masking_method": "mask_prob",           # help = The masking method to use., choices=['prob_median', 'mask_prob', 'scale_factor']
+            "mask_prob": 0.3,                        # help = float with the probability of masking a gene for imputation when mas_prob masking methos is selected.
+            "scale_factor": 0.8,                     # help = The scale factor to use for masking when scale_factor masking method is selected.
+            "num_neighs": 18,                        # help = Amount of neighbors to consider for context during imputation.
+            
+            # SpaCKLE architecture parameters
+            "transformer_heads": 1,                 # help = The number of heads in the multiheadattention models of the transformer.
+            "transformer_encoder_layers": 2,        # help = The number of sub-encoder-layers in the encoder of the transformer.
+            # *** WARNING: The current version of the library does not allow using visual features for gene imputation, thus, the following parameters are ignored during the use of spackle_cleaner in this version. ***
+            "use_visual_features": False,           # help = Whether or not to use visual features to guide the imputation process. WARNING: The current version of the library does not allow using visual features for gene imputation.
+            "img_backbone": "ViT",                  # help = Backbone to use for image encoding.', choices=['resnet', 'ConvNeXt', 'MobileNetV3', 'ResNetXt', 'ShuffleNetV2', 'ViT', 'WideResNet', 'densenet', 'swin']. WARNING: The current version of the library does not allow using visual features for gene imputation.
+            "include_genes": True,                  # help = Whether or not to to include the gene expression matrix in the data inputed to the transformer encoder when using visual features. WARNING: The current version of the library does not allow using visual features for gene imputation.
+            }
+    
+    if not args_dict:
+        args_dict = default_args
+
+    else:
+        args_dict = {key.lower(): value for key, value in args_dict.items()}
+        # Add arguments from the default dictionary to args_dict if they are not in it yet.
+        for key, value in default_args.items():
+            if key not in args_dict:
+                args_dict[key] = value
+    
+    return args_dict
 
 ### Define function to get spatial neighbors in an AnnData object
 def get_spatial_neighbors(adata: ad.AnnData, n_hops: int, hex_geometry: bool) -> dict:

@@ -1,5 +1,6 @@
 import anndata as ad
 import os
+import torch
 from time import time
 import numpy as np
 import pandas as pd
@@ -26,7 +27,7 @@ sys.path.remove(str(SPARED_PATH))
 
 
 ### Expression data processing functions:
-def tpm_normalization(organism: str, adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
+def tpm_normalization(adata: ad.AnnData, organism: str, from_layer: str, to_layer: str) -> ad.AnnData:
     """Normalize expression using TPM normalization.
 
     This function applies TPM normalization to an AnnData object with raw counts. It also removes genes that are not fount in the ``.gtf`` annotation file.
@@ -36,8 +37,8 @@ def tpm_normalization(organism: str, adata: ad.AnnData, from_layer: str, to_laye
     To specify which GTF annotation file should be used, the string parameter ``'organism'`` must be ``'mouse'`` or ``'human'``.
 
     Args:
-        organism (str): Organism of the dataset. Must be 'mouse' or 'human'.
         adata (ad.Anndata): The Anndata object to normalize.
+        organism (str): Organism of the dataset. Must be 'mouse' or 'human'.
         from_layer (str): The layer to take the counts from. The data in this layer should be in raw counts.
         to_layer (str): The layer to store the results of the normalization.
     Returns:
@@ -277,12 +278,9 @@ def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
         # Add the layer to the adata
         adata.layers['noisy'] = noised_layer
 
-    # Give warning to say that the noisy layer is being used
-    print('Using noisy_delta layer for training. This will probably yield bad results.')
-
     return adata
 
-def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
+def process_dataset(adata: ad.AnnData, param_dict: dict, dataset: str) -> ad.AnnData:
     """ Perform complete processing pipeline.
     This function performs the complete processing pipeline for a dataset. It only computes over the expression values of the dataset
     (adata.X). The processing pipeline is the following:
@@ -299,11 +297,11 @@ def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
     Args:
         adata (ad.AnnData): The AnnData object to process. Should be already filtered with the filter_dataset() function.
         param_dict (dict): Dictionary that contains filtering and processing parameters. Keys that must be present are:
-
                             - 'top_moran_genes': (int) The number of genes to keep after filtering by Moran's I. If set to 0, then the number of genes is internally computed.
                             - 'combat_key': (str) The column in adata.obs that defines the batches for ComBat batch correction. If set to 'None', then no batch correction is performed.
                             - "hex_geometry" (bool): Whether the graph is hexagonal or not. If True, then the graph is hexagonal. If False, then the graph is a grid. Only true for visium datasets.
-
+        dataset_name (str): The name of the dataset.
+        
     Returns:
         ad.Anndata: The processed AnnData object with all the layers and results added. A list of includded layers in adata.layers is:
 
@@ -332,7 +330,7 @@ def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
     adata.layers['counts'] = adata.X.toarray()
     
     # 1. Make TPM normalization
-    adata = tpm_normalization(param_dict["organism"], adata, from_layer='counts', to_layer='tpm')
+    adata = tpm_normalization(adata, param_dict["organism"], from_layer='counts', to_layer='tpm')
 
     # 2. Transform the data with log1p (base 2.0)
     adata = log1p_transformation(adata, from_layer='tpm', to_layer='log1p')
@@ -362,10 +360,16 @@ def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
     # 8. Add a binary mask layer specifying valid observations for metric computation
     adata.layers['mask'] = adata.layers['tpm'] != 0
     
-    # TODO: add spackle imputation and deltas
+    # Define a device
+    use_cuda = torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
     
+    # 9. Denoise the data with spackle method
+    adata, _  = denoising.spackle_cleaner(adata=adata, dataset = dataset, from_layer="c_d_log1p", to_layer="c_t_log1p", device = device)
+    adata, _  = denoising.spackle_cleaner(adata=adata, dataset = dataset, from_layer="c_d_deltas", to_layer="c_t_deltas", device = device)
+
     # Print with the percentage of the dataset that was replaced
-    print('Percentage of imputed observations with median filter: {:5.3f}%'.format(100 * (~adata.layers["mask"]).sum() / (adata.n_vars*adata.n_obs)))
+    print('Percentage of imputed observations with median filter and spackle method: {:5.3f}%'.format(100 * (~adata.layers["mask"]).sum() / (adata.n_vars*adata.n_obs)))
 
     # Print the number of cells and genes in the dataset
     print(f'Processing of the data took {time() - start:.2f} seconds')

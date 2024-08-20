@@ -142,8 +142,6 @@ class ImageEncoder(torch.nn.Module):
         latent_space = self.encoder(tissue_tiles)
 
         return latent_space
-    
-
 
 class ImageBackbone(L.LightningModule):
     def __init__(self, args,  latent_dim):
@@ -373,6 +371,7 @@ class ImageBackbone(L.LightningModule):
 
         # Get boolean mask
         mask = torch.Tensor(batch.layers['mask']).to(expression_gt.device).bool()
+        
 
         return expression_pred, expression_gt, mask
 
@@ -500,6 +499,7 @@ class ImageBackbone(L.LightningModule):
 
         # Get metrics and log
         metrics = get_metrics(glob_expression_gt, glob_expression_pred, glob_mask)
+        
         # Put test prefix in metric dict
         metrics = {f'test_{k}': v for k, v in metrics.items()}
         self.log_dict(metrics, on_epoch=True)

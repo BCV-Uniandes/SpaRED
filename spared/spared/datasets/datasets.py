@@ -86,7 +86,7 @@ class SpatialDataset():
         patch_scale: float = 1.0,
         patch_size: int = 224,
         force_compute: bool = False,
-        visualize: bool = True,
+        visualize: bool = False,
         ):
         """
         This is a spatial data class that contains all the information about the dataset. It will call a reader class depending on the type
@@ -256,7 +256,7 @@ class SpatialDataset():
             collection_filtered = filtering.filter_dataset(adata=collection_raw, param_dict=self.param_dict)
             # Process data
             collection_processed = layer_operations.process_dataset(
-                adata=collection_filtered, param_dict=self.param_dict)
+                adata=collection_filtered, param_dict=self.param_dict, dataset=self.dataset)
 
             # Save the processed data
             os.makedirs(self.dataset_path, exist_ok=True)
@@ -305,7 +305,7 @@ class SpatialDataset():
                     shutil.copy(os.path.join(SPARED_PATH, 'PublicDatabase', 'README_template.md'), os.path.join(DATA_PATH, 'PublicDatabase', self.dataset, 'README.md'))
 
         return collection_processed
-    
+
 class HisToGeneDataset(Dataset):
     def __init__(self, adata, set_str):
         self.set = set_str
@@ -357,7 +357,7 @@ class HisToGeneDataset(Dataset):
         return patch, coor, exp, mask
 
 
-def get_dataset(dataset_name: str, visualize: bool = True) -> SpatialDataset:
+def get_dataset(dataset_name: str, visualize: bool = False) -> SpatialDataset:
     """
     This function receives the name of a dataset and retrieves a SpatialDataset object according to the arguments.
     Args:

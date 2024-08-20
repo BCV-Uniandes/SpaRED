@@ -1,0 +1,7 @@
+include README.md
+include LICENSE.txt
+include spared/SpaRED/PublicDatabase/*.json
+include spared/SpaRED/PublicDatabase/*.md
+include spared/SpaRED/data/annotations/*.gz
+include spared/SpaRED/data/annotations/*.txt
+include spared/SpaRED/configs/*.json
