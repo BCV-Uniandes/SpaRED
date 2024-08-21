@@ -14,7 +14,7 @@ This is the  README file which will contain the long description of the PiPy lib
 <font size="1"><sup>2 </sup> Universidad  de  los  Andes,  Bogotá, Colombia.</font><br/>
 
 - Preprint available at arXiv
-- Visit the project on our [website](https://danielaruizl1.github.io/)
+- Visit the project on our [website](https://bcv-uniandes.github.io/spared_webpage/)
 
 ### Abstract
 
