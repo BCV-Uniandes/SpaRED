@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["setuptools>=42", "wheel", "flit_core >=3.2,<4"]
+build-backend = "setuptools.build_meta"  # Manteniendo setuptools como backend, pero con las dependencias de flit
 
 [project]
 name = "spared"
@@ -10,7 +10,8 @@ readme = "README.md"
 license = {file = "LICENSE.txt"}
 requires-python = ">=3.7"
 authors = [
-  {name = "Daniela Vega", email = "d.vegaa@uniandes.edu.co"}
+  {name = "Daniela Vega", email = "d.vegaa@uniandes.edu.co"},
+  {name = "Placeholder", email = "Placeholder@Placeholder"}  # Añadido desde la otra sección
 ]
 maintainers = [
   {name = "Gabriel Mejia", email = "gm.mejia@uniandes.edu.co"}
@@ -21,16 +22,10 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
 ]
+dynamic = ["version", "description"]  # Añadido desde la otra sección
 
 [tool.setuptools.packages.find]
 where = ["spared"]
 
 [tool.setuptools.package-data]
-"*" = ["*.json", "*.gz", "*.md", "*.txt"][build-system]
-requires = ["flit_core >=3.2,<4"]
-build-backend = "flit_core.buildapi"
-
-[project]
-name = "SpaRED"
-authors = [{name = "Placeholder", email = "Placeholder@Placeholder"}]
-dynamic = ["version", "description"]
+"*" = ["*.json", "*.gz", "*.md", "*.txt"]

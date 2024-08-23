@@ -191,22 +191,41 @@ def median_cleaner(collection: ad.AnnData, from_layer: str, to_layer: str, n_hop
     return corrected_collection
 
 #Replicate SpaCKLE's results
-def spackle_cleaner_experiment(adata: ad.AnnData, dataset: str, from_layer: str, device, lr = 1e-3, train = True, load_ckpt_path = "", optimizer = "Adam", max_steps = 1000) -> ad.AnnData:
-    # TODO: [PC] add in the documentation that the adata must have data splits in adata.obs['split'] and the values should be 'train', 'val', and (optional) 'test'
-    # TODO: [PC] For documentation: 
-            # "This function's purpose is solely to reproduce the results presented in SpaCKLE's paper"
-            # load_ckpt_path example: /home/pcardenasg/spared_imputation/imput_results/vicari_mouse_brain/2024-02-28-07-02-31/epoch=101-step=9370.ckpt {should end with the ckpt file and the ckpts file must be inside a directory that also contains script_params.json}
+def spackle_cleaner_experiment(adata: ad.AnnData, dataset: str, from_layer: str, device, args_dict = None, lr = 1e-3, train = True, load_ckpt_path = "", optimizer = "Adam", max_steps = 1000) -> ad.AnnData:
+    """This function's purpose is solely to reproduce the results presented in SpaCKLE's paper.
 
-    # Get parser and parse arguments
-    parser = get_main_parser()
-    args = parser.parse_args()
-    args_dict = vars(args)
+    Function that cleans noise (completes missing data) with a SpaCKLE model that can be either trained or loaded as a pre-trained model from the original published checkpoints.
+    The data will be taken from ``adata.layers[from_layer]`` and the results will be stored in ``adata.layers[to_layer]``. If training a new SpaCKLE
+    model, it will be saved in the path ``imput_results/[dataset_name]/[run_date]``.
 
+    Args:
+        adata (ad.AnnData): The AnnData collection to process. The adata must have pre-determined data splits in ``adata.obs['split']`` and the values should be ``train``, ``val``, and (optional) ``test``.
+        dataset (str): The layer to compute the adaptive median filter from. Where to clean the noise from.
+        from_layer (str): The layer to compute the adaptive median filter from. Where to clean the noise from.
+        to_layer (str): The layer to store the results of the adaptive median filter. Where to store the cleaned data.
+        device (torch.device): device in which tensors will be processed.
+        args_dict (dict): A dictionary with the values needed for processing the data and building the model's architecture. For more information on the required keys, refer to the 
+                          documentation of the function ``get_args_dict()`` in `spared.spackle.utils`.
+        lr (float): The learning rate for training the model.
+        train (bool): If True, a new SpaCKLE model will be trained and tested, otherwise, the function will only test the pretrained model found in ``load_ckpt_path``.
+        get_performance (bool): If True, the function will calculate the final evaluation metrics of the model and save them in a txt file in save_path.
+        load_ckpt_path (str): Path to the checkpoints of a pretrained SpaCKLE model. This path should lead directly to the .ckpt file.
+        optimizer (str, optional): The name of the optimizer selected for the training process. Default = "Adam".
+        max_steps (int, optional): Stop training after this number of steps. Default = 1000.
+
+    Returns:
+        adata (ad.AnnData): The input AnnData collection with the added cleaned layer in ``adata.layers[to_layer]``.
+        load_ckpt_path (str): Path to the checkpoints of the trained SpaCKLE model.
+    """
+    
     # Get datetime
     run_date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     # Set manual seeds and get cuda
     seed_everything(42)
+
+    # Check args_dict and fill missing values or create args dictionary in case user does not input it
+    args_dict = get_args_dict(args_dict)
     
     # TODO: [PC] allow the use of an already-trained model?
     if train:
@@ -246,30 +265,48 @@ def spackle_cleaner_experiment(adata: ad.AnnData, dataset: str, from_layer: str,
         load_ckpt_path=load_ckpt_path, 
         optimizer=optimizer, 
         max_steps=max_steps, 
-        args=args)
+        args_dict=args_dict)
 
 #clean noise con spackle
-def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: str, device, lr = 1e-3, train = True, get_performance_metrics = True, load_ckpt_path = "", optimizer = "Adam", max_steps = 1000) -> ad.AnnData:
-    # TODO: [PC] add in the documentation that the adata must have data splits in adata.obs['split'] and the values should be 'train', 'val', and (optional) 'test'
-    # TODO: [PC] For documentation: 
-            # "This function's purpose is solely to reproduce the results presented in SpaCKLE's paper"
-            # load_ckpt_path example: /home/pcardenasg/spared_imputation/imput_results/vicari_mouse_brain/2024-02-28-07-02-31/epoch=101-step=9370.ckpt {should end with the ckpt file and the ckpts file must be inside a directory that also contains script_params.json}
+def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: str, device, args_dict = None, lr = 1e-3, train = True, get_performance_metrics = True, load_ckpt_path = "", optimizer = "Adam", max_steps = 1000) -> ad.AnnData:
+    """Remove noise with SpaCKLE.
 
-    # Get parser and parse arguments
-    parser = get_main_parser()
-    args = parser.parse_args()
-    args_dict = vars(args)
+    Function that cleans noise (completes missing data) with a SpaCKLE model that can be either trained or loaded as a pre-trained model.
+    The data will be taken from ``adata.layers[from_layer]`` and the results will be stored in ``adata.layers[to_layer]``. If training a new SpaCKLE
+    model, it will be saved in the path ``imput_results/[dataset_name]/[run_date]``.
 
+    Args:
+        adata (ad.AnnData): The AnnData collection to process. The adata must have pre-determined data splits in ``adata.obs['split']`` and the values should be ``train``, ``val``, and (optional) ``test``.
+        dataset (str): The layer to compute the adaptive median filter from. Where to clean the noise from.
+        from_layer (str): The layer to compute the adaptive median filter from. Where to clean the noise from.
+        to_layer (str): The layer to store the results of the adaptive median filter. Where to store the cleaned data.
+        device (torch.device): device in which tensors will be processed.
+        args_dict (dict): A dictionary with the values needed for processing the data and building the model's architecture. For more information on the required keys, refer to the 
+                          documentation of the function ``get_args_dict()`` in `spared.spackle.utils`.
+        lr (float): The learning rate for training the model.
+        train (bool): If True, a new SpaCKLE model will be trained and tested, otherwise, the function will only test the pretrained model found in ``load_ckpt_path``.
+        get_performance (bool): If True, the function will calculate the final evaluation metrics of the model and save them in a txt file in save_path.
+        load_ckpt_path (str): Path to the checkpoints of a pretrained SpaCKLE model. This path should lead directly to the .ckpt file.
+        optimizer (str, optional): The name of the optimizer selected for the training process. Default = "Adam".
+        max_steps (int, optional): Stop training after this number of steps. Default = 1000.
+
+    Returns:
+        adata (ad.AnnData): The input AnnData collection with the added cleaned layer in ``adata.layers[to_layer]``.
+        load_ckpt_path (str): Path to the checkpoints of the trained SpaCKLE model.
+    """
+    
     # Get datetime
     run_date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     # Set manual seeds and get cuda
     seed_everything(42)
+
+    # Check args_dict and fill missing values or create args dictionary in case user does not input it
+    args_dict = get_args_dict(args_dict)
     
-    # TODO: [PC] allow the use of an already-trained model?
     if train:
         # Código para entrenar modelo (train_splackle()) y retornar ruta a mejores pesos del entrenamiento
-        # Create directory where the newly trained model will be saved #save_path = os.path.join('imput_results', dataset, "best_model") # TODO: [PC] group opinion: ¿should we set data naming with date like in our works?
+        # Create directory where the newly trained model will be saved 
         save_path = os.path.join('imput_results', dataset, run_date)
         os.makedirs(save_path, exist_ok=True)
 
@@ -289,12 +326,11 @@ def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: 
             load_ckpt_path=load_ckpt_path, 
             optimizer=optimizer, 
             max_steps=max_steps, 
-            args=args)
+            args_dict=args_dict)
         
         load_ckpt_path = glob.glob(os.path.join(save_path, '*.ckpt'))[0]
 
     else:
-
         assert os.path.exists(load_ckpt_path), "load_ckpts_path not found. Please use train = True if you do not have the checkpoints of a trained SpaCKLE model and its corresponding script_params.json file."
         
         save_path = os.path.dirname(load_ckpt_path)
@@ -308,11 +344,11 @@ def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: 
             if saved_script_params['transformer_dim'] != adata.n_vars:
                 warnings.warn("The architecture of the model you want to load may not be compatible with the shape of the data.")
 
-
+    ## Run SpaCKLE model to complete gene data that is missing in adata either with a recently trained model or using the checkpoints of a pretrained model, depending on the parameters selected.
     # Declare model
     vis_features_dim = 0
     model = GeneImputationModel(
-        args=args, 
+        args=args_dict, 
         data_input_size=adata.n_vars,
         lr=lr,
         optimizer=optimizer,
@@ -328,14 +364,14 @@ def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: 
     print(f"Finished loading model with weights from {load_ckpt_path}")
 
     # Prepare data and dataloader
-    data = ImputationDataset(adata, args, 'complete', from_layer)
+    data = ImputationDataset(adata, args_dict, 'complete', from_layer)
     dataloader = DataLoader(
         data, 
-        batch_size=args.batch_size, 
+        batch_size=args_dict['batch_size'], 
         shuffle=False, 
         pin_memory=True, 
         drop_last=False, 
-        num_workers=args.num_workers)
+        num_workers=args_dict['num_workers'])
     
     # Get gene imputations for missing values of randomly masked elements trhoughout the entire dataset
     all_exps = []

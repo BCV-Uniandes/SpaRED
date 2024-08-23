@@ -22,13 +22,12 @@ sys.path.append(str(SPARED_PATH))
 from denoising import denoising
 from gene_features import gene_features
 from filtering import filtering
+from layer_operations import layer_operations
 # Remove the path from sys.path
 sys.path.remove(str(SPARED_PATH))
 
-
 ### Expression data processing functions:
-# TODO: CHange here and elsewhere the order of the organism and adata parameters
-def tpm_normalization(organism: str, adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
+def tpm_normalization(adata: ad.AnnData, organism: str, from_layer: str, to_layer: str) -> ad.AnnData:
     """Normalize expression using TPM normalization.
 
     This function applies TPM normalization to an AnnData object with raw counts. It also removes genes that are not fount in the ``.gtf`` annotation file.
@@ -236,9 +235,7 @@ def get_deltas(adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
     # Return the updated AnnData object
     return adata
 
-# TODO: When cheking this function on its own, try using a prediction layer "delta"
 # TODO: modify function to add noisy layer to important layers
-# FIXME: Double check the inside of the function. It looks weird
 def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
     """ Add an artificial noisy layer.
 
@@ -255,10 +252,11 @@ def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
     Returns:
         ad.AnnData: The updated AnnData object with the ``adata.layers['noisy']`` or ``adata.layers['noisy_d']`` layer added depending on ``prediction_layer``.
     """
-    # FIXME: This condition looks weird
-    if 'delta' in prediction_layer or 'noisy_d' in prediction_layer:
+    
+    if 'delta' in prediction_layer:
         # Get vector with gene means
-        gene_means = adata.var[f"{prediction_layer}_avg_exp"].values 
+        avg_layer = prediction_layer.replace("deltas","log1p")
+        gene_means = adata.var[f"{avg_layer}_avg_exp"].values 
         # Expand gene means to the shape of the layer
         gene_means = np.repeat(gene_means.reshape(1, -1), adata.n_obs, axis=0)
         # Get valid mask
@@ -267,13 +265,13 @@ def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
         noisy_deltas = -gene_means 
         delta_key = prediction_layer.split("log1p")
         # Assign delta values in positions where valid mask is true
-        noisy_deltas[valid_mask] = adata.layers[f'{delta_key[0]}deltas'][valid_mask]
+        noisy_deltas[valid_mask] = adata.layers[prediction_layer][valid_mask]
         # Add the layer to the adata
-        adata.layers['noisy_d'] = noisy_deltas
+        adata.layers[f'noisy_{prediction_layer}'] = noisy_deltas
 
         # Add a var column of used means of the layer
-        mean_key = f'{prediction_layer}_avg_exp'
-        adata.var['used_mean'] = adata.var[mean_key]
+        mean_key = f'{avg_layer}_avg_exp'
+        adata.var[f'used_mean_{prediction_layer}'] = adata.var[mean_key]
 
     else:
         # Copy the cleaned layer to the layer noisy
@@ -283,14 +281,14 @@ def add_noisy_layer(adata: ad.AnnData, prediction_layer: str) -> ad.AnnData:
         # Zero out the missing values
         noised_layer[zero_mask] = 0
         # Add the layer to the adata
-        adata.layers['noisy'] = noised_layer
+        adata.layers[f'noisy_{prediction_layer}'] = noised_layer
 
     return adata
 
 # TODO: Put reference to the filter_dataset() function
 # FIXME: Here we should have the transformer cleaner too
 # TODO: Add combat link
-def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
+def process_dataset(adata: ad.AnnData, param_dict: dict, dataset: str) -> ad.AnnData:
     """ Perform complete processing pipeline.
 
     This function performs the complete processing pipeline. It only computes over the expression and filters genes to get the final prediction
@@ -327,6 +325,10 @@ def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
                     - ``'d_deltas'``: Deltas from the mean expression for ``d_log1p``.
                     - ``'c_deltas'``: Deltas from the mean expression for ``c_log1p`` (only if ``param_dict['combat_key'] != 'None'``).
                     - ``'c_d_deltas'``: Deltas from the mean expression for ``c_d_log1p`` (only if ``param_dict['combat_key'] != 'None'``).
+                    - ``'noisy_c_d_log1p'``: Processed layer c_d_log1p where original missing values are replaced with 0.
+                    - ``'noisy_c_d_deltas'``: Processed layer c_d_deltas where original missing values are replaced with the negative mean expression of the gene.
+                    - ``'noisy_c_t_log1p'``: Processed layer c_t_log1p where original missing values are replaced with 0.
+                    - ``'noisy_c_t_deltas'``: Processed layer c_t_deltas where original missing values are replaced with the negative mean expression of the gene.
                     - ``'mask'``: Binary mask layer. ``True`` for valid observations, ``False`` for imputed missing values.
     """
 
@@ -378,8 +380,19 @@ def process_dataset(adata: ad.AnnData, param_dict: dict) -> ad.AnnData:
     
     # 9. Denoise the data with spackle method
     adata, _  = denoising.spackle_cleaner(adata=adata, dataset = dataset, from_layer="c_d_log1p", to_layer="c_t_log1p", device = device)
-    adata, _  = denoising.spackle_cleaner(adata=adata, dataset = dataset, from_layer="c_d_deltas", to_layer="c_t_deltas", device = device)
-
+    
+    # 10. Get delta for c_t_log1p
+    adata = get_deltas(adata, from_layer='c_t_log1p', to_layer='c_t_deltas')
+    
+    # 11. Add noisy layers 
+    list_layers = ["c_d_log1p",
+                   "c_t_log1p",
+                   "c_d_deltas",
+                   "c_t_deltas"]
+    
+    for layer in list_layers:
+        adata = layer_operations.add_noisy_layer(adata=adata, prediction_layer=layer)
+    
     # Print with the percentage of the dataset that was replaced
     print('Percentage of imputed observations with median filter and spackle method: {:5.3f}%'.format(100 * (~adata.layers["mask"]).sum() / (adata.n_vars*adata.n_obs)))
 

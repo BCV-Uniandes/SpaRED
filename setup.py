@@ -1,13 +1,9 @@
 from setuptools import setup, find_packages
 import pathlib
-import os
 
 here = pathlib.Path(__file__).parent.resolve()
 
 # Get the long description from the README file
-#with open (os.path.join(here, "spared", "README.md"), "r") as f:
-#   long_description = f.read()
-
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
@@ -18,8 +14,9 @@ setup(
     description="SpaRED and Spackle library",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/dvegaa00/Library_Spared_Spackle/tree/main",
+    url="https://github.com/BCV-Uniandes/SpaRED/tree/main",
     classifiers=[
+        "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
@@ -28,5 +25,15 @@ setup(
     packages=find_packages(where="spared"),
     include_package_data=True,
     python_requires=">=3.7",
+    install_requires=[
+        # List any additional dependencies here if necessary
+    ],
+    extras_require={
+        # Optional dependencies
+    },
+    project_urls={
+        "Bug Reports": "https://github.com/BCV-Uniandes/SpaRED/issues",
+        "Source": "https://github.com/BCV-Uniandes/SpaRED/",
+    },
 )
 

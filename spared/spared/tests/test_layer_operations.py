@@ -10,13 +10,17 @@ import datasets
 import layer_operations
 import filtering
 
-data = datasets.get_dataset("villacampa_lung_organoid", visualize=False)
+data = datasets.get_dataset("vicari_mouse_brain", visualize=False)
 param_dict = data.param_dict
 
+#breakpoint()
+#dataset_path = "/home/dvegaa/SpaRED/spared/spared/tests/processed_data/vicari_data/vicari_mouse_brain/2024-08-11-18-40-39/adata_raw.h5ad"
+#adata = ad.read_h5ad(os.path.join(dataset_path, f'adata_raw.h5ad'))
 breakpoint()
-dataset_path = "/home/dvegaa/spared_library_test/tests/processed_data/villacampa_data/villacampa_lung_organoid/2024-07-05-11-36-13"
-adata = ad.read_h5ad(os.path.join(dataset_path, f'adata_raw.h5ad'))
-breakpoint()
+adata = data.adata
+
+adata.layers['mask'] = adata.layers['tpm'] != 0
+adata = layer_operations.add_noisy_layer(adata=adata, prediction_layer="c_log1p")
 """
 #def tpm_normalization(organism: str, adata: ad.AnnData, from_layer: str, to_layer: str) -> ad.AnnData:
 adata.layers['counts'] = adata.X.toarray()
