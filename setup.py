@@ -8,7 +8,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="spared",
-    version="1.0.1",
+    version="1.0.2",
     author="Daniela Vega",
     author_email="d.vegaa@uniandes.edu.co",
     description="SpaRED and Spackle library",

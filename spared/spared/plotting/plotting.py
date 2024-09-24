@@ -921,7 +921,6 @@ def log_pred_image(adata, n_genes: int = 2, slides: dict = {}, save_path: str = 
 
         # Define order of rows in dict
         order_dict = {'train': 0, 'val': 1, 'test': 2}
-        breakpoint()
         # Iterate over partitions
         for row, p in enumerate(slides.keys()):
             
@@ -989,7 +988,7 @@ def log_pred_image(adata, n_genes: int = 2, slides: dict = {}, save_path: str = 
             ax[0, 3].set_title(f'Prediction\nVariable Scale', fontsize='large')
 
             # Add fixed colorbar
-            fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap='jet'), ax=ax[len(slides.keys()), 2], location='right', fraction=0.05, aspect=25*len(slides)+5)
+            fig.colorbar(matplotlib.cm.ScalarMappable(norm=norm, cmap='jet'), ax=ax[len(slides.keys())-1, 2], location='right', fraction=0.05, aspect=25*len(slides)+5)
 
         # Get ordering split
         order_split = 'test' if 'test' in slides.keys() else 'val'
@@ -1004,7 +1003,6 @@ def log_pred_image(adata, n_genes: int = 2, slides: dict = {}, save_path: str = 
 
     # FIXME: Wandb logging is not working
     def log_pred_correlations(adata, pred_layer, save_path, top_k=50):
-        breakpoint()
 
         """This function logs the correlation matrices of the top k genes in the ground truth and predictions layers.
 
@@ -1062,7 +1060,6 @@ def log_pred_image(adata, n_genes: int = 2, slides: dict = {}, save_path: str = 
 
     #TODO: Mean and variance plot
     def log_mean_variance(adata, pred_layer, save_path):
-        breakpoint()
 
         # Get prediction and groundtruth layers from layers keys in the anndata
         exp_pred = adata.layers[pred_layer]

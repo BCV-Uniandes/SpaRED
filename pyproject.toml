@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"  # Manteniendo setuptools como backend, 
 
 [project]
 name = "spared"
-version = "1.0.1"
+version = "1.0.2"
 description = "SpaRED and Spackle library"
 readme = "README.md"
 license = {file = "LICENSE.txt"}
