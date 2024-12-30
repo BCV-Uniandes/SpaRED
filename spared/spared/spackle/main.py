@@ -16,7 +16,7 @@ SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from datasets import datasets
+from spared_datasets import datasets
 # Remove the path from sys.path
 
 ## Set of auxiliary functions for model test and comparison
