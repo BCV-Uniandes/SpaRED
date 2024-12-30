@@ -23,7 +23,7 @@ from spackle.model import GeneImputationModel
 from spackle.dataset import ImputationDataset
 from spackle.main import train_spackle
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
+
 
 
 #clean noise with medians

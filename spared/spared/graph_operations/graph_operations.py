@@ -19,7 +19,6 @@ sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from filtering import filtering
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 ### Graph building functions:
 def get_graphs_one_slide(adata: ad.AnnData, n_hops: int, layer: str, hex_geometry: bool) -> Tuple[dict,int]:

@@ -16,7 +16,6 @@ sys.path.append(str(SPARED_PATH))
 # Import models.py file
 from models import models
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 ### Patch processing functions
 ## Compute the patch embeddings

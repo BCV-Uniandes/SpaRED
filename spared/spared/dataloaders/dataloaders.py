@@ -23,7 +23,6 @@ from layer_operations import layer_operations
 from spot_features import spot_features
 from graph_operations import graph_operations
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 
 # TODO: Fix the internal fixme (DISCUSS AGAIN)

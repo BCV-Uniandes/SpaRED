@@ -13,7 +13,6 @@ sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from gene_features import gene_features
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 def filter_by_moran(adata: ad.AnnData, n_keep: int, from_layer: str) -> ad.AnnData:
     """ Filter prediction genes by Moran's I.

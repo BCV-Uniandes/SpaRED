@@ -18,7 +18,6 @@ sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from datasets import datasets
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 ## Set of auxiliary functions for model test and comparison
 def get_imputation_results_from_trained_model(trainer, model, best_model_path, train_loader, val_loader, test_loader = None):

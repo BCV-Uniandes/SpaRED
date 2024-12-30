@@ -42,7 +42,6 @@ from readers.VicariReader import VicariReader
 from readers.VillacampaReader import VillacampaReader
 from readers.VisiumReader import VisiumReader
 #Remover el directorio padre al sys.path 
-sys.path.append(str(SPARED_PATH))
 
 # Remove the max limit of pixels in a figure
 Image.MAX_IMAGE_PIXELS = None

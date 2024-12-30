@@ -24,7 +24,6 @@ from gene_features import gene_features
 from filtering import filtering
 from layer_operations import layer_operations
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 ### Expression data processing functions:
 def tpm_normalization(adata: ad.AnnData, organism: str, from_layer: str, to_layer: str) -> ad.AnnData:

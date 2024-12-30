@@ -20,7 +20,6 @@ sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from metrics.metrics import get_metrics
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 def seed_everything(seed: int):
     import random, os

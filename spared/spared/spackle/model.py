@@ -14,7 +14,6 @@ sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from metrics.metrics import get_metrics
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 
 class TransformerEncoder(torch.nn.Module):

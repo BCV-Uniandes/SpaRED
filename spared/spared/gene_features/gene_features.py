@@ -12,7 +12,6 @@ sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from filtering import filtering
 # Remove the path from sys.path
-sys.path.remove(str(SPARED_PATH))
 
 def get_exp_frac(adata: ad.AnnData) -> ad.AnnData:
     """ Compute the expression fraction for all genes.
