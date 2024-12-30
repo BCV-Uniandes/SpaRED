@@ -18,7 +18,6 @@ SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from spot_features import spot_features
-from layer_operations import layer_operations
 from spackle.utils import *
 from spackle.model import GeneImputationModel
 from spackle.dataset import ImputationDataset
