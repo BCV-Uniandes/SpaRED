@@ -81,14 +81,14 @@ def get_complete_imputation_results(model, trainer, best_model_path, args, prob_
         
     ## Prepare DataLoaders for testing on trained model
     train_data = ImputationDataset(train_split, args, 'train', prediction_layer, pre_masked = True)
-    train_loader = DataLoader(train_data, batch_size=args["batch_size"], shuffle=False, pin_memory=True, drop_last=True, num_workers=args["num_workers"])
+    train_loader = DataLoader(train_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator("cuda"))
 
     val_data = ImputationDataset(val_split, args, 'val', prediction_layer, pre_masked = True)
-    val_loader = DataLoader(val_data, batch_size=args["batch_size"], shuffle=False, pin_memory=True, drop_last=True, num_workers=args["num_workers"])
+    val_loader = DataLoader(val_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator("cuda"))
     test_loader = None
     if test_split is not None:
         test_data = ImputationDataset(test_split, args, 'test', prediction_layer, pre_masked = True)
-        test_loader = DataLoader(test_data, batch_size=args["batch_size"], shuffle=False, pin_memory=True, drop_last=True, num_workers=args["num_workers"])
+        test_loader = DataLoader(test_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator("cuda"))
 
     ## Results for trained model
     trained_model_results = get_imputation_results_from_trained_model(
@@ -137,9 +137,9 @@ def train_spackle(adata, device, save_path, prediction_layer, lr, train, get_per
     train_data = ImputationDataset(train_split, args_dict, 'train', prediction_layer)
     val_data = ImputationDataset(val_split, args_dict, 'val', prediction_layer)
 
-    train_loader = DataLoader(train_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=True, drop_last=True, num_workers=args_dict["num_workers"])
-    val_loader = DataLoader(val_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=True, drop_last=True, num_workers=args_dict["num_workers"])
-
+    train_loader = DataLoader(train_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=False, drop_last=True, num_workers=args_dict["num_workers"], generator=torch.Generator("cuda"))
+    val_loader = DataLoader(val_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=False, drop_last=True, num_workers=args_dict["num_workers"], generator=torch.Generator("cuda"))
+    
     # Get masking probability tensor for training
     train_prob_tensor = get_mask_prob_tensor(args_dict["masking_method"], adata, args_dict["mask_prob"], args_dict["scale_factor"])
     # Get masking probability tensor for validating and testing with fixed method 'prob_median'

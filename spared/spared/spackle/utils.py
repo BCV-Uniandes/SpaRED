@@ -363,7 +363,7 @@ def mask_exp_matrix(adata: ad.AnnData, pred_layer: str, mask_prob_tensor: torch.
     # Mask chosen values.
     expression_mtx[random_mask] = 0
     # Save masked expression matrix in the data_split annData
-    adata.layers['masked_expression_matrix'] = np.asarray(expression_mtx)
+    adata.layers['masked_expression_matrix'] = np.asarray(expression_mtx.cpu())
     #Save final mask for metric computation
     adata.layers['random_mask'] = np.asarray(random_mask.cpu())
 

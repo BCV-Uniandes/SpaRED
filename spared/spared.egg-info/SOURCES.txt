@@ -107,6 +107,7 @@ spared/spared/models/models.py
 spared/spared/plotting/__init__.py
 spared/spared/plotting/plotting.py
 spared/spared/processed_data/vicari_data/vicari_mouse_brain/2024-08-11-18-40-39/parameters.json
+spared/spared/processed_data/villacampa_data/villacampa_lung_organoid/2024-11-06-12-20-41/parameters.json
 spared/spared/readers/AbaloReader.py
 spared/spared/readers/AnderssonReader.py
 spared/spared/readers/AspReader.py

@@ -1,0 +1,23 @@
+{
+    "dataset": "10xgenomic_mouse_brain_coronal",
+    "cell_min_counts": 10,
+    "cell_max_counts": 1000000,
+    "gene_min_counts": 10,
+    "gene_max_counts": 1000000,
+    "min_exp_frac": -1,
+    "min_glob_exp_frac": -1,
+    "real_data_percentage": 0.7,
+    "top_moran_genes": 128,
+    "wildcard_genes": "None",
+    "combat_key": "slide_id",
+    "random_samples": -1,
+    "plotting_slides": "None",
+    "plotting_genes": "None",
+    "patch_scale": 1.0,
+    "patch_size": 224,
+    "force_compute": false,
+    "prediction_layer": "c_d_log1p",
+    "n_hops": -1,
+    "organism": "mouse",
+    "hex_geometry": true
+}

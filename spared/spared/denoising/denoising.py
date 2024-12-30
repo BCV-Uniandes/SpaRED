@@ -19,7 +19,6 @@ sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
 from spot_features import spot_features
 from layer_operations import layer_operations
-from datasets import datasets
 from spackle.utils import *
 from spackle.model import GeneImputationModel
 from spackle.dataset import ImputationDataset
@@ -297,12 +296,12 @@ def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: 
     
     # Get datetime
     run_date = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-
     # Set manual seeds and get cuda
     seed_everything(42)
 
     # Check args_dict and fill missing values or create args dictionary in case user does not input it
     args_dict = get_args_dict(args_dict)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     
     if train:
         # Código para entrenar modelo (train_splackle()) y retornar ruta a mejores pesos del entrenamiento
@@ -369,7 +368,7 @@ def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: 
         data, 
         batch_size=args_dict['batch_size'], 
         shuffle=False, 
-        pin_memory=True, 
+        pin_memory=False, 
         drop_last=False, 
         num_workers=args_dict['num_workers'])
     
