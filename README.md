@@ -15,6 +15,7 @@ This is the  README file which will contain the long description of the PiPy lib
 
 - Preprint available at arXiv
 - Visit the project on our [website](https://bcv-uniandes.github.io/spared_webpage/)
+- Download [SpaRED datasets](https://drive.google.com/drive/folders/15W_rZlt5PhUlslM-u5_jw9etjkGRXb-N?usp=sharing)
 
 ### Abstract
 
