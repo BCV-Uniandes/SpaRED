@@ -2,7 +2,7 @@ import json
 import os
 
 # Specify the directory containing your JSON files
-directory_path = '/home/dvegaa/spared/spared/configs'
+directory_path = os.getcwd()
 
 # List all JSON files in the directory
 json_files = [f for f in os.listdir(directory_path) if f.endswith('.json')]

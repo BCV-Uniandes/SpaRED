@@ -242,7 +242,7 @@ class SpatialDataset():
         curr_dict.pop('force_compute', None)
         curr_dict.pop('visualize', None)
         curr_dict.pop('download_path', None)
-        
+
         # If processed data does not exist, then compute and save it 
         if (not os.path.exists(os.path.join(self.dataset_path, f'adata.h5ad'))) or self.force_compute:
             print('Computing main adata file from downloaded raw data...')

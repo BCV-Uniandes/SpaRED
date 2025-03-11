@@ -178,6 +178,7 @@ def train_spackle(adata, device, save_path, prediction_layer, lr, train, get_per
         log_every_n_steps=args_dict["val_check_interval"],
         check_val_every_n_epoch=None,
         devices=1,
+        accelerator='gpu',
         callbacks=[checkpoint_callback],
         enable_progress_bar=True,
         enable_model_summary=True,
@@ -188,7 +189,7 @@ def train_spackle(adata, device, save_path, prediction_layer, lr, train, get_per
         trainer.fit(
             model=model,
             train_dataloaders=train_loader,
-            val_dataloaders=val_loader
+            val_dataloaders=val_loader,
         )
         # Load the best model after training
         best_model_path = checkpoint_callback.best_model_path
