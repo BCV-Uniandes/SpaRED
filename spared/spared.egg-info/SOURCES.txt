@@ -41,6 +41,10 @@ spared/spared/configs/vicari_mouse_brain.json
 spared/spared/configs/villacampa_kidney_organoid.json
 spared/spared/configs/villacampa_lung_organoid.json
 spared/spared/configs/villacampa_mouse_brain.json
+spared/spared/data/Visium_data/10xgenomic_mouse_brain_sagittal_posterior/V1_Mouse_Brain_Sagittal_Posterior/V1_Mouse_Brain_Sagittal_Posterior_spatial.tar.gz
+spared/spared/data/Visium_data/10xgenomic_mouse_brain_sagittal_posterior/V1_Mouse_Brain_Sagittal_Posterior/spatial/scalefactors_json.json
+spared/spared/data/Visium_data/10xgenomic_mouse_brain_sagittal_posterior/V1_Mouse_Brain_Sagittal_Posterior_Section_2/V1_Mouse_Brain_Sagittal_Posterior_Section_2_spatial.tar.gz
+spared/spared/data/Visium_data/10xgenomic_mouse_brain_sagittal_posterior/V1_Mouse_Brain_Sagittal_Posterior_Section_2/spatial/scalefactors_json.json
 spared/spared/data/annotations/gencode.v43.basic.annotation.gtf.gz
 spared/spared/data/annotations/gencode.vM33.basic.annotation.gtf.gz
 spared/spared/data/annotations/gene_length.txt
@@ -49,38 +53,97 @@ spared/spared/data/annotations/mapping_HUGO_2_Ensemble.txt
 spared/spared/data/annotations/mart_export.txt
 spared/spared/data/annotations/old_gencode.v43.basic.annotation.gtf.gz
 spared/spared/data/annotations/old_gencode.vM33.basic.annotation.gtf.gz
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_A1/spatial/scalefactors_json (1).json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Remaining_Visium_without_spot_annotation/H1_1/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Remaining_Visium_without_spot_annotation/V1_1/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Visium_with_annotation/H1_2/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Visium_with_annotation/H1_4/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Visium_with_annotation/H1_5/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Visium_with_annotation/H2_1/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Visium_with_annotation/H2_2/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Visium_with_annotation/H2_5/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 1/Visium_with_annotation/V1_2/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 2/H3_4/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 2/V1_5/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 2/V1_6/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 2/V2_1/scalefactors_json.json
+spared/spared/data/erickson_data/Count_matrices/Patient 2/V2_2/scalefactors_json.json
+spared/spared/data/erickson_data/Synthethic_data/spatial_data/cell_by_spot.txt
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_H2-1/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_H2-2/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_H3-1/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_H3-2/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_H3-5/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_H3-6/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_V1-1/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_V1-2/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_V1-3/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/erickson_human_prostate_cancer_p2/P2_V1-4/spatial/scalefactors_json.json
+spared/spared/data/erickson_data/inferCNV_pediatric_patient_1/gencode.v25.annotation_gen_pos_v3.txt
+spared/spared/data/erickson_data/inferCNV_pediatric_patient_1/scalefactors_json_patient_1.json
+spared/spared/data/erickson_data/inferCNV_pediatric_patient_1/scalefactors_json_patient_2.json
+spared/spared/data/erickson_data/inferCNV_pediatric_patient_1/scalefactors_json_patient_3.json
+spared/spared/data/parigi_data/A1_S1/GSM5213483_V19S23-097_A1_S1_scalefactors_json.json
+spared/spared/data/parigi_data/B1_S2/GSM5213484_V19S23-097_B1_S2_scalefactors_json.json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_A1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_B1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_B1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_C1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_C1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_D1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-038_D1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_A1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_A1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_B1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_B1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_C1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_C1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_D1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11L12-109_D1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_A1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_A1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_B1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_B1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_C1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_C1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_D1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11T16-085_D1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11T17-101_A1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11T17-101_A1/spatial/scalefactors_json.json
-spared/spared/data/vicari_data/vicari_mouse_brain/V11T17-101_B1/spatial/scalefactors_json (1).json
 spared/spared/data/vicari_data/vicari_mouse_brain/V11T17-101_B1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_A1/V19T26-103-A1.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_A1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_B1/V19T26-103-B1.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_B1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_C1/V19T26-103-C1.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_C1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_D1/V19T26-103-D1.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/HGSC/V19T26-103_D1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_A1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_A1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_B1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_B1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_C1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_C1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_D1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/archivalcancer/V10F24-111_D1/spatial/scalefactors_json.json
 spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/kidneyorganoid/organoid_selection.txt
 spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/kidneyorganoid/V19D02-085_B1/spatial/scalefactors_json.json
 spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/kidneyorganoid/V19D02-085_C1/spatial/scalefactors_json.json
 spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/kidneyorganoid/V19D02-085_D1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lung_SARS-CoV-2/V10F24-110_C1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lung_SARS-CoV-2/V10F24-110_C1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lung_SARS-CoV-2/V10F24-110_D1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lung_SARS-CoV-2/V10F24-110_D1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lungcellmarkers/README.md
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lungorganoid/organoid_selection.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lungorganoid/V19D02-088_A1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lungorganoid/V19D02-088_B1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lungorganoid/V19D02-088_C1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/lungorganoid/V19D02-088_D1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/FF1_public_data/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/FF2_public_data_S1_Sagittal_anterior/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/FF3_public_data_S1_Sagittal_posterior/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/FF4_public_data_S2_Sagittal_anterior/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/FF5_public_data_S2_Sagittal_posterior/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/FF6/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/FF7/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-078_A1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-078_B1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-078_C1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-078_D1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-110_A1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-110_A1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-110_B1/cutadapt_log.txt
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V10F24-110_B1/spatial/scalefactors_json.json
+spared/spared/data/villacampa_data/villacampa_kidney_organoid/data/mousebrain/V19T26-039_A1/spatial/scalefactors_json.json
 spared/spared/data/villacampa_data/villacampa_lung_organoid/data/lungorganoid/organoid_selection.txt
 spared/spared/data/villacampa_data/villacampa_lung_organoid/data/lungorganoid/V19D02-088_A1/spatial/scalefactors_json.json
 spared/spared/data/villacampa_data/villacampa_lung_organoid/data/lungorganoid/V19D02-088_B1/spatial/scalefactors_json.json
@@ -106,8 +169,10 @@ spared/spared/models/__init__.py
 spared/spared/models/models.py
 spared/spared/plotting/__init__.py
 spared/spared/plotting/plotting.py
-spared/spared/processed_data/vicari_data/vicari_mouse_brain/2024-08-11-18-40-39/parameters.json
-spared/spared/processed_data/villacampa_data/villacampa_lung_organoid/2024-11-06-12-20-41/parameters.json
+spared/spared/processed_data/erickson_data/erickson_human_prostate_cancer_p2/2025-03-11-16-37-49/parameters.json
+spared/spared/processed_data/parigi_data/2025-03-11-16-23-37/parameters.json
+spared/spared/processed_data/vicari_data/vicari_mouse_brain/2025-03-11-18-17-57/parameters.json
+spared/spared/processed_data/villacampa_data/villacampa_lung_organoid/2025-03-11-16-00-10/parameters.json
 spared/spared/readers/AbaloReader.py
 spared/spared/readers/AnderssonReader.py
 spared/spared/readers/AspReader.py
@@ -142,6 +207,24 @@ spared/spared/tests/test_metrics.py
 spared/spared/tests/test_models.py
 spared/spared/tests/test_plotting.py
 spared/spared/tests/test_spot_features.py
+spared/spared/tests/imput_results/10xgenomic_mouse_brain_sagittal_posterior/2025-03-04-12-28-42/script_params.json
+spared/spared/tests/imput_results/10xgenomic_mouse_brain_sagittal_posterior/2025-03-04-12-28-42/testing_results.txt
+spared/spared/tests/imput_results/erickson_human_prostate_cancer_p2/2025-03-11-16-41-38/script_params.json
+spared/spared/tests/imput_results/erickson_human_prostate_cancer_p2/2025-03-11-16-41-38/testing_results.txt
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-21-01/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-26-37/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-33-56/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-38-13/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-41-53/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-44-58/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-49-29/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-13-55-48/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-14-07-35/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-14-20-13/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-15-41-57/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-15-48-11/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-16-26-30/script_params.json
+spared/spared/tests/imput_results/parigi_mouse_intestine/2025-03-11-16-26-30/testing_results.txt
 spared/spared/tests/imput_results/vicari_mouse_brain/2024-08-14-10-41-01/script_params.json
 spared/spared/tests/imput_results/vicari_mouse_brain/2024-08-14-11-04-44/script_params.json
 spared/spared/tests/imput_results/vicari_mouse_brain/2024-08-14-11-04-44/testing_results.txt
@@ -149,12 +232,27 @@ spared/spared/tests/imput_results/vicari_mouse_brain/2024-08-14-11-31-31/script_
 spared/spared/tests/imput_results/vicari_mouse_brain/2024-08-14-11-31-31/testing_results.txt
 spared/spared/tests/imput_results/vicari_mouse_brain/2024-08-21-13-34-37/script_params.json
 spared/spared/tests/imput_results/vicari_mouse_brain/2024-08-21-13-34-37/testing_results.txt
+spared/spared/tests/imput_results/vicari_mouse_brain/2025-03-11-18-30-39/script_params.json
+spared/spared/tests/imput_results/vicari_mouse_brain/2025-03-11-18-30-39/testing_results.txt
 spared/spared/tests/imput_results/villacampa_lung_organoid/2024-07-31-17-58-59/script_params.json
 spared/spared/tests/imput_results/villacampa_lung_organoid/2024-07-31-17-58-59/testing_results.txt
 spared/spared/tests/imput_results/villacampa_lung_organoid/2024-07-31-18-00-06/script_params.json
 spared/spared/tests/imput_results/villacampa_lung_organoid/2024-07-31-18-00-06/testing_results.txt
 spared/spared/tests/imput_results/villacampa_lung_organoid/2024-07-31-19-27-49/script_params.json
+spared/spared/tests/imput_results/villacampa_lung_organoid/2025-03-04-12-19-35/script_params.json
+spared/spared/tests/imput_results/villacampa_lung_organoid/2025-03-04-12-19-35/testing_results.txt
+spared/spared/tests/imput_results/villacampa_lung_organoid/2025-03-11-16-02-24/script_params.json
+spared/spared/tests/imput_results/villacampa_lung_organoid/2025-03-11-16-02-24/testing_results.txt
+spared/spared/tests/imput_results/villacampa_lung_organoid/2025-03-11-16-07-42/script_params.json
+spared/spared/tests/imput_results/villacampa_lung_organoid/2025-03-11-16-10-32/script_params.json
+spared/spared/tests/imput_results/villacampa_lung_organoid/2025-03-11-16-10-32/testing_results.txt
+spared/spared/tests/processed_data/Visium_data/10xgenomic_mouse_brain_sagittal_posterior/2025-03-04-12-25-44/parameters.json
+spared/spared/tests/processed_data/erickson_data/erickson_human_prostate_cancer_p2/2025-03-11-16-37-49/parameters.json
+spared/spared/tests/processed_data/parigi_data/2025-03-11-16-23-37/parameters.json
 spared/spared/tests/processed_data/vicari_data/vicari_mouse_brain/2024-08-11-18-40-39/parameters.json
+spared/spared/tests/processed_data/vicari_data/vicari_mouse_brain/2025-03-11-18-17-57/parameters.json
+spared/spared/tests/processed_data/villacampa_data/villacampa_lung_organoid/2025-03-04-12-17-19/parameters.json
+spared/spared/tests/processed_data/villacampa_data/villacampa_lung_organoid/2025-03-11-16-00-10/parameters.json
 spared/tutorials/imput_results/vicari_mouse_brain/2024-08-11-19-44-40/script_params.json
 spared/tutorials/imput_results/vicari_mouse_brain/2024-08-11-20-18-49/script_params.json
 spared/tutorials/imput_results/vicari_mouse_brain/2024-08-11-20-18-49/testing_results.txt

@@ -18,19 +18,23 @@ import pathlib
 import sys
 
 #El path a spared es ahora diferente
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+#SPARED_PATH = pathlib.Path(__file__).resolve().parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent.parent
 
 #Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 
 #TODO: AJUSTAR UNA VEZ ESTEN CREADOS LOS NUEVOS ARCHIVOS
 # Import visualization and processing function
-from filtering import filtering
-from layer_operations import layer_operations
-from dataloaders import dataloaders
-from plotting import plotting
+from spared.filtering import filtering
+from spared.layer_operations import layer_operations
+from spared.dataloaders import dataloaders
+from spared.plotting import plotting
 
+SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
 
+#Agregar el directorio padre al sys.path para los imports
+sys.path.append(str(SPARED_PATH))
 # Import all reader classes
 from readers.AbaloReader import AbaloReader
 from readers.BatiukReader import BatiukReader

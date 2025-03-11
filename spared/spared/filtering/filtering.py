@@ -7,11 +7,11 @@ import scanpy as sc
 import sys
 
 # El path a spared es ahora diferente
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from gene_features import gene_features
+from spared.gene_features import gene_features
 # Remove the path from sys.path
 
 def filter_by_moran(adata: ad.AnnData, n_keep: int, from_layer: str) -> ad.AnnData:

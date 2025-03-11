@@ -11,12 +11,12 @@ import pathlib
 import sys
 
 # El path a spared es ahora diferente
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent
 
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from datasets import datasets
+from spared.datasets import datasets
 # Remove the path from sys.path
 
 ## Set of auxiliary functions for model test and comparison
@@ -79,15 +79,17 @@ def get_complete_imputation_results(model, trainer, best_model_path, args, prob_
         test_split = mask_exp_matrix(adata = test_split, pred_layer = prediction_layer, mask_prob_tensor = prob_tensor, device = device)
         
     ## Prepare DataLoaders for testing on trained model
+    device = next(model.parameters()).device
+
     train_data = ImputationDataset(train_split, args, 'train', prediction_layer, pre_masked = True)
-    train_loader = DataLoader(train_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator("cuda"))
+    train_loader = DataLoader(train_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator(device=device))
 
     val_data = ImputationDataset(val_split, args, 'val', prediction_layer, pre_masked = True)
-    val_loader = DataLoader(val_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator("cuda"))
+    val_loader = DataLoader(val_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator(device=device))
     test_loader = None
     if test_split is not None:
         test_data = ImputationDataset(test_split, args, 'test', prediction_layer, pre_masked = True)
-        test_loader = DataLoader(test_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator("cuda"))
+        test_loader = DataLoader(test_data, batch_size=args["batch_size"], shuffle=False, pin_memory=False, drop_last=True, num_workers=args["num_workers"], generator=torch.Generator(device=device))
 
     ## Results for trained model
     trained_model_results = get_imputation_results_from_trained_model(
@@ -135,9 +137,6 @@ def train_spackle(adata, device, save_path, prediction_layer, lr, train, get_per
     # Prepare data and create dataloaders
     train_data = ImputationDataset(train_split, args_dict, 'train', prediction_layer)
     val_data = ImputationDataset(val_split, args_dict, 'val', prediction_layer)
-
-    train_loader = DataLoader(train_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=False, drop_last=True, num_workers=args_dict["num_workers"], generator=torch.Generator("cuda"))
-    val_loader = DataLoader(val_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=False, drop_last=True, num_workers=args_dict["num_workers"], generator=torch.Generator("cuda"))
     
     # Get masking probability tensor for training
     train_prob_tensor = get_mask_prob_tensor(args_dict["masking_method"], adata, args_dict["mask_prob"], args_dict["scale_factor"])
@@ -157,6 +156,10 @@ def train_spackle(adata, device, save_path, prediction_layer, lr, train, get_per
         
     print(model.model)
 
+    # Define loaders    
+    train_loader = DataLoader(train_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=False, drop_last=True, num_workers=args_dict["num_workers"], generator=torch.Generator(device="cpu"))
+    val_loader = DataLoader(val_data, batch_size=args_dict["batch_size"], shuffle=args_dict["shuffle"], pin_memory=False, drop_last=True, num_workers=args_dict["num_workers"], generator=torch.Generator(device="cpu"))
+    
     # Define dict to know whether to maximize or minimize each metric
     max_min_dict = {'PCC-Gene': 'max', 'PCC-Patch': 'max', 'MSE': 'min', 'MAE': 'min', 'R2-Gene': 'max', 'R2-Patch': 'max', 'Global': 'max'}
 

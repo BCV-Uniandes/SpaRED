@@ -12,7 +12,7 @@ SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from metrics.metrics import get_metrics
+from spared.metrics import get_metrics
 # Remove the path from sys.path
 
 
