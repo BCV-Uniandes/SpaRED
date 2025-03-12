@@ -83,7 +83,10 @@ class SpatialDataset():
             'combat_key':           'slide_id',
             'random_samples':       -1,        
             'plotting_slides':      'None',      
-            'plotting_genes':       'None',       
+            'plotting_genes':       'None', 
+            'organism':             'mouse',   
+            'organism':              True,   
+
                             }, 
         patch_scale: float = 1.0,
         patch_size: int = 224,
@@ -235,6 +238,7 @@ class SpatialDataset():
         Returns:
             ad.AnnData: The processed AnnData object ready to be used for training.
         """
+
         curr_dict = self.__dict__.copy()
         
         # Delete some keys from dictionary in order to just leave the class parameters
