@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 build/
 dist/
+spared/spared/processed_data_ldist/
