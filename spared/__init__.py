@@ -1,5 +1,5 @@
 from .spared import dataloaders
-from .spared import spared_datasets
+from .spared import datasets
 from .spared import denoising
 from .spared import filtering
 from .spared import gene_features

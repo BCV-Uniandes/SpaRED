@@ -18,7 +18,7 @@ SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
 # Add spared path for imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from metrics.metrics import get_metrics
+#from spared.metrics import metrics
 # Remove the path from sys.path
 
 def seed_everything(seed: int):

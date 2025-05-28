@@ -298,10 +298,6 @@ class VicariReader():
         curr_dict.pop('force_compute', None)
         curr_dict.pop('plotting_genes', None)
         curr_dict.pop('plotting_slides', None)
-        if 'organism' in curr_dict['param_dict']:
-            curr_dict['param_dict'].pop('organism', None)
-        if 'hex_geometry' in curr_dict['param_dict']:
-            curr_dict['param_dict'].pop('hex_geometry', None)
 
         # Define parent folder of all saved datasets
         parent_folder = self.download_path.replace('data', 'processed_data', 1)

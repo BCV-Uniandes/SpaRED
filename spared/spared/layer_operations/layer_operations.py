@@ -15,15 +15,15 @@ from sklearn.preprocessing import StandardScaler
 import sys
 
 # Path a spared 
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from denoising import denoising
-from gene_features import gene_features
-from filtering import filtering
-from layer_operations import layer_operations
-# Remove the path from sys.path
+from spared.denoising import denoising
+from spared.gene_features import gene_features
+from spared.filtering import filtering
+from spared.layer_operations import layer_operations
+#Remove the path from sys.path
 
 ### Expression data processing functions:
 def tpm_normalization(adata: ad.AnnData, organism: str, from_layer: str, to_layer: str) -> ad.AnnData:
@@ -45,6 +45,8 @@ def tpm_normalization(adata: ad.AnnData, organism: str, from_layer: str, to_laye
     """
     
     # Get the number of genes before filtering
+    SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+    print(SPARED_PATH)
     initial_genes = adata.shape[1]
 
     # Automatically download the human gtf annotation file if it is not already downloaded

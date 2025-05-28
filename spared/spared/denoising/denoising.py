@@ -12,19 +12,17 @@ from lightning.pytorch import seed_everything
 from torch.utils.data import DataLoader
 import warnings
 # Get the path of the spared database
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent
 
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from spot_features import spot_features
-from spackle.utils import *
-from spackle.model import GeneImputationModel
-from spackle.dataset import ImputationDataset
-from spackle.main import train_spackle
+from spared.spot_features import spot_features
+from spared.spackle.utils import *
+from spared.spackle.model import GeneImputationModel
+from spared.spackle.dataset import ImputationDataset
+from spared.spackle.main import train_spackle
 # Remove the path from sys.path
-
-
 
 #clean noise with medians
 # TODO: Think in making this function also add the binary mask layer
@@ -362,15 +360,19 @@ def spackle_cleaner(adata: ad.AnnData, dataset: str, from_layer: str, to_layer: 
     print(f"Finished loading model with weights from {load_ckpt_path}")
 
     # Prepare data and dataloader
+    device = next(model.parameters()).device
     data = ImputationDataset(adata, args_dict, 'complete', from_layer)
+    
     dataloader = DataLoader(
         data, 
         batch_size=args_dict['batch_size'], 
         shuffle=False, 
         pin_memory=False, 
         drop_last=False, 
-        num_workers=args_dict['num_workers'])
+        num_workers=args_dict['num_workers'],
+        generator=torch.Generator(device="cpu"))
     
+
     # Get gene imputations for missing values of randomly masked elements trhoughout the entire dataset
     all_exps = []
     all_masks = []

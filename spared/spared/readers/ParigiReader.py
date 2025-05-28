@@ -122,8 +122,9 @@ class ParigiReader():
             str: Path to the data directory.
         """
         # Use wget to download the data
-        data_path = os.path.join(SPARED_PATH, 'processed_data', 'parigi_data')
-        if not os.path.exists(data_path) or self.force_compute:
+        data_path = os.path.join(SPARED_PATH, 'data', 'parigi_data')
+        if not os.path.exists(os.path.join(SPARED_PATH, 'processed_data', 'parigi_data'))or self.force_compute:
+            
             os.makedirs(data_path, exist_ok=True)
             tar_path = os.path.join(SPARED_PATH, 'data', 'parigi_data','GSE169749_RAW.tar')
             wget.download('https://www.ncbi.nlm.nih.gov/geo/download/?acc=GSE169749&format=file', out=tar_path)                      
@@ -181,10 +182,6 @@ class ParigiReader():
         curr_dict.pop('force_compute', None)
         curr_dict.pop('plotting_genes', None)
         curr_dict.pop('plotting_slides', None)
-        if 'organism' in curr_dict['param_dict']:
-            curr_dict['param_dict'].pop('organism', None)
-        if 'hex_geometry' in curr_dict['param_dict']:
-            curr_dict['param_dict'].pop('hex_geometry', None)
 
         # Define parent folder of all saved datasets
         parent_folder = self.download_path.replace('data', 'processed_data', 1)

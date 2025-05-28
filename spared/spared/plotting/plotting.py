@@ -20,15 +20,15 @@ import pathlib
 import sys
 
 #Path a spared
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent
 
 #Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 #import requiere files
-from gene_features import gene_features
-from filtering import filtering
-from spot_features import spot_features
-from metrics import metrics
+from spared.gene_features import gene_features
+from spared.filtering import filtering
+from spared.spot_features import spot_features
+from spared.metrics import metrics
 
 def plot_all_slides(dataset: str, processed_adata: ad.AnnData, path: str) -> None:
     """ Plot all the whole slide images

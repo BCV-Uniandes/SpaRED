@@ -14,14 +14,14 @@ import sys
 from typing import Tuple
 
 # Path a spared
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent
 
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from layer_operations import layer_operations
-from spot_features import spot_features
-from graph_operations import graph_operations
+from spared.layer_operations import layer_operations
+from spared.spot_features import spot_features
+from spared.graph_operations import graph_operations
 # Remove the path from sys.path
 
 

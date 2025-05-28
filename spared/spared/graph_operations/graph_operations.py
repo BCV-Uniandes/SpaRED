@@ -12,12 +12,12 @@ import sys
 from typing import Tuple
 
 # Path a spared 
-SPARED_PATH = pathlib.Path(__file__).resolve().parent.parent
+SPARED_PATH = pathlib.Path(__file__).resolve().parent
 
 # Agregar el directorio padre al sys.path para los imports
 sys.path.append(str(SPARED_PATH))
 # Import im_encoder.py file
-from filtering import filtering
+from spared.filtering import filtering
 # Remove the path from sys.path
 
 ### Graph building functions:
